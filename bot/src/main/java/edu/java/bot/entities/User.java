@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter public class User {
     private String firstName;
     private String lastName;
-    private int telegramId;
+    private Long telegramId;
     private boolean isBot;
 }

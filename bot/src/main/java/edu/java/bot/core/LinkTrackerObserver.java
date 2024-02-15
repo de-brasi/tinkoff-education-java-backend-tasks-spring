@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
+import edu.java.bot.TelegramBotWrapper;
 import edu.java.bot.core.commands.TelegramBotCommand;
 import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
 import edu.java.bot.entities.CommandCallContext;
@@ -36,12 +37,12 @@ import java.util.List;
 //  обрабатывать цепочку (как?) - создавать контекст команды
 
 public class LinkTrackerObserver implements UpdatesListener {
-    private final TelegramBot bot;
+    private final TelegramBotWrapper bot;
 
     @Nullable private TelegramBotCommand handlersChainHead;
     @Nullable private TelegramBotCommand handlersChainTail;
 
-    public LinkTrackerObserver(TelegramBot bot) {
+    public LinkTrackerObserver(TelegramBotWrapper bot) {
         this.bot = bot;
     }
 

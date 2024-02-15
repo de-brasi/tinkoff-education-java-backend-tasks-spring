@@ -9,6 +9,5 @@ import java.util.List;
 @Getter public class CommandCallContext {
     private User user;
     private Long chatId;
-    private String command;
-    private List<String> commandArgs;
+    private Command command;
 }

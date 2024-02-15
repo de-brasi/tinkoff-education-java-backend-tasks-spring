@@ -7,13 +7,33 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
+import edu.java.bot.core.commands.TelegramBotCommand;
 import java.util.List;
 
 public class LinkTrackerObserver implements UpdatesListener {
     private final TelegramBot bot;
 
+    private TelegramBotCommand handlersChainHead;
+
     public LinkTrackerObserver(TelegramBot bot) {
         this.bot = bot;
+    }
+
+    public void configureCommandsChain(
+        TelegramBotCommand terminationCommand,
+        TelegramBotCommand... commandsChain
+    ) {
+        // TODO: Собрать тут цепочку ответственности, в самом конце выставить команду-терминатор.
+        //  Задокументировать, что данные по цепочке ответственности,
+        //  если не могут быть выполнены текущим обработчиком,
+        //  всегда переходят к следующему элементу
+        //  (то есть доходят до терминального обработчика, который уже выполняется);
+        //  Так же надо указать, что обязательно должна быть команда-терминатор.
+        //  Обычных команд может не быть, но терминатор быть должен.
+
+        // регистрация команд
+
+        // создание цепочки
     }
 
     @Override

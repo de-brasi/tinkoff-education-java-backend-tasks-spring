@@ -8,7 +8,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter public class CommandCallContext {
     @NotNull private User user;
-    private int chatId;
+    private Long chatId;
     @NotNull private String command;
     private List<String> commandArgs;
 }

@@ -1,6 +1,6 @@
 package edu.java.bot.core.commands;
 
-import com.pengrad.telegrambot.TelegramBot;
+import edu.java.bot.TelegramBotWrapper;
 import edu.java.bot.entities.CommandCallContext;
 import lombok.Getter;
 import java.util.Objects;
@@ -42,7 +42,7 @@ public class TelegramBotCommand {
         this.nextCommand = nextCommand;
     }
 
-    public void handle(TelegramBot handlerTelegramBot, CommandCallContext context) {
+    public void handle(TelegramBotWrapper handlerTelegramBot, CommandCallContext context) {
         // TODO:
         //  проверять правильность аргументов (по валидаторам),
         //  проверять число аргументов

@@ -86,19 +86,6 @@ public class LinkTrackerObserver implements UpdatesListener {
             CommandCallContext callContext =
                 FromPengradTelegramBotModelsToEntitiesMapper.updateToCommandCallContext(update);
             this.handlersChainHead.handle(bot, callContext);
-
-            // todo: log got message to user
-            {
-                String messageReceived = update.message().text();
-
-                // send message
-                SendMessage request = new SendMessage(chatId, "handled message, with text " + messageReceived);
-                SendResponse sendResponse = bot.execute(request);
-
-                Message message = sendResponse.message();
-                System.out.println("message: " + message.text());
-                System.out.println("response: " + sendResponse);
-            }
         }
 
         return UpdatesListener.CONFIRMED_UPDATES_ALL;

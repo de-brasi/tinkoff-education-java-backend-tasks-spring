@@ -3,15 +3,6 @@ package edu.java.bot.core.commands;
 public class ReadyForUseCommands {
     private ReadyForUseCommands() {}
 
-    public static TelegramBotCommand start() {
-        return new TelegramBotCommand()
-            .withCommandName("a")
-            .withCommandTextDescription("use command a")
-            .withCallAction((usedBot, context) -> {
-                usedBot.sendPlainTextMessage(context.getChatId(), "command 'a' was called");
-            });
-    }
-
     public static TelegramBotCommand help() {
         return new TelegramBotCommand()
             .withCommandName("help")

@@ -11,9 +11,8 @@ import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import edu.java.bot.core.commands.TelegramBotCommand;
-import edu.java.bot.entities.Command;
+import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
 import edu.java.bot.entities.CommandCallContext;
-import edu.java.bot.entities.User;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,7 +83,8 @@ public class LinkTrackerObserver implements UpdatesListener {
                 );
             }
 
-            CommandCallContext callContext = makeCallContext(update);
+            CommandCallContext callContext =
+                FromPengradTelegramBotModelsToEntitiesMapper.updateToCommandCallContext(update);
             this.handlersChainHead.handle(bot, callContext);
 
             // todo: log got message to user
@@ -139,33 +139,5 @@ public class LinkTrackerObserver implements UpdatesListener {
 
     private boolean checkUpdateContainsNewMessage(Update update) {
         return (update != null) && (update.message() != null);
-    }
-
-    private CommandCallContext makeCallContext(Update updateObj) {
-        User sender = new User(
-            updateObj.message().from().firstName(),
-            updateObj.message().from().lastName(),
-            updateObj.message().from().id(),
-            updateObj.message().from().isBot()
-        );
-
-        Chat curChat = updateObj.message().chat();
-        Long chatId = curChat.id();
-
-        String failureCommandLabel = "";
-        String commandName = failureCommandLabel;
-        String[] separatedMessageContent = updateObj.message().text().split(" ");
-
-        // if command like "/command" exists and command's body not empty
-        if (separatedMessageContent.length > 0 && separatedMessageContent[0].length() > 1) {
-            String firstWordInMessage = separatedMessageContent[0];
-            commandName = firstWordInMessage.startsWith("/")
-                ? firstWordInMessage.substring(1)
-                : failureCommandLabel;
-        }
-        List<String> arguments = Arrays.stream(separatedMessageContent).skip(1).toList();
-
-        Command command = new Command(commandName, arguments);
-        return new CommandCallContext(sender, chatId, command);
     }
 }

@@ -1,16 +1,21 @@
 package edu.java.bot.core.commands;
 
+import com.pengrad.telegrambot.TelegramBot;
+import edu.java.bot.entities.CommandCallContext;
 import lombok.Getter;
 import java.util.Objects;
 
-@Getter public class TelegramBotCommand {
-    private String commandName;
+public class TelegramBotCommand {
+    @Getter private String commandName;
 
-    private String commandDescription;
+    @Getter private String commandDescription;
 
-    private TelegramBotCommandCallAction callAction;
+    @Getter private TelegramBotCommandCallAction callAction;
 
-    // TODO: ссылку на следующую команду (TelegramBotCommand) в цепочке
+    private TelegramBotCommand nextCommand;
+
+    // TODO: написать предупреждение об избегании циклов в цепочке команд,
+    //  но по-хорошему эту цепочку формирует мой же код (а не настройка бота)
 
     public TelegramBotCommand() {}
 
@@ -27,6 +32,18 @@ import java.util.Objects;
     public TelegramBotCommand withCallAction(TelegramBotCommandCallAction callAction) {
         this.callAction = callAction;
         return this;
+    }
+
+    public void setNextCommand(TelegramBotCommand nextCommand) {
+        this.nextCommand = nextCommand;
+    }
+
+    public void handle(TelegramBot handlerTelegramBot, CommandCallContext context) {
+        // todo: если аргумент соответствует критериям для этого обработчика, то вызвать callAction(bot);
+        //  если не такая команда или недостаточно аргументов, или аргументы неправильные,
+        //  то вызвать следующий обработчик
+
+        callAction.call(handlerTelegramBot);
     }
 
     @Override

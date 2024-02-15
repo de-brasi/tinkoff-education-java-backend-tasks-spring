@@ -11,6 +11,7 @@ import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import edu.java.bot.core.commands.TelegramBotCommand;
+import edu.java.bot.entities.Command;
 import edu.java.bot.entities.CommandCallContext;
 import edu.java.bot.entities.User;
 import org.jetbrains.annotations.Nullable;
@@ -152,18 +153,19 @@ public class LinkTrackerObserver implements UpdatesListener {
         Long chatId = curChat.id();
 
         String failureCommandLabel = "";
-        String command = failureCommandLabel;
+        String commandName = failureCommandLabel;
         String[] separatedMessageContent = updateObj.message().text().split(" ");
 
         // if command like "/command" exists and command's body not empty
         if (separatedMessageContent.length > 0 && separatedMessageContent[0].length() > 1) {
             String firstWordInMessage = separatedMessageContent[0];
-            command = firstWordInMessage.startsWith("/")
+            commandName = firstWordInMessage.startsWith("/")
                 ? firstWordInMessage.substring(1)
                 : failureCommandLabel;
         }
-
         List<String> arguments = Arrays.stream(separatedMessageContent).skip(1).toList();
-        return new CommandCallContext(sender, chatId, command, arguments);
+
+        Command command = new Command(commandName, arguments);
+        return new CommandCallContext(sender, chatId, command);
     }
 }

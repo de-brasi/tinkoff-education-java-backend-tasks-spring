@@ -5,6 +5,13 @@ import edu.java.bot.entities.CommandCallContext;
 import lombok.Getter;
 import java.util.Objects;
 
+// TODO: добавить текстовое описание что делает класс.
+//  Важно указать, что имеется поддержка только команд формата "/command args..",
+//  то есть команда и некоторое число аргументов.
+//  Поддержки "диалога" с различными ветками в зависимости от ответа пользователя нет -
+//  бот (возможно) будет опрашивать пользователя на предмет получения аргументов,
+//  пока не получит аргументы, удовлетворяющие условию (СОЗДАТЬ ВАЛИДАТОР АРГУМЕНТОВ).
+//  Лишние для введенной команды аргументы отбрасываются.
 public class TelegramBotCommand {
     @Getter private String commandName;
 
@@ -13,9 +20,6 @@ public class TelegramBotCommand {
     @Getter private TelegramBotCommandCallAction callAction;
 
     private TelegramBotCommand nextCommand;
-
-    // TODO: написать предупреждение об избегании циклов в цепочке команд,
-    //  но по-хорошему эту цепочку формирует мой же код (а не настройка бота)
 
     public TelegramBotCommand() {}
 

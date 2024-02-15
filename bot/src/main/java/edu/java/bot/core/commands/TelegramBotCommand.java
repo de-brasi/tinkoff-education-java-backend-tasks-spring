@@ -45,7 +45,9 @@ public class TelegramBotCommand {
     public void handle(TelegramBotWrapper handlerTelegramBot, CommandCallContext context) {
         // TODO:
         //  проверять правильность аргументов (по валидаторам),
-        //  проверять число аргументов
+        //  проверять число аргументов (по числу валидаторов),
+        //  учесть случай когда аргументов неизвестное число
+        //  (например пользователь кидает неограниченное число ссылок для отслеживиания)
 
         if (context == null) {
             throw new RuntimeException("Unexpected to handling empty context!");

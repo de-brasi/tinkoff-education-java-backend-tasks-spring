@@ -4,12 +4,10 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Chat;
-import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
-import com.pengrad.telegrambot.response.SendResponse;
 import edu.java.bot.core.commands.TelegramBotCommand;
 import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
 import edu.java.bot.entities.CommandCallContext;
@@ -66,7 +64,6 @@ public class LinkTrackerObserver implements UpdatesListener {
             // todo: better logging
             System.out.println("New update: " + update);
 
-            // TODO: разобраться с контентом update - что там может быть
             if (!checkUpdateContainsNewMessage(update)) {
                 continue;
             }
@@ -74,8 +71,7 @@ public class LinkTrackerObserver implements UpdatesListener {
             Chat curChat = update.message().chat();
             Object chatId = curChat.id();
 
-            // todo: вынести в отдельную функцию проверки
-            if (this.handlersChainHead == null) {
+            if (!verifyHandlersChain()) {
                 SendMessage request = new SendMessage(chatId, "Sorry! This bot is not available now :(");
                 bot.execute(request);
                 throw new RuntimeException(
@@ -126,5 +122,9 @@ public class LinkTrackerObserver implements UpdatesListener {
 
     private boolean checkUpdateContainsNewMessage(Update update) {
         return (update != null) && (update.message() != null);
+    }
+
+    private boolean verifyHandlersChain() {
+        return this.handlersChainHead != null;
     }
 }

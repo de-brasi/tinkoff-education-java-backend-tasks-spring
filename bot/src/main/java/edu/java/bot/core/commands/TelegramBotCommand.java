@@ -53,7 +53,7 @@ public class TelegramBotCommand {
 
         if (checkThisHandlerIsTerminator()) {
             callAction.call(handlerTelegramBot, context);
-        } else if (context.getCommand().equals(this.commandName)) {
+        } else if (context.getCommand().name().equals(this.commandName)) {
             callAction.call(handlerTelegramBot, context);
         } else {
             nextCommand.handle(handlerTelegramBot, context);

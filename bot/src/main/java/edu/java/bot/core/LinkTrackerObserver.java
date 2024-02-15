@@ -1,11 +1,9 @@
 package edu.java.bot.core;
 
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
 import edu.java.bot.TelegramBotWrapper;
@@ -46,7 +44,7 @@ public class LinkTrackerObserver implements UpdatesListener {
         this.bot = bot;
     }
 
-    public void configureCommands(
+    public void setCommands(
         TelegramBotCommand terminationCommand,
         TelegramBotCommand... commandsChain
     ) {

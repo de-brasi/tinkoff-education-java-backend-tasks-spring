@@ -9,10 +9,10 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import java.util.List;
 
-public class LinkTracker implements UpdatesListener {
+public class LinkTrackerObserver implements UpdatesListener {
     private final TelegramBot bot;
 
-    public LinkTracker(TelegramBot bot) {
+    public LinkTrackerObserver(TelegramBot bot) {
         this.bot = bot;
     }
 

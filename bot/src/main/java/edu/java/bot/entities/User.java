@@ -8,4 +8,5 @@ import lombok.Getter;
     private String firstName;
     private String lastName;
     private int telegramId;
+    private boolean isBot;
 }

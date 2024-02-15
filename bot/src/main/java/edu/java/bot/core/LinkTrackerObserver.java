@@ -73,8 +73,7 @@ public class LinkTrackerObserver implements UpdatesListener {
             Long chatId = curChat.id();
 
             if (!verifyHandlersChain()) {
-                SendMessage request = new SendMessage(chatId, "Sorry! This bot is not available now :(");
-                bot.execute(request);
+                bot.sendPlainTextMessage(chatId,"Sorry! This bot is not available now :(");
                 throw new RuntimeException(
                     "Chain of handlers not configured or configured with failure. handlersChainHead is null!"
                 );

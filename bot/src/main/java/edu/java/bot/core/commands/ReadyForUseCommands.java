@@ -1,5 +1,7 @@
 package edu.java.bot.core.commands;
 
+import edu.java.bot.core.util.Link;
+
 public class ReadyForUseCommands {
     private ReadyForUseCommands() {}
 
@@ -17,8 +19,11 @@ public class ReadyForUseCommands {
         return new TelegramBotCommand()
             .withCommandName("track")
             .withCommandTextDescription("track command used")
+            .withOrderedArguments(
+                CommandArgumentDescription.of(Link::validate, true)
+            )
             .withCallAction((usedBot, context) -> {
-                usedBot.sendPlainTextMessage(context.getChatId(), "command 'track' was called");
+                usedBot.sendPlainTextMessage(context.getChatId(), "track links validated");
             });
     }
 
@@ -26,8 +31,11 @@ public class ReadyForUseCommands {
         return new TelegramBotCommand()
             .withCommandName("untrack")
             .withCommandTextDescription("untrack command used")
+            .withOrderedArguments(
+                CommandArgumentDescription.of(Link::validate, true)
+            )
             .withCallAction((usedBot, context) -> {
-                usedBot.sendPlainTextMessage(context.getChatId(), "command 'untrack' was called");
+                usedBot.sendPlainTextMessage(context.getChatId(), "untrack links validated");
             });
     }
 

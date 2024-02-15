@@ -69,7 +69,7 @@ public class LinkTrackerObserver implements UpdatesListener {
             }
 
             Chat curChat = update.message().chat();
-            Object chatId = curChat.id();
+            Long chatId = curChat.id();
 
             if (!verifyHandlersChain()) {
                 SendMessage request = new SendMessage(chatId, "Sorry! This bot is not available now :(");

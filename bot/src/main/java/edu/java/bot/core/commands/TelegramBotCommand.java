@@ -43,11 +43,25 @@ public class TelegramBotCommand {
     }
 
     public void handle(TelegramBot handlerTelegramBot, CommandCallContext context) {
-        // todo: если аргумент соответствует критериям для этого обработчика, то вызвать callAction(bot);
-        //  если не такая команда или недостаточно аргументов, или аргументы неправильные,
-        //  то вызвать следующий обработчик
+        // TODO:
+        //  проверять правильность аргументов (по валидаторам),
+        //  проверять число аргументов
 
-        callAction.call(handlerTelegramBot);
+        if (context == null) {
+            throw new RuntimeException("Unexpected to handling empty context!");
+        }
+
+        if (checkThisHandlerIsTerminator()) {
+            callAction.call(handlerTelegramBot);
+        } else if (context.getCommand().equals(this.commandName)) {
+            callAction.call(handlerTelegramBot);
+        } else {
+            nextCommand.handle(handlerTelegramBot, context);
+        }
+    }
+
+    private boolean checkThisHandlerIsTerminator() {
+        return this.nextCommand == null;
     }
 
     @Override

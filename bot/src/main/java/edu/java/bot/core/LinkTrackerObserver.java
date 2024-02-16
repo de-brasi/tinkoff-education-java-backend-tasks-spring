@@ -6,7 +6,6 @@ import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
-import edu.java.bot.TelegramBotWrapper;
 import edu.java.bot.core.commands.TelegramBotCommand;
 import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
 import edu.java.bot.entities.CommandCallContext;

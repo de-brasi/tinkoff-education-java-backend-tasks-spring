@@ -3,6 +3,7 @@ package edu.java.bot;
 import com.pengrad.telegrambot.ExceptionHandler;
 import edu.java.bot.core.LinkTrackerObserver;
 import edu.java.bot.core.LinkTrackerErrorHandler;
+import edu.java.bot.core.TelegramBotWrapper;
 import edu.java.bot.core.commands.ReadyForUseCommands;
 
 // TODO: виды команд: с аргументами и без

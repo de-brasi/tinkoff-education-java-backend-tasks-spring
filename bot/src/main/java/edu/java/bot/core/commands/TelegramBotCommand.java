@@ -1,6 +1,6 @@
 package edu.java.bot.core.commands;
 
-import edu.java.bot.TelegramBotWrapper;
+import edu.java.bot.core.TelegramBotWrapper;
 import edu.java.bot.entities.CommandCallContext;
 import lombok.Getter;
 import java.util.ArrayList;

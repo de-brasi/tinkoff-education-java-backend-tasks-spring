@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.botcommandscope.BotCommandScopeAllPrivateChats;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
 import edu.java.bot.core.commands.TelegramBotCommand;
@@ -106,7 +107,7 @@ public class LinkTrackerObserver implements UpdatesListener {
             System.out.println(command);
         }
 
-        SetMyCommands myCommands = new SetMyCommands(botCommands);
+        SetMyCommands myCommands = new SetMyCommands(botCommands).scope(new BotCommandScopeAllPrivateChats());
         BaseResponse response = this.bot.execute(myCommands);
 
         if (!response.isOk()) {

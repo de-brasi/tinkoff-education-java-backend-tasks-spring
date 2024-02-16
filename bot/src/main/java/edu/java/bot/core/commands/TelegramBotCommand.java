@@ -57,12 +57,6 @@ public class TelegramBotCommand {
     }
 
     public void handle(TelegramBotWrapper handlerTelegramBot, CommandCallContext context) {
-        // TODO:
-        //  проверять правильность аргументов (по валидаторам),
-        //  проверять число аргументов (по числу валидаторов),
-        //  учесть случай когда аргументов неизвестное число
-        //  (например пользователь кидает неограниченное число ссылок для отслеживиания)
-
         if (context == null) {
             throw new RuntimeException("Unexpected to handling empty context!");
         }
@@ -102,104 +96,58 @@ public class TelegramBotCommand {
     }
 
     private Optional<List<String>> getSievedArguments(List<String> args) {
-        // TODO:
-        //  сделать функцию для валидации данных
-        //  исходы:
-        //      1) все поля обязательные и единичные
-        //          -> вернуть Optional на набор аргументов если все валидны,
-        //          -> пустой Optional если какое то поле не валидно
-        //      2) последний аргумент необязательный и неединичный
-        //          -> вернуть Optional на набор аргументов если все валидны
-        //              (последние аргументы можно не учитывать),
-        //          -> пустой Optional если какое то поле (кроме последнего) не валидно
-
         ArrayList<String> sourceArgs = new ArrayList<>(args);
         List<String> sieved = new ArrayList<>(List.of());
 
-        if (args.isEmpty()) {
+        // No arguments allowed in command description - just discard all arguments.
+        if (orderedArgumentsDescription == null || orderedArgumentsDescription.isEmpty()) {
             return Optional.of(sieved);
         }
 
-        // test all arguments except last
-        // todo: уменьшить сложность кода
-        for (int i = 0; i < orderedArgumentsDescription.size() - 1; i++) {
-            // для всех кроме последней пары аргумент-валидатор
-            if (sourceArgs.size() > i) {
-                // если соответствующий аргумент существует
-                var validationResult = sieveWithOneValidator(
-                    orderedArgumentsDescription.get(i),
-                    sourceArgs.get(i)
-                );
-
-                if (validationResult.isPresent()) {
-                    sieved.addAll(validationResult.get());
-                } else {
-                    // пустой Optional - некорректный набор элементов
-                    return Optional.empty();
-                }
-
-            } else {
-                // faulty arguments set
-                return Optional.empty();
-            }
+        // Check count of expected arguments and count got.
+        if (orderedArgumentsDescription.size() > sourceArgs.size()) {
+            return Optional.empty();
         }
 
-        // test with last validator
-        // протестить последний валидатор и аргумент(ы) для него
-        if (orderedArgumentsDescription.getLast().isTrailingAndNotOne()) {
-            // если последний аргумент описан как опциональный,
-            // то если какие то аргументы были отброшены (пусть даже все) - пофек
-            // todo: протестировать когда набор аргументов пуст
+        // Test all arguments except last - last can describe restriction on several trailing arguments.
+        for (int i = 0; i < orderedArgumentsDescription.size() - 1; i++) {
+            var currentDescriptor = orderedArgumentsDescription.get(i);
+            var currentTestedArg = sourceArgs.get(i);
+            var validationResult = validateByOneValidator(currentDescriptor, currentTestedArg);
 
-            var res = sieveWithOneValidator(
-                orderedArgumentsDescription.getLast(),
-                sourceArgs.get(orderedArgumentsDescription.size() - 1)
-            );
-
-            res.ifPresent(sieved::addAll);
-        } else if (sourceArgs.size() >= orderedArgumentsDescription.size()) {
-            // аргумент описан как обязательный
-            // надо проверить что для него существует какое-то значение в переданных аргументах
-            // todo: тут проверить что элемент существует и он подходит
-
-            var validationResult = sieveWithOneValidator(
-                orderedArgumentsDescription.getLast(),
-                sourceArgs.get(orderedArgumentsDescription.size() - 1)
-            );
-
-            // если прошло валидацию, то добавить в результат, иначе - набор аргументов невалидный
             if (validationResult.isPresent()) {
                 sieved.addAll(validationResult.get());
             } else {
                 return Optional.empty();
             }
+        }
 
+        String[] trailingArguments = sourceArgs
+            .subList(orderedArgumentsDescription.size() - 1, sourceArgs.size())
+            .toArray(String[]::new);
+
+        // Test trailing arguments with validator in last descriptor.
+        var currentDescriptor = orderedArgumentsDescription.getLast();
+        var validationResult = validateByOneValidator(currentDescriptor, trailingArguments);
+        if (validationResult.isPresent() && !validationResult.get().isEmpty()) {
+            sieved.addAll(validationResult.get());
         } else {
-            // аргумент описан как обязательный, но значения для него нет
-            // faulty arguments set
             return Optional.empty();
         }
 
         return Optional.of(sieved);
     }
 
-    private Optional<List<String>> sieveWithOneValidator(CommandArgumentDescription curValidator, String... toValidate) {
+    private Optional<List<String>> validateByOneValidator(
+        CommandArgumentDescription curValidator,
+        String... toValidate
+    ) {
         if (toValidate.length == 0) {
-            // No elements toValidate in case of LAST OPTIONAL validator
-            return Optional.of(List.of());
+            return Optional.empty();
         }
 
-        List<String> sieved = Arrays.stream(toValidate)
-            .filter(e -> curValidator.validator().validate(e))
-            .toList();
-
-        if (curValidator.isTrailingAndNotOne()) {
-            return Optional.of(sieved);
-        } else {
-            // Validator not optional (in common sense) when it tests only one element from arguments.
-            // If it was discarded by filter when element is faulty.
-            return (sieved.size() == toValidate.length) ? Optional.of(sieved) : Optional.empty();
-        }
+        List<String> sieved = Arrays.stream(toValidate).filter(curValidator.validator()::validate).toList();
+        return Optional.of(sieved);
     }
 
     @Override

@@ -1,14 +1,30 @@
 package edu.java.bot;
 
 import com.pengrad.telegrambot.ExceptionHandler;
-import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.BotCommand;
-import com.pengrad.telegrambot.model.botcommandscope.BotCommandScopeAllPrivateChats;
-import com.pengrad.telegrambot.request.SetMyCommands;
-import com.pengrad.telegrambot.response.BaseResponse;
-import edu.java.bot.core.LinkTracker;
+import edu.java.bot.core.LinkTrackerObserver;
 import edu.java.bot.core.LinkTrackerErrorHandler;
-import edu.java.bot.core.TelegramBotWrapper;
+import edu.java.bot.core.commands.ReadyForUseCommands;
+
+// TODO: виды команд: с аргументами и без
+//  Процесс создания контекста запроса:
+//  1) бот получил сообщение;
+//  2) сообщение - команда:
+//      реагировать текстом пользователю (например написать "введите..."),
+//      выйти из цепочки обработчиков
+//  3) сообщение - какой текст (НЕ команда):
+//      посмотреть предыдущее сообщение пользователя,
+//      если это команда,
+//          то создать объект контекста запроса и пустить по цепочке обработчиков;
+//      если это НЕ команда,
+//          то создать какой-то Faulty-контекст и пустить по цепочке обработчиков;
+
+// todo:
+//  1) получить предыдущее сообщение пользователя;
+//  2) создать цепочку вызовов;
+//  3) по цепочке вызовов составить контекст вызова;
+//  4) передать контекст первому обработчику;
+//  5) сделать функции-обвязки для отправки сообщений пользователю через бот
+//      (избегание прямого использования функций SDK)
 
 public class Main {
     public static void main(String[] args) {
@@ -17,21 +33,15 @@ public class Main {
 
         );
 
-        // Set commands
-        BotCommand allChatsHiCommand = new BotCommand("hi", "get me 'hi' message");
-        System.out.println("command is: " + allChatsHiCommand.command());
-        BotCommand allChatsGetMeGreetingCommand = new BotCommand("greeting", "get me greeting message");
+        LinkTrackerObserver listener = new LinkTrackerObserver(bot);
+        listener.setCommands(
+            ReadyForUseCommands.unexpectedCommand(),
+            ReadyForUseCommands.help(),
+            ReadyForUseCommands.track(),
+            ReadyForUseCommands.untrack(),
+            ReadyForUseCommands.list()
+        );
 
-        SetMyCommands setCommandsRequest =
-            new SetMyCommands(
-                allChatsHiCommand,
-                allChatsGetMeGreetingCommand
-            ).scope(new BotCommandScopeAllPrivateChats());
-        BaseResponse response = bot.execute(setCommandsRequest);
-
-        System.out.println("Setting commands response: " + response.description());
-
-        UpdatesListener listener = new LinkTracker(bot);
         ExceptionHandler errorHandler = new LinkTrackerErrorHandler();
 
         bot.setUpdatesListener(listener, errorHandler);

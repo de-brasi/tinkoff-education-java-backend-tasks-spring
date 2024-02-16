@@ -45,10 +45,10 @@ public class TelegramBotCommand {
         return this;
     }
 
-    public TelegramBotCommand withOrderedArguments(CommandArgumentDescription... description) {
-        // todo: проверять, что есть не более одного CommandArgumentDescription с флагом isTrailingAndNotOne,
-        //  и если такое есть, то последним элементом
-        this.orderedArgumentsDescription = new ArrayList<>(List.of(description));
+    public TelegramBotCommand withOrderedArguments(CommandArgumentDescription... descriptions) {
+        validateArgumentsDescription(descriptions);
+
+        this.orderedArgumentsDescription = new ArrayList<>(List.of(descriptions));
         return this;
     }
 
@@ -67,6 +67,27 @@ public class TelegramBotCommand {
             handleSuitableContext(handlerTelegramBot, context);
         } else {
             nextCommand.handle(handlerTelegramBot, context);
+        }
+    }
+
+    private void validateArgumentsDescription(CommandArgumentDescription... descriptions) {
+        var gotDescription = new ArrayList<>(List.of(descriptions));
+        long countOfNotOnlyOneArgDescriptors = gotDescription
+            .stream()
+            .filter(CommandArgumentDescription::isTrailingAndNotOne)
+            .count();
+
+        if (gotDescription.getLast().isTrailingAndNotOne() && countOfNotOnlyOneArgDescriptors > 1) {
+            throw new RuntimeException(
+                "Too many descriptions of argument with unknown quantity" +
+                (
+                    (this.commandName != null && !this.commandName.isEmpty())
+                    ? String.format("in setting signature for command %s. ", this.commandName)
+                    : ". "
+                ) +
+                "Remember that you can only specify a description for one such argument, " +
+                "and it must be the last one in order."
+            );
         }
     }
 

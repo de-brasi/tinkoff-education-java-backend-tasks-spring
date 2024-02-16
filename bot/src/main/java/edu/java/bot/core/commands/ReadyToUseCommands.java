@@ -2,8 +2,8 @@ package edu.java.bot.core.commands;
 
 import edu.java.bot.core.util.Link;
 
-public class ReadyForUseCommands {
-    private ReadyForUseCommands() {}
+public class ReadyToUseCommands {
+    private ReadyToUseCommands() {}
 
     public static TelegramBotCommand help() {
         return new TelegramBotCommand()

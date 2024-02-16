@@ -1,6 +1,7 @@
 package edu.java.bot.core.commands;
 
 import edu.java.bot.core.TelegramBotWrapper;
+import edu.java.bot.entities.Command;
 import edu.java.bot.entities.CommandCallContext;
 import lombok.Getter;
 import java.util.ArrayList;
@@ -68,14 +69,8 @@ public class TelegramBotCommand {
 
         if (checkThisHandlerIsTerminator()) {
             callAction.call(handlerTelegramBot, context);
-        } else if (context.getCommand().name().equals(this.commandName)) {
-            // todo: слишком вложенный if-else
-            var sievedArguments = getSievedArguments(context.getCommand().args());
-            if (sievedArguments.isEmpty()) {
-                nextCommand.handle(handlerTelegramBot, context);
-            } else {
-                callAction.call(handlerTelegramBot, context);
-            }
+        } else if (checkContextIsSuitable(context)) {
+            handleSuitableContext(handlerTelegramBot, context);
         } else {
             nextCommand.handle(handlerTelegramBot, context);
         }
@@ -83,6 +78,27 @@ public class TelegramBotCommand {
 
     private boolean checkThisHandlerIsTerminator() {
         return this.nextCommand == null;
+    }
+
+    private boolean checkContextIsSuitable(CommandCallContext context) {
+        return context.getCommand().name().equals(this.commandName);
+    }
+
+    private void handleSuitableContext(TelegramBotWrapper handlerTelegramBot, CommandCallContext context) {
+        var sievedArguments = getSievedArguments(context.getCommand().args());
+
+        if (sievedArguments.isPresent()) {
+            CommandCallContext puredContext = new CommandCallContext(
+                context.getUser(),
+                context.getChatId(),
+                new Command(context.getCommand().name(), sievedArguments.get())
+                );
+            callAction.call(handlerTelegramBot, puredContext);
+        } else {
+            // Faulty context, not suitable for every handler.
+            // Expected handling this context in the end of handler's chain by termination handler.
+            nextCommand.handle(handlerTelegramBot, context);
+        }
     }
 
     private Optional<List<String>> getSievedArguments(List<String> args) {
@@ -137,7 +153,7 @@ public class TelegramBotCommand {
 
             var res = sieveWithOneValidator(
                 orderedArgumentsDescription.getLast(),
-                sourceArgs.get(orderedArgumentsDescription.size())
+                sourceArgs.get(orderedArgumentsDescription.size() - 1)
             );
 
             res.ifPresent(sieved::addAll);

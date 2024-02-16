@@ -100,7 +100,7 @@ public class TelegramBotCommand {
     }
 
     private void handleSuitableContext(TelegramBotWrapper handlerTelegramBot, CommandCallContext context) {
-        var sievedArguments = getSievedArguments(context.getCommand().args());
+        var sievedArguments = sieveAllArguments(context.getCommand().args());
 
         if (sievedArguments.isPresent()) {
             CommandCallContext puredContext = new CommandCallContext(
@@ -116,7 +116,7 @@ public class TelegramBotCommand {
         }
     }
 
-    private Optional<List<String>> getSievedArguments(List<String> args) {
+    private Optional<List<String>> sieveAllArguments(List<String> args) {
         ArrayList<String> sourceArgs = new ArrayList<>(args);
         List<String> sieved = new ArrayList<>(List.of());
 
@@ -134,7 +134,7 @@ public class TelegramBotCommand {
         for (int i = 0; i < orderedArgumentsDescription.size() - 1; i++) {
             var currentDescriptor = orderedArgumentsDescription.get(i);
             var currentTestedArg = sourceArgs.get(i);
-            var validationResult = validateByOneValidator(currentDescriptor, currentTestedArg);
+            var validationResult = sieveArgumentsValuesWithOneValidator(currentDescriptor, currentTestedArg);
 
             if (validationResult.isPresent()) {
                 sieved.addAll(validationResult.get());
@@ -149,7 +149,7 @@ public class TelegramBotCommand {
 
         // Test trailing arguments with validator in last descriptor.
         var currentDescriptor = orderedArgumentsDescription.getLast();
-        var validationResult = validateByOneValidator(currentDescriptor, trailingArguments);
+        var validationResult = sieveArgumentsValuesWithOneValidator(currentDescriptor, trailingArguments);
         if (validationResult.isPresent() && !validationResult.get().isEmpty()) {
             sieved.addAll(validationResult.get());
         } else {
@@ -159,7 +159,7 @@ public class TelegramBotCommand {
         return Optional.of(sieved);
     }
 
-    private Optional<List<String>> validateByOneValidator(
+    private Optional<List<String>> sieveArgumentsValuesWithOneValidator(
         CommandArgumentDescription curValidator,
         String... toValidate
     ) {

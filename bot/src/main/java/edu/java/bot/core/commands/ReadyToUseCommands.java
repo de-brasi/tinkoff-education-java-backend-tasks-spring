@@ -5,6 +5,15 @@ import edu.java.bot.core.util.Link;
 public class ReadyToUseCommands {
     private ReadyToUseCommands() {}
 
+    public static TelegramBotCommand start() {
+        return new TelegramBotCommand()
+            .withCommandName("start")
+            .withCommandTextDescription("register me")
+            .withCallAction((usedBot, context) -> {
+                usedBot.sendPlainTextMessage(context.getChatId(), "command 'start' was called");
+            });
+    }
+
     public static TelegramBotCommand help() {
         return new TelegramBotCommand()
             .withCommandName("help")

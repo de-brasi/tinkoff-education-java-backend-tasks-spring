@@ -9,7 +9,7 @@ public class ReadyToUseCommands {
         return new TelegramBotCommand()
             .withCommandName("help")
             .withCommandTextDescription(
-                "тут будет описание команд, а заодно проверка русского текста")
+                "get list of commands")
             .withCallAction((usedBot, context) -> {
                 usedBot.sendPlainTextMessage(context.getChatId(), "command 'help' was called");
             });
@@ -18,7 +18,7 @@ public class ReadyToUseCommands {
     public static TelegramBotCommand track() {
         return new TelegramBotCommand()
             .withCommandName("track")
-            .withCommandTextDescription("track command used")
+            .withCommandTextDescription("track links in arguments")
             .withOrderedArguments(
                 CommandArgumentDescription.of(Link::validate, true)
             )
@@ -30,7 +30,7 @@ public class ReadyToUseCommands {
     public static TelegramBotCommand untrack() {
         return new TelegramBotCommand()
             .withCommandName("untrack")
-            .withCommandTextDescription("untrack command used")
+            .withCommandTextDescription("untrack links in arguments")
             .withOrderedArguments(
                 CommandArgumentDescription.of(Link::validate, true)
             )
@@ -42,7 +42,7 @@ public class ReadyToUseCommands {
     public static TelegramBotCommand list() {
         return new TelegramBotCommand()
             .withCommandName("list")
-            .withCommandTextDescription("use command list")
+            .withCommandTextDescription("show tracked links")
             .withCallAction((usedBot, context) -> {
                 usedBot.sendPlainTextMessage(context.getChatId(), "command 'list' was called");
             });

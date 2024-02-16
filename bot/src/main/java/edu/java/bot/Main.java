@@ -1,10 +1,10 @@
 package edu.java.bot;
 
 import com.pengrad.telegrambot.ExceptionHandler;
-import edu.java.bot.core.LinkTrackerObserver;
-import edu.java.bot.core.LinkTrackerErrorHandler;
-import edu.java.bot.core.TelegramBotWrapper;
-import edu.java.bot.core.commands.ReadyForUseCommands;
+import edu.java.bot.services.LinkTrackerObserver;
+import edu.java.bot.services.LinkTrackerErrorHandler;
+import edu.java.bot.services.TelegramBotWrapper;
+import edu.java.bot.core.commands.ReadyToUseCommands;
 
 // TODO: виды команд: с аргументами и без
 //  Процесс создания контекста запроса:
@@ -36,11 +36,11 @@ public class Main {
 
         LinkTrackerObserver listener = new LinkTrackerObserver(bot);
         listener.setCommands(
-            ReadyForUseCommands.unexpectedCommand(),
-            ReadyForUseCommands.help(),
-            ReadyForUseCommands.track(),
-            ReadyForUseCommands.untrack(),
-            ReadyForUseCommands.list()
+            ReadyToUseCommands.unexpectedCommand(),
+            ReadyToUseCommands.help(),
+            ReadyToUseCommands.track(),
+            ReadyToUseCommands.untrack(),
+            ReadyToUseCommands.list()
         );
 
         ExceptionHandler errorHandler = new LinkTrackerErrorHandler();

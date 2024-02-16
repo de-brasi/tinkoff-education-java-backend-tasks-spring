@@ -1,4 +1,4 @@
-package edu.java.bot.core;
+package edu.java.bot.services;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;

@@ -1,4 +1,4 @@
-package edu.java.bot.core;
+package edu.java.bot.services;
 
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.BotCommand;

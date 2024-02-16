@@ -99,7 +99,14 @@ public class LinkTrackerObserver implements UpdatesListener {
 
     private void registerCommandsForTelegramBot(List<TelegramBotCommand> commands) {
         BotCommand[] botCommands = commands.stream()
-            .map(command -> new BotCommand(command.getCommandName(), command.getCommandDescription()))
+            .map(
+                command -> new BotCommand(
+                    command.getCommandName(),
+                    (command.getCommandDescription() != null)
+                        ? command.getCommandDescription()
+                        : command.getCommandName()
+                )
+            )
             .toArray(BotCommand[]::new);
 
         for (var command :
@@ -111,7 +118,7 @@ public class LinkTrackerObserver implements UpdatesListener {
         BaseResponse response = this.bot.execute(myCommands);
 
         if (!response.isOk()) {
-            throw new RuntimeException("Failure when set commands for bot");
+            throw new RuntimeException("Failure when set commands for bot: " + response);
         } else {
             // todo: better logging
             System.out.println("Response to commands configuration: " + response);

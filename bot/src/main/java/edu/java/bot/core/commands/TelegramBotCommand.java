@@ -45,6 +45,8 @@ public class TelegramBotCommand {
     }
 
     public TelegramBotCommand withOrderedArguments(CommandArgumentDescription... description) {
+        // todo: проверять, что есть не более одного CommandArgumentDescription с флагом isTrailingAndNotOne,
+        //  и если такое есть, то последним элементом
         this.orderedArgumentsDescription = new ArrayList<>(List.of(description));
         return this;
     }

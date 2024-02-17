@@ -10,10 +10,12 @@ import com.pengrad.telegrambot.response.BaseResponse;
 import edu.java.bot.core.commands.TelegramBotCommand;
 import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
 import edu.java.bot.entities.CommandCallContext;
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 // TODO:
 //  - настроить поведение прихода нового пользователя (команда /start ?);
@@ -60,8 +62,7 @@ public class LinkTrackerObserver implements UpdatesListener {
     @Override
     public int process(List<Update> list) {
         for (Update update: list) {
-            // todo: better logging
-            System.out.println("New update: " + update);
+            LOGGER.info("New update: " + update);
 
             if (!checkUpdateContainsNewMessage(update)) {
                 continue;
@@ -71,7 +72,7 @@ public class LinkTrackerObserver implements UpdatesListener {
             Long chatId = curChat.id();
 
             if (!verifyHandlersChain()) {
-                bot.sendPlainTextMessage(chatId,"Sorry! This bot is not available now :(");
+                bot.sendPlainTextMessage(chatId, "Sorry! This bot is not available now :(");
                 throw new RuntimeException(
                     "Chain of handlers not configured or configured with failure. handlersChainHead is null!"
                 );
@@ -109,9 +110,8 @@ public class LinkTrackerObserver implements UpdatesListener {
             )
             .toArray(BotCommand[]::new);
 
-        for (var command :
-            botCommands) {
-            System.out.println(command);
+        for (var command: botCommands) {
+            LOGGER.info(command);
         }
 
         SetMyCommands myCommands = new SetMyCommands(botCommands).scope(new BotCommandScopeAllPrivateChats());
@@ -120,8 +120,7 @@ public class LinkTrackerObserver implements UpdatesListener {
         if (!response.isOk()) {
             throw new RuntimeException("Failure when set commands for bot: " + response);
         } else {
-            // todo: better logging
-            System.out.println("Response to commands configuration: " + response);
+            LOGGER.info("Response to settings commands for bot: " + response);
         }
     }
 
@@ -132,4 +131,6 @@ public class LinkTrackerObserver implements UpdatesListener {
     private boolean verifyHandlersChain() {
         return this.handlersChainHead != null;
     }
+
+    private final static Logger LOGGER = LogManager.getLogger();
 }

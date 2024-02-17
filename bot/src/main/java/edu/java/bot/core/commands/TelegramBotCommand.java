@@ -1,14 +1,14 @@
 package edu.java.bot.core.commands;
 
-import edu.java.bot.services.TelegramBotWrapper;
 import edu.java.bot.entities.Command;
 import edu.java.bot.entities.CommandCallContext;
-import lombok.Getter;
+import edu.java.bot.services.TelegramBotWrapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.Getter;
 
 // TODO: добавить текстовое описание что делает класс.
 //  Важно указать, что имеется поддержка только команд формата "/command args..",
@@ -17,6 +17,8 @@ import java.util.Optional;
 //  бот (возможно) будет опрашивать пользователя на предмет получения аргументов,
 //  пока не получит аргументы, удовлетворяющие условию (СОЗДАТЬ ВАЛИДАТОР АРГУМЕНТОВ).
 //  Лишние для введенной команды аргументы отбрасываются.
+
+@SuppressWarnings("MultipleStringLiterals")
 public class TelegramBotCommand {
     @Getter private String commandName;
 
@@ -79,14 +81,12 @@ public class TelegramBotCommand {
 
         if (gotDescription.getLast().isTrailingAndNotOne() && countOfNotOnlyOneArgDescriptors > 1) {
             throw new RuntimeException(
-                "Too many descriptions of argument with unknown quantity" +
-                (
-                    (this.commandName != null && !this.commandName.isEmpty())
+                "Too many descriptions of argument with unknown quantity"
+                + ((this.commandName != null && !this.commandName.isEmpty())
                     ? String.format("in setting signature for command %s. ", this.commandName)
-                    : ". "
-                ) +
-                "Remember that you can only specify a description for one such argument, " +
-                "and it must be the last one in order."
+                    : ". ")
+                + "Remember that you can only specify a description for one such argument, "
+                + "and it must be the last one in order."
             );
         }
     }
@@ -116,6 +116,7 @@ public class TelegramBotCommand {
         }
     }
 
+    @SuppressWarnings("ReturnCount")
     private Optional<List<String>> sieveAllArguments(List<String> args) {
         ArrayList<String> sourceArgs = new ArrayList<>(args);
         List<String> sieved = new ArrayList<>(List.of());
@@ -150,6 +151,7 @@ public class TelegramBotCommand {
         // Test trailing arguments with validator in last descriptor.
         var currentDescriptor = orderedArgumentsDescription.getLast();
         var validationResult = sieveArgumentsValuesWithOneValidator(currentDescriptor, trailingArguments);
+
         if (validationResult.isPresent() && !validationResult.get().isEmpty()) {
             sieved.addAll(validationResult.get());
         } else {
@@ -188,12 +190,16 @@ public class TelegramBotCommand {
     }
 
     @Override public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         TelegramBotCommand that = (TelegramBotCommand) o;
-        return Objects.equals(commandName, that.commandName) &&
-            Objects.equals(commandDescription, that.commandDescription) &&
-            Objects.equals(callAction, that.callAction);
+        return Objects.equals(commandName, that.commandName)
+            && Objects.equals(commandDescription, that.commandDescription)
+            && Objects.equals(callAction, that.callAction);
     }
 
     @Override

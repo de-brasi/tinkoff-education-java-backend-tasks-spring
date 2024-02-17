@@ -3,6 +3,8 @@ package edu.java.bot.services;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TelegramBotWrapper extends TelegramBot {
     public TelegramBotWrapper(String botToken) {
@@ -14,8 +16,8 @@ public class TelegramBotWrapper extends TelegramBot {
 
         if (token == null) {
             throw new RuntimeException(String.format(
-                "Environment variable with name %s not found! " +
-                    "Make sure you set the Telegram token value in the environment variables by this name",
+                "Environment variable with name %s not found! "
+                    + "Make sure you set the Telegram token value in the environment variables by this name",
                 variableName
             ));
         }
@@ -28,8 +30,9 @@ public class TelegramBotWrapper extends TelegramBot {
         BaseResponse response = this.execute(request);
 
         if (!response.isOk()) {
-            // todo: better logging
-            System.out.println("Failure when try to send message " + message + " to chat " + chatId);
+            LOGGER.info("Failure when try to send message " + message + " to chat " + chatId);
         }
     }
+
+    private final static Logger LOGGER = LogManager.getLogger();
 }

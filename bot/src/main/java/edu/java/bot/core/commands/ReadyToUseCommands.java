@@ -2,7 +2,6 @@ package edu.java.bot.core.commands;
 
 import edu.java.bot.core.util.Link;
 import edu.java.bot.repository.interfaces.UsersRepository;
-import java.util.stream.Collectors;
 
 public class ReadyToUseCommands {
     private ReadyToUseCommands() {}

@@ -1,8 +1,8 @@
 package edu.java.bot.entities;
 
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import java.util.Objects;
 
 @AllArgsConstructor
 @Getter public class User {
@@ -12,11 +12,17 @@ import java.util.Objects;
     private boolean isBot;
 
     @Override public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         User user = (User) o;
-        return isBot == user.isBot && Objects.equals(firstName, user.firstName) &&
-            Objects.equals(lastName, user.lastName) && Objects.equals(telegramId, user.telegramId);
+        return isBot == user.isBot
+            && Objects.equals(firstName, user.firstName)
+            && Objects.equals(lastName, user.lastName)
+            && Objects.equals(telegramId, user.telegramId);
     }
 
     @Override

@@ -1,14 +1,18 @@
 package edu.java.bot;
 
 import com.pengrad.telegrambot.ExceptionHandler;
+import edu.java.bot.core.commands.ReadyToUseCommands;
 import edu.java.bot.repository.implementations.UserRepositoryMockImpl;
 import edu.java.bot.repository.interfaces.UsersRepository;
-import edu.java.bot.services.LinkTrackerObserver;
 import edu.java.bot.services.LinkTrackerErrorHandler;
+import edu.java.bot.services.LinkTrackerObserver;
 import edu.java.bot.services.TelegramBotWrapper;
-import edu.java.bot.core.commands.ReadyToUseCommands;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Main {
+    private Main() {}
+
     public static void main(String[] args) {
         TelegramBotWrapper bot = TelegramBotWrapper.createBotWithTokenFromEnv("TELEGRAM_TOKEN");
 
@@ -27,6 +31,8 @@ public class Main {
 
         bot.setUpdatesListener(listener, errorHandler);
 
-        System.out.println("i am here");
+        LOGGER.info("i am here");
     }
+
+    private final static Logger LOGGER = LogManager.getLogger();
 }

@@ -1,10 +1,8 @@
 package edu.java.bot.entities;
 
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
-import java.util.List;
-import java.util.Objects;
 
 @AllArgsConstructor
 @Getter public class CommandCallContext {
@@ -13,11 +11,16 @@ import java.util.Objects;
     private Command command;
 
     @Override public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         CommandCallContext that = (CommandCallContext) o;
-        return Objects.equals(user, that.user) && Objects.equals(chatId, that.chatId) &&
-            Objects.equals(command, that.command);
+        return Objects.equals(user, that.user)
+            && Objects.equals(chatId, that.chatId)
+            && Objects.equals(command, that.command);
     }
 
     @Override

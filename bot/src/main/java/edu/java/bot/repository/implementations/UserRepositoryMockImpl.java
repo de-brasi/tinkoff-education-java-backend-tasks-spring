@@ -14,7 +14,9 @@ public class UserRepositoryMockImpl implements UsersRepository {
 
     @Override
     public List<String> getLinksForUser(Long userTelegramId) {
-        return null;
+        List<String> exampleLinks = List.of("test-link-1", "test-link-2", "test-link-3");
+        LOGGER.info(String.format("For user with Telegram id %s get links: " + exampleLinks, userTelegramId));
+        return exampleLinks;
     }
 
     private final static Logger LOGGER = LogManager.getLogger();

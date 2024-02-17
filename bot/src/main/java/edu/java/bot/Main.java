@@ -35,9 +35,7 @@ import edu.java.bot.core.commands.ReadyToUseCommands;
 
 public class Main {
     public static void main(String[] args) {
-        TelegramBotWrapper bot = new TelegramBotWrapper(
-            System.getenv("TELEGRAM_TOKEN")
-        );
+        TelegramBotWrapper bot = TelegramBotWrapper.createBotWithTokenFromEnv("TELEGRAM_TOKEN");
 
         UsersRepository mockRepo = new UserRepositoryMockImpl();
 

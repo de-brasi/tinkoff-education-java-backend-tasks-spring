@@ -31,7 +31,7 @@ public class Main {
 
         bot.setUpdatesListener(listener, errorHandler);
 
-        LOGGER.info("i am here");
+        LOGGER.info("Bot starts to listen");
     }
 
     private final static Logger LOGGER = LogManager.getLogger();

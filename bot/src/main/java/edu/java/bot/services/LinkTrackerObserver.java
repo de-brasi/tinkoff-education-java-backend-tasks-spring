@@ -111,7 +111,7 @@ public class LinkTrackerObserver implements UpdatesListener {
             .toArray(BotCommand[]::new);
 
         for (var command: botCommands) {
-            LOGGER.info(command);
+            LOGGER.info("Command get:" + command);
         }
 
         SetMyCommands myCommands = new SetMyCommands(botCommands).scope(new BotCommandScopeAllPrivateChats());

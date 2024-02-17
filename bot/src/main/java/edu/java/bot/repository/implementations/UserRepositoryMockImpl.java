@@ -19,5 +19,10 @@ public class UserRepositoryMockImpl implements UsersRepository {
         return exampleLinks;
     }
 
+    @Override
+    public void deleteLinksForUser(Long userTelegramId, List<String> links) {
+        LOGGER.info(String.format("For user with Telegram id %s untrack links: %s", userTelegramId, links));
+    }
+
     private final static Logger LOGGER = LogManager.getLogger();
 }

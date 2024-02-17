@@ -1,6 +1,10 @@
 package edu.java.bot;
 
 import com.pengrad.telegrambot.ExceptionHandler;
+import com.pengrad.telegrambot.model.BotCommand;
+import com.pengrad.telegrambot.model.botcommandscope.BotCommandScopeAllPrivateChats;
+import com.pengrad.telegrambot.request.SetMyCommands;
+import com.pengrad.telegrambot.response.BaseResponse;
 import edu.java.bot.services.LinkTrackerObserver;
 import edu.java.bot.services.LinkTrackerErrorHandler;
 import edu.java.bot.services.TelegramBotWrapper;
@@ -29,9 +33,8 @@ import edu.java.bot.core.commands.ReadyToUseCommands;
 
 public class Main {
     public static void main(String[] args) {
-        // TODO: перед тем как закомитить УДАЛИ ТОКЕН !!!!
         TelegramBotWrapper bot = new TelegramBotWrapper(
-
+            System.getenv("TELEGRAM_TOKEN")
         );
 
         LinkTrackerObserver listener = new LinkTrackerObserver(bot);

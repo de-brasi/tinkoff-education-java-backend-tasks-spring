@@ -5,6 +5,8 @@ import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.botcommandscope.BotCommandScopeAllPrivateChats;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
+import edu.java.bot.repository.implementations.UserRepositoryMockImpl;
+import edu.java.bot.repository.interfaces.UsersRepository;
 import edu.java.bot.services.LinkTrackerObserver;
 import edu.java.bot.services.LinkTrackerErrorHandler;
 import edu.java.bot.services.TelegramBotWrapper;
@@ -37,13 +39,15 @@ public class Main {
             System.getenv("TELEGRAM_TOKEN")
         );
 
+        UsersRepository mockRepo = new UserRepositoryMockImpl();
+
         LinkTrackerObserver listener = new LinkTrackerObserver(bot);
         listener.setCommands(
             ReadyToUseCommands.unexpectedCommand(),
             ReadyToUseCommands.help(),
-            ReadyToUseCommands.track(),
-            ReadyToUseCommands.untrack(),
-            ReadyToUseCommands.list()
+            ReadyToUseCommands.track(mockRepo),
+            ReadyToUseCommands.untrack(mockRepo),
+            ReadyToUseCommands.list(mockRepo)
         );
 
         ExceptionHandler errorHandler = new LinkTrackerErrorHandler();

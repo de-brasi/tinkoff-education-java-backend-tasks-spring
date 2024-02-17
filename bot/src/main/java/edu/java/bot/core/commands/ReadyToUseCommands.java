@@ -1,6 +1,8 @@
 package edu.java.bot.core.commands;
 
 import edu.java.bot.core.util.Link;
+import edu.java.bot.repository.interfaces.UsersRepository;
+import java.util.stream.Collectors;
 
 public class ReadyToUseCommands {
     private ReadyToUseCommands() {}
@@ -24,7 +26,7 @@ public class ReadyToUseCommands {
             });
     }
 
-    public static TelegramBotCommand track() {
+    public static TelegramBotCommand track(UsersRepository repository) {
         return new TelegramBotCommand()
             .withCommandName("track")
             .withCommandTextDescription("track links in arguments")
@@ -32,11 +34,17 @@ public class ReadyToUseCommands {
                 CommandArgumentDescription.of(Link::validate, true)
             )
             .withCallAction((usedBot, context) -> {
-                usedBot.sendPlainTextMessage(context.getChatId(), "track links validated");
+                var userId = context.getUser().getTelegramId();
+                var links = context.getCommand().args();
+                repository.storeLinksForUser(userId, links);
+                usedBot.sendPlainTextMessage(
+                    context.getChatId(),
+                    "Tracked links:\n" + String.join("\n", links)
+                );
             });
     }
 
-    public static TelegramBotCommand untrack() {
+    public static TelegramBotCommand untrack(UsersRepository repository) {
         return new TelegramBotCommand()
             .withCommandName("untrack")
             .withCommandTextDescription("untrack links in arguments")
@@ -44,16 +52,27 @@ public class ReadyToUseCommands {
                 CommandArgumentDescription.of(Link::validate, true)
             )
             .withCallAction((usedBot, context) -> {
-                usedBot.sendPlainTextMessage(context.getChatId(), "untrack links validated");
+                var userId = context.getUser().getTelegramId();
+                var links = context.getCommand().args();
+                repository.deleteLinksForUser(userId, links);
+                usedBot.sendPlainTextMessage(
+                    context.getChatId(),
+                    "Untracked links:\n" + String.join("\n", links)
+                );
             });
     }
 
-    public static TelegramBotCommand list() {
+    public static TelegramBotCommand list(UsersRepository repository) {
         return new TelegramBotCommand()
             .withCommandName("list")
             .withCommandTextDescription("show tracked links")
             .withCallAction((usedBot, context) -> {
-                usedBot.sendPlainTextMessage(context.getChatId(), "command 'list' was called");
+                var userId = context.getUser().getTelegramId();
+                var links = repository.getLinksForUser(userId);
+                usedBot.sendPlainTextMessage(
+                    context.getChatId(),
+                    "Tracked links is:\n" + String.join("\n", links)
+                );
             });
     }
 

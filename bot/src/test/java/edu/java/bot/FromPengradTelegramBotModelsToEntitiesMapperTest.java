@@ -8,7 +8,7 @@ import com.pengrad.telegrambot.model.User;
 import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
 import edu.java.bot.entities.Command;
 import edu.java.bot.entities.CommandCallContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

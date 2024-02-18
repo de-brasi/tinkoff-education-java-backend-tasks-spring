@@ -10,7 +10,7 @@ import edu.java.bot.entities.CommandCallContext;
 import edu.java.bot.entities.User;
 import edu.java.bot.services.LinkTrackerObserver;
 import edu.java.bot.services.TelegramBotWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

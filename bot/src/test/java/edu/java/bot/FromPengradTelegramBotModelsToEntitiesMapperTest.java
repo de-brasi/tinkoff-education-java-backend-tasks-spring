@@ -10,13 +10,15 @@ import edu.java.bot.entities.Command;
 import edu.java.bot.entities.CommandCallContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FromPengradTelegramBotModelsToEntitiesMapperTest {
     @Mock Update updateFromServer;
 

@@ -1,14 +1,31 @@
 package edu.java;
 
+import edu.java.clients.GitHubClient;
+import edu.java.clients.StackOverflowClient;
 import edu.java.configuration.ApplicationConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import java.lang.reflect.InvocationTargetException;
 
 @SpringBootApplication
 @EnableConfigurationProperties(ApplicationConfig.class)
 public class ScrapperApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ScrapperApplication.class, args);
+        var context = SpringApplication.run(ScrapperApplication.class, args);
+
+        // бин gitHubClient из контекста
+        GitHubClient githubClient =
+            context.getBean("gitHubClient", GitHubClient.class);
+
+        // результат
+        System.out.println("Update Response: " + githubClient.fetchUpdate());
+        System.out.println("GitHub client: " + githubClient.getAllInfo("de-brasi", "tinkoff-education-java-backend-tasks-spring"));
+
+        StackOverflowClient stackoverflowClient =
+            context.getBean("stackOverflowClient", StackOverflowClient.class);
+        System.out.println("StackoverflowClient: " + stackoverflowClient.getAllInfo(16047829));
+
+        context.close();
     }
 }

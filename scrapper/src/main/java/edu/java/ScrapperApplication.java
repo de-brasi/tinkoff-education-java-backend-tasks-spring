@@ -19,12 +19,11 @@ public class ScrapperApplication {
             context.getBean("gitHubClient", GitHubClient.class);
 
         // результат
-        System.out.println("Update Response: " + githubClient.fetchUpdate());
-        System.out.println("GitHub client: " + githubClient.getAllInfo("de-brasi", "tinkoff-education-java-backend-tasks-spring"));
+        System.out.println("GitHub client: " + githubClient.fetchUpdate("de-brasi", "tinkoff-education-java-backend-tasks-spring"));
 
         StackOverflowClient stackoverflowClient =
             context.getBean("stackOverflowClient", StackOverflowClient.class);
-        System.out.println("StackoverflowClient: " + stackoverflowClient.getAllInfo(16047829));
+        System.out.println("StackoverflowClient: " + stackoverflowClient.fetchUpdate(41808152));
 
         context.close();
     }

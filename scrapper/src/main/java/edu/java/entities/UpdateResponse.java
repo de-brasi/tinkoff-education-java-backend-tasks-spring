@@ -1,4 +1,5 @@
 package edu.java.entities;
 
-// TODO
-public record UpdateResponse(String exampleData) {}
+import java.time.OffsetDateTime;
+
+public record UpdateResponse(OffsetDateTime updateTime) {}

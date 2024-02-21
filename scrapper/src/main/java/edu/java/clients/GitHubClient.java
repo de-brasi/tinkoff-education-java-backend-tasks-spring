@@ -21,30 +21,24 @@ public class GitHubClient {
         this.restClient = restClientBuilder.baseUrl(baseUrl).build();
     }
 
-    public String getAllInfo(String owner, String repo) {
-        return this.restClient.get().uri("/{owner}/{repo}", owner, repo).retrieve().body(String.class);
-    }
+    public UpdateResponse fetchUpdate(String owner, String repo) {
+        String responseBody = this.restClient
+            .get()
+            .uri("/{owner}/{repo}", owner, repo)
+            .retrieve()
+            .body(String.class);
 
-    public String debugGetLastActivityTimestampAsString(String owner, String repo) {
-        String responseBody = this.getAllInfo(owner, repo);
-
-        Pattern dateSearchPattern = Pattern.compile("\"updated_at\":\s*\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\"");
+        Pattern dateSearchPattern = Pattern.compile(
+            "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
+        );
+        assert responseBody != null;
         Matcher matcher = dateSearchPattern.matcher(responseBody);
 
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
+        if (!matcher.find()) {
             throw new IllegalStateException("No match found for last activity date");
         }
-    }
 
-    public OffsetDateTime debugGetLastActivityTimestampAsDateTime(String owner, String repo) {
-        String src = this.debugGetLastActivityTimestampAsString(owner, repo);
-        return OffsetDateTime.parse(src);
-    }
-
-    // TODO
-    public UpdateResponse fetchUpdate() {
-        return new UpdateResponse("some data");
+        String updTimeString = matcher.group(1);
+        return new UpdateResponse(OffsetDateTime.parse(updTimeString));
     }
 }

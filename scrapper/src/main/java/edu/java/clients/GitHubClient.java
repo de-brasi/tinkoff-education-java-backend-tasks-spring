@@ -1,20 +1,20 @@
 package edu.java.clients;
 
 import edu.java.entities.UpdateResponse;
-import org.springframework.web.client.RestClient;
 import java.time.OffsetDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.web.client.RestClient;
 
 public class GitHubClient {
 
     private final RestClient restClient;
 
-    private final static String defaultBaseUrl = "https://api.github.com/repos/";
+    private final static String DEFAULT_BASE_URL = "https://api.github.com/repos/";
 
 
     public GitHubClient(RestClient.Builder restClientBuilder) {
-        this.restClient = restClientBuilder.baseUrl(GitHubClient.defaultBaseUrl).build();
+        this.restClient = restClientBuilder.baseUrl(GitHubClient.DEFAULT_BASE_URL).build();
     }
 
     public GitHubClient(RestClient.Builder restClientBuilder, String baseUrl) {

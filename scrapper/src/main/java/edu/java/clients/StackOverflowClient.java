@@ -1,24 +1,24 @@
 package edu.java.clients;
 
 import edu.java.entities.UpdateResponse;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.client.ReactorNettyClientRequestFactory;
-import org.springframework.web.client.RestClient;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.ReactorNettyClientRequestFactory;
+import org.springframework.web.client.RestClient;
 
 public class StackOverflowClient {
     private final RestClient restClient;
 
-    private final static String defaultBaseUrl =
+    private final static String DEFAULT_BASE_URL =
         "https://api.stackexchange.com/2.3/questions/";
 
     public StackOverflowClient(RestClient.Builder restClientBuilder) {
         this.restClient = restClientBuilder.requestFactory(new ReactorNettyClientRequestFactory())
-            .baseUrl(StackOverflowClient.defaultBaseUrl).build();
+            .baseUrl(StackOverflowClient.DEFAULT_BASE_URL).build();
     }
 
     public StackOverflowClient(RestClient.Builder restClientBuilder, String baseUrl) {

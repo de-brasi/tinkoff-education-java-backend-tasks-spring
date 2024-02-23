@@ -23,6 +23,8 @@ public class TelegramBotCommand {
 
     private TelegramBotCommand nextCommand;
 
+    private static final String NOT_CONFIGURED_MARKER = "<not configured>";
+
     public TelegramBotCommand() {}
 
     public TelegramBotCommand withCommandName(String commandName) {
@@ -93,7 +95,7 @@ public class TelegramBotCommand {
     }
 
     private void handleSuitableContext(TelegramBotWrapper handlerTelegramBot, CommandCallContext context) {
-        var sievedArguments = sieveAllArguments(context.getCommand().args());
+        Optional<List<String>> sievedArguments = sieveAllArguments(context.getCommand().args());
 
         if (sievedArguments.isPresent()) {
             CommandCallContext puredContext = new CommandCallContext(
@@ -162,7 +164,9 @@ public class TelegramBotCommand {
             return Optional.empty();
         }
 
-        List<String> sieved = Arrays.stream(toValidate).filter(curValidator.validator()::validate).toList();
+        List<String> sieved = Arrays.stream(toValidate)
+            .filter(curValidator.validator()::validate)
+            .toList();
         return Optional.of(sieved);
     }
 
@@ -172,13 +176,13 @@ public class TelegramBotCommand {
             "TelegramBotCommand obj with name=%s, description=%s, action=%s",
             (this.commandName != null && !this.commandName.isEmpty())
                 ? this.commandName
-                : "<not configured>",
+                : NOT_CONFIGURED_MARKER,
             (this.commandDescription != null && !this.commandDescription.isEmpty())
                 ? this.commandDescription
-                : "<not configured>",
+                : NOT_CONFIGURED_MARKER,
             this.callAction != null
                 ? this.callAction.toString()
-                : "<not configured>"
+                : NOT_CONFIGURED_MARKER
         );
     }
 

@@ -26,6 +26,9 @@ public class TelegramBotWrapper extends TelegramBot {
     }
 
     public void sendPlainTextMessage(Long chatId, String message) {
+        assert chatId != null;
+        assert message != null;
+
         SendMessage request = new SendMessage(chatId, message);
         BaseResponse response = this.execute(request);
 

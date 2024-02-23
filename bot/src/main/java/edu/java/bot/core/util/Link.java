@@ -1,12 +1,13 @@
 package edu.java.bot.core.util;
 
+import org.springframework.http.HttpStatusCode;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 
 public class Link {
-    private final static int BAD_HTTP_RESPONSE_UPPER_BOUND = 500;
-    private final static int BAD_HTTP_RESPONSE_LOWER_BOUND = 400;
+    private static final int BAD_HTTP_RESPONSE_UPPER_BOUND = 500;
+    private static final int BAD_HTTP_RESPONSE_LOWER_BOUND = 400;
 
     protected Link() {}
 
@@ -16,8 +17,7 @@ public class Link {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             int responseCode = connection.getResponseCode();
-            return !(BAD_HTTP_RESPONSE_LOWER_BOUND <= responseCode
-                && responseCode < BAD_HTTP_RESPONSE_UPPER_BOUND);
+            return HttpStatusCode.valueOf(responseCode).is2xxSuccessful();
         } catch (Exception e) {
             return false;
         }

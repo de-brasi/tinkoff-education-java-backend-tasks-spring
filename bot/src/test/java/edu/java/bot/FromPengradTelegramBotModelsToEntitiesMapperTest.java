@@ -11,22 +11,24 @@ import edu.java.bot.entities.CommandCallContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class FromPengradTelegramBotModelsToEntitiesMapperTest {
-    @Mock Update updateFromServer;
+class FromPengradTelegramBotModelsToEntitiesMapperTest {
+    @Mock
+    Update updateFromServer;
 
-    @Mock Message message;
+    @Mock
+    Message message;
 
-    @Mock User user;
+    @Mock
+    User user;
 
-    @Mock Chat chat;
+    @Mock
+    Chat chat;
 
     @Test
     @DisplayName("Test mapping from Update to Command")

@@ -3,6 +3,7 @@ package edu.java.bot.services;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
+import edu.java.bot.customexceptions.NullTelegramTokenException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,11 +12,11 @@ public class TelegramBotWrapper extends TelegramBot {
         super(botToken);
     }
 
-    public static TelegramBotWrapper createBotWithTokenFromEnv(String variableName) {
+    public static TelegramBotWrapper createBotWithTokenFromEnv(String variableName) throws NullTelegramTokenException {
         String token = System.getenv(variableName);
 
         if (token == null) {
-            throw new RuntimeException(String.format(
+            throw new NullTelegramTokenException(String.format(
                 "Environment variable with name %s not found! "
                     + "Make sure you set the Telegram token value in the environment variables by this name",
                 variableName

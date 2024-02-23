@@ -2,6 +2,7 @@ package edu.java.bot;
 
 import com.pengrad.telegrambot.ExceptionHandler;
 import edu.java.bot.core.commands.ReadyToUseCommands;
+import edu.java.bot.customexceptions.NullTelegramTokenException;
 import edu.java.bot.repository.implementations.UserRepositoryMockImpl;
 import edu.java.bot.repository.interfaces.UsersRepository;
 import edu.java.bot.services.LinkTrackerErrorHandler;
@@ -13,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 public class Main {
     private Main() {}
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NullTelegramTokenException {
         TelegramBotWrapper bot = TelegramBotWrapper.createBotWithTokenFromEnv("TELEGRAM_TOKEN");
 
         UsersRepository mockRepo = new UserRepositoryMockImpl();

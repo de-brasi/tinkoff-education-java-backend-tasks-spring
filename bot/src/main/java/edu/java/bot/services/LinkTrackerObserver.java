@@ -9,6 +9,7 @@ import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
 import edu.java.bot.core.commands.TelegramBotCommand;
 import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
+import edu.java.bot.customexceptions.InvalidHandlersChainException;
 import edu.java.bot.entities.CommandCallContext;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +55,7 @@ public class LinkTrackerObserver implements UpdatesListener {
 
             if (!verifyHandlersChain()) {
                 bot.sendPlainTextMessage(chatId, "Sorry! This bot is not available now :(");
-                throw new RuntimeException(
+                throw new InvalidHandlersChainException(
                     "Chain of handlers not configured or configured with failure. handlersChainHead is null!"
                 );
             }

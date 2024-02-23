@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 @EnableScheduling
 public class LinkUpdaterScheduler {
+    @SuppressWarnings("RegexpSinglelineJava")
     @Scheduled(fixedDelayString = "#{@scheduler.interval()}")
     public void update() {
         System.out.println("Update");

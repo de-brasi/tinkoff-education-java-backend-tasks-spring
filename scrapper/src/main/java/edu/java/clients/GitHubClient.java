@@ -4,6 +4,8 @@ import edu.java.entities.UpdateResponse;
 import java.time.OffsetDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import edu.java.exceptions.EmptyResponseBodyException;
+import edu.java.exceptions.FieldNotFoundException;
 import org.springframework.web.client.RestClient;
 
 public class GitHubClient {
@@ -21,7 +23,8 @@ public class GitHubClient {
         this.restClient = restClientBuilder.baseUrl(baseUrl).build();
     }
 
-    public UpdateResponse fetchUpdate(String owner, String repo) {
+    public UpdateResponse fetchUpdate(String owner, String repo)
+        throws EmptyResponseBodyException, FieldNotFoundException {
         String responseBody = this.restClient
             .get()
             .uri("/{owner}/{repo}", owner, repo)
@@ -31,11 +34,15 @@ public class GitHubClient {
         Pattern dateSearchPattern = Pattern.compile(
             "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
         );
-        assert responseBody != null;
+
+        if (responseBody == null) {
+            throw new EmptyResponseBodyException("Body has no content.");
+        }
+
         Matcher matcher = dateSearchPattern.matcher(responseBody);
 
         if (!matcher.find()) {
-            throw new IllegalStateException("No match found for last activity date");
+            throw new FieldNotFoundException("No match found for 'updated_at' field.");
         }
 
         String updTimeString = matcher.group(1);

@@ -3,6 +3,8 @@ package edu.java;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
 import edu.java.configuration.ApplicationConfig;
+import edu.java.exceptions.EmptyResponseBodyException;
+import edu.java.exceptions.FieldNotFoundException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -11,7 +13,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties(ApplicationConfig.class)
 public class ScrapperApplication {
     @SuppressWarnings("RegexpSinglelineJava")
-    public static void main(String[] args) {
+    public static void main(String[] args) throws EmptyResponseBodyException, FieldNotFoundException {
         var context = SpringApplication.run(ScrapperApplication.class, args);
 
         // бин gitHubClient из контекста

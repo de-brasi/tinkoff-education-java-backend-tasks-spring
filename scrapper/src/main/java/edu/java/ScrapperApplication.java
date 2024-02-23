@@ -28,7 +28,5 @@ public class ScrapperApplication {
             context.getBean("stackOverflowClient", StackOverflowClient.class);
         final int questionId = 41808152;
         System.out.println("StackoverflowClient: " + stackoverflowClient.fetchUpdate(questionId));
-
-        context.close();
     }
 }

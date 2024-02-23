@@ -1,9 +1,9 @@
 package edu.java.bot.core.util;
 
-import org.springframework.http.HttpStatusCode;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import org.springframework.http.HttpStatusCode;
 
 public class Link {
     private static final int BAD_HTTP_RESPONSE_UPPER_BOUND = 500;

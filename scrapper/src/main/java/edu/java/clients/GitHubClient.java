@@ -1,11 +1,11 @@
 package edu.java.clients;
 
 import edu.java.entities.UpdateResponse;
+import edu.java.exceptions.EmptyResponseBodyException;
+import edu.java.exceptions.FieldNotFoundException;
 import java.time.OffsetDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import edu.java.exceptions.EmptyResponseBodyException;
-import edu.java.exceptions.FieldNotFoundException;
 import org.springframework.web.client.RestClient;
 
 public class GitHubClient {

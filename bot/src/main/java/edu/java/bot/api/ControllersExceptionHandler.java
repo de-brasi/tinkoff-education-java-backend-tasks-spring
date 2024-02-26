@@ -19,7 +19,7 @@ public class ControllersExceptionHandler {
                 "chat id not exists stub error",
                 "000",
                 "ChatIdNotExistsException",
-                "stub",
+                e.getMessage(),
                 Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)
                     .toList()
@@ -35,7 +35,7 @@ public class ControllersExceptionHandler {
                 "double adding link stub error",
                 "000",
                 "ReAddingLinkException",
-                "stub",
+                e.getMessage(),
                 Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)
                     .toList()
@@ -51,7 +51,7 @@ public class ControllersExceptionHandler {
                 "double registration stub error",
                 "000",
                 "ReRegistrationException",
-                "stub",
+                e.getMessage(),
                 Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)
                     .toList()

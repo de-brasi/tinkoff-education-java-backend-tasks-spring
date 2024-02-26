@@ -4,14 +4,16 @@ import edu.java.bot.api.dtos.ApiErrorResponse;
 import edu.java.bot.api.exceptions.ChatIdNotExistsException;
 import edu.java.bot.api.exceptions.ReAddingLinkException;
 import edu.java.bot.api.exceptions.ReRegistrationException;
+import java.util.Arrays;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import java.util.Arrays;
 
 @RestControllerAdvice
+@SuppressWarnings("MultipleStringLiterals")
 public class ControllersExceptionHandler {
     @ExceptionHandler(ChatIdNotExistsException.class)
     public ResponseEntity<ApiErrorResponse> invalidChatExceptionHandler(Exception e) {
@@ -25,7 +27,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(400)
+            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
         );
     }
 
@@ -41,7 +43,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(400)
+            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
         );
     }
 
@@ -57,7 +59,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(400)
+            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
         );
     }
 
@@ -73,7 +75,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(400)
+            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
         );
     }
 }

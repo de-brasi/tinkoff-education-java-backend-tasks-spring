@@ -6,6 +6,7 @@ import edu.java.bot.api.exceptions.ReAddingLinkException;
 import edu.java.bot.api.exceptions.ReRegistrationException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Arrays;
@@ -51,6 +52,22 @@ public class ControllersExceptionHandler {
                 "double registration stub error",
                 "000",
                 "ReRegistrationException",
+                e.getMessage(),
+                Arrays.stream(e.getStackTrace())
+                    .map(StackTraceElement::toString)
+                    .toList()
+            ),
+            HttpStatusCode.valueOf(400)
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResponse> notReadableExceptionHandler(Exception e) {
+        return new ResponseEntity<>(
+            new ApiErrorResponse(
+                "not readable exception stub error",
+                "000",
+                "HttpMessageNotReadableException",
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)

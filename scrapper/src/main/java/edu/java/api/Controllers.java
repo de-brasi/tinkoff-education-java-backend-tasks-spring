@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 @RequestMapping(
@@ -47,7 +48,15 @@ public class Controllers {
         //  - некорректные параметры 400
         System.out.println(tgChatId);
 
-        return new ResponseEntity<>(new ListLinksResponse(), HttpStatusCode.valueOf(200));
+        final ListLinksResponse stub = new ListLinksResponse(
+            List.of(
+                new LinkResponse(1, "https://www.wikipedia.org/"),
+                new LinkResponse(2, "https://en.wikipedia.org/wiki/Main_Page")
+            ),
+            2
+        );
+
+        return new ResponseEntity<>(stub, HttpStatusCode.valueOf(200));
     }
 
     @PostMapping(value = "/links")
@@ -56,7 +65,15 @@ public class Controllers {
         //  - некорректные параметры 400
         System.out.println(tgChatId);
 
-        return new ResponseEntity<>(new LinkResponse(), HttpStatusCode.valueOf(200));
+        final ListLinksResponse stub = new ListLinksResponse(
+            List.of(
+                new LinkResponse(1, "https://www.wikipedia.org/"),
+                new LinkResponse(2, "https://en.wikipedia.org/wiki/Main_Page")
+            ),
+            2
+        );
+
+        return new ResponseEntity<>(stub, HttpStatusCode.valueOf(200));
     }
 
     @DeleteMapping(value = "/links")
@@ -66,7 +83,15 @@ public class Controllers {
         //  - чат не существует 404
         System.out.println(tgChatId);
 
-        return new ResponseEntity<>(new LinkResponse(), HttpStatusCode.valueOf(200));
+        final ListLinksResponse stub = new ListLinksResponse(
+            List.of(
+                new LinkResponse(1, "https://www.wikipedia.org/"),
+                new LinkResponse(2, "https://en.wikipedia.org/wiki/Main_Page")
+            ),
+            2
+        );
+
+        return new ResponseEntity<>(stub, HttpStatusCode.valueOf(200));
     }
 
 }

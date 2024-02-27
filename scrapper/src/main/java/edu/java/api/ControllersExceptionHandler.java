@@ -10,8 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 @SuppressWarnings("MultipleStringLiterals")
@@ -23,7 +25,7 @@ public class ControllersExceptionHandler {
             new ApiErrorResponse(
                 "chat id not exists stub error",
                 "000",
-                "ChatIdNotExistsException",
+                e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)
@@ -39,7 +41,7 @@ public class ControllersExceptionHandler {
             new ApiErrorResponse(
                 "no such link stored stub error",
                 "000",
-                "LinkNotExistsException",
+                e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)
@@ -55,7 +57,7 @@ public class ControllersExceptionHandler {
             new ApiErrorResponse(
                 "double adding link stub error",
                 "000",
-                "ReAddingLinkException",
+                e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)
@@ -71,7 +73,7 @@ public class ControllersExceptionHandler {
             new ApiErrorResponse(
                 "double registration stub error",
                 "000",
-                "ReRegistrationException",
+                e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)
@@ -87,7 +89,27 @@ public class ControllersExceptionHandler {
             new ApiErrorResponse(
                 "not readable exception stub error",
                 "000",
-                "HttpMessageNotReadableException",
+                e.getClass().getCanonicalName(),
+                e.getMessage(),
+                Arrays.stream(e.getStackTrace())
+                    .map(StackTraceElement::toString)
+                    .toList()
+            ),
+            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
+        );
+    }
+
+    // TODO: тип при парсинге id
+    @ExceptionHandler({
+        MissingRequestHeaderException.class,
+        MethodArgumentTypeMismatchException.class
+    })
+    public ResponseEntity<ApiErrorResponse> incompleteRequestHandler(Exception e) {
+        return new ResponseEntity<>(
+            new ApiErrorResponse(
+                "internal stub error",
+                "000",
+                e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)
@@ -103,7 +125,7 @@ public class ControllersExceptionHandler {
             new ApiErrorResponse(
                 "internal stub error",
                 "000",
-                "Exception",
+                e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)

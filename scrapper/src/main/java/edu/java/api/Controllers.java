@@ -51,7 +51,7 @@ public class Controllers {
 
     // TODO: параметр в Header
     @GetMapping(value = "/links")
-    public ResponseEntity<?> handleGetLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
+    public ResponseEntity<ListLinksResponse> handleGetLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
         // todo:
         //  - некорректные параметры 400
         System.out.println(tgChatId);

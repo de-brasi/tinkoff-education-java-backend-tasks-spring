@@ -22,6 +22,14 @@ import java.util.List;
 )
 public class Controllers {
 
+    private static final ListLinksResponse listLinksResponseStub = new ListLinksResponse(
+        List.of(
+            new LinkResponse(1, "https://www.wikipedia.org/"),
+            new LinkResponse(2, "https://en.wikipedia.org/wiki/Main_Page")
+        ),
+        2
+    );
+
     @PostMapping(value = "/tg-chat/{id}")
     public ResponseEntity<ApiErrorResponse> handleRegistryChat(@PathVariable Long id) {
         // todo:
@@ -48,15 +56,7 @@ public class Controllers {
         //  - некорректные параметры 400
         System.out.println(tgChatId);
 
-        final ListLinksResponse stub = new ListLinksResponse(
-            List.of(
-                new LinkResponse(1, "https://www.wikipedia.org/"),
-                new LinkResponse(2, "https://en.wikipedia.org/wiki/Main_Page")
-            ),
-            2
-        );
-
-        return new ResponseEntity<>(stub, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(listLinksResponseStub, HttpStatusCode.valueOf(200));
     }
 
     @PostMapping(value = "/links")
@@ -65,15 +65,7 @@ public class Controllers {
         //  - некорректные параметры 400
         System.out.println(tgChatId);
 
-        final ListLinksResponse stub = new ListLinksResponse(
-            List.of(
-                new LinkResponse(1, "https://www.wikipedia.org/"),
-                new LinkResponse(2, "https://en.wikipedia.org/wiki/Main_Page")
-            ),
-            2
-        );
-
-        return new ResponseEntity<>(stub, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(listLinksResponseStub, HttpStatusCode.valueOf(200));
     }
 
     @DeleteMapping(value = "/links")
@@ -83,15 +75,7 @@ public class Controllers {
         //  - чат не существует 404
         System.out.println(tgChatId);
 
-        final ListLinksResponse stub = new ListLinksResponse(
-            List.of(
-                new LinkResponse(1, "https://www.wikipedia.org/"),
-                new LinkResponse(2, "https://en.wikipedia.org/wiki/Main_Page")
-            ),
-            2
-        );
-
-        return new ResponseEntity<>(stub, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(listLinksResponseStub, HttpStatusCode.valueOf(200));
     }
 
 }

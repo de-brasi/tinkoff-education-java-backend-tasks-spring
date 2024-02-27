@@ -1,6 +1,6 @@
 package edu.java.api.dtos;
 
 public class LinkResponse {
-    int id;
+    long id;
     String url;
 }

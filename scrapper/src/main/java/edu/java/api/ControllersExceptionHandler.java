@@ -24,7 +24,7 @@ public class ControllersExceptionHandler {
         return new ResponseEntity<>(
             new ApiErrorResponse(
                 "chat id not exists stub error",
-                "000",
+                "1",
                 e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
@@ -40,7 +40,7 @@ public class ControllersExceptionHandler {
         return new ResponseEntity<>(
             new ApiErrorResponse(
                 "no such link stored stub error",
-                "000",
+                "2",
                 e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
@@ -72,7 +72,7 @@ public class ControllersExceptionHandler {
         return new ResponseEntity<>(
             new ApiErrorResponse(
                 "double registration stub error",
-                "000",
+                "3",
                 e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
@@ -88,7 +88,7 @@ public class ControllersExceptionHandler {
         return new ResponseEntity<>(
             new ApiErrorResponse(
                 "not readable exception stub error",
-                "000",
+                "4",
                 e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
@@ -108,7 +108,7 @@ public class ControllersExceptionHandler {
         return new ResponseEntity<>(
             new ApiErrorResponse(
                 "internal stub error",
-                "000",
+                "5",
                 e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())
@@ -124,7 +124,7 @@ public class ControllersExceptionHandler {
         return new ResponseEntity<>(
             new ApiErrorResponse(
                 "internal stub error",
-                "000",
+                "6",
                 e.getClass().getCanonicalName(),
                 e.getMessage(),
                 Arrays.stream(e.getStackTrace())

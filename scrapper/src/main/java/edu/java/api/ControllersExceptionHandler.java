@@ -99,7 +99,6 @@ public class ControllersExceptionHandler {
         );
     }
 
-    // TODO: тип при парсинге id
     @ExceptionHandler({
         MissingRequestHeaderException.class,
         MethodArgumentTypeMismatchException.class

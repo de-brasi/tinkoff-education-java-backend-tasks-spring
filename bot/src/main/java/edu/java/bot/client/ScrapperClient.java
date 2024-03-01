@@ -1,14 +1,14 @@
 package edu.java.bot.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.java.bot.client.dtos.AddLinkRequest;
-import edu.java.bot.client.dtos.ApiErrorResponse;
-import edu.java.bot.client.dtos.LinkResponse;
-import edu.java.bot.client.dtos.ListLinksResponse;
-import edu.java.bot.client.dtos.RemoveLinkRequest;
-import edu.java.bot.client.exceptions.ChatIdNotExistsException;
-import edu.java.bot.client.exceptions.IncorrectRequestException;
-import edu.java.bot.client.exceptions.UnexpectedResponse;
+import edu.common.dtos.AddLinkRequest;
+import edu.common.dtos.ApiErrorResponse;
+import edu.common.dtos.LinkResponse;
+import edu.common.dtos.ListLinksResponse;
+import edu.common.dtos.RemoveLinkRequest;
+import edu.common.exceptions.ChatIdNotExistsException;
+import edu.common.exceptions.IncorrectRequestException;
+import edu.common.exceptions.UnexpectedResponse;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;

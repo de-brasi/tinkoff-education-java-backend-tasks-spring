@@ -1,6 +1,6 @@
 package edu.java.api.exceptions;
 
-public class ReRegistrationException extends Exception {
+public class ReRegistrationException extends RuntimeException {
     @SuppressWarnings("AvoidNoArgumentSuperConstructorCall")
     public ReRegistrationException() {
         super();

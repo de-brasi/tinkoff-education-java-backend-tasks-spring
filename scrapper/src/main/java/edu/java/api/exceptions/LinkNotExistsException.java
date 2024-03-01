@@ -1,6 +1,6 @@
 package edu.java.api.exceptions;
 
-public class LinkNotExistsException extends Exception {
+public class LinkNotExistsException extends RuntimeException {
     @SuppressWarnings("AvoidNoArgumentSuperConstructorCall")
     public LinkNotExistsException() {
         super();

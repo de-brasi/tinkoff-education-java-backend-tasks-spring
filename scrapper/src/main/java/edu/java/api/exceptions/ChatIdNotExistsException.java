@@ -1,6 +1,6 @@
 package edu.java.api.exceptions;
 
-public class ChatIdNotExistsException extends Exception {
+public class ChatIdNotExistsException extends RuntimeException {
     @SuppressWarnings("AvoidNoArgumentSuperConstructorCall")
     public ChatIdNotExistsException() {
         super();

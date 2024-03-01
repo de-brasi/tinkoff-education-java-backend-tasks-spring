@@ -1,6 +1,6 @@
 package edu.java.api.exceptions;
 
-public class ReAddingLinkException extends Exception {
+public class ReAddingLinkException extends RuntimeException {
     @SuppressWarnings("AvoidNoArgumentSuperConstructorCall")
     public ReAddingLinkException() {
         super();

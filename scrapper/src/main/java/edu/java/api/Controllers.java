@@ -1,8 +1,8 @@
 package edu.java.api;
 
-import edu.java.api.dtos.ApiErrorResponse;
-import edu.java.api.dtos.LinkResponse;
-import edu.java.api.dtos.ListLinksResponse;
+import edu.common.dtos.ApiErrorResponse;
+import edu.common.dtos.LinkResponse;
+import edu.common.dtos.ListLinksResponse;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

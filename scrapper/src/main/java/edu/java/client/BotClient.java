@@ -1,8 +1,8 @@
 package edu.java.client;
 
-import edu.java.client.dtos.ApiErrorResponse;
-import edu.java.client.dtos.LinkUpdateRequest;
-import edu.java.client.exceptions.IncorrectRequestException;
+import edu.common.dtos.ApiErrorResponse;
+import edu.common.dtos.LinkUpdateRequest;
+import edu.common.exceptions.IncorrectRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 import java.util.List;

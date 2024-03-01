@@ -26,6 +26,7 @@ public class BotClient {
         this.restClient = restClientBuilder.baseUrl(baseUrl).build();
     }
 
+    // TODO: исправить обработку ошибок
     public void sendUpdates(
         int id, String updatedUrl, String updateDescription, List<Integer> subscribers
     ) {
@@ -41,6 +42,8 @@ public class BotClient {
         if (!response.getStatusCode().is2xxSuccessful()) {
             // todo: better logging
             System.out.println(response.getBody());
+
+            // todo отличать ошибку 400 от 404 и тд, то есть сделать как в клиенте bot
             throw new IncorrectRequestException(
                 Objects.requireNonNull(response.getBody()).getExceptionMessage()
             );

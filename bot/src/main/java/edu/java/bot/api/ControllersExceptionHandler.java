@@ -1,8 +1,8 @@
 package edu.java.bot.api;
 
-import edu.java.bot.api.dtos.ApiErrorResponse;
-import edu.java.bot.api.exceptions.ChatIdNotExistsException;
 import java.util.Arrays;
+import edu.common.dtos.ApiErrorResponse;
+import edu.common.exceptions.ChatIdNotExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;

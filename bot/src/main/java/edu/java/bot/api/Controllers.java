@@ -1,7 +1,7 @@
 package edu.java.bot.api;
 
-import edu.java.bot.api.dtos.ApiErrorResponse;
-import edu.java.bot.api.dtos.LinkUpdateRequest;
+import edu.common.dtos.ApiErrorResponse;
+import edu.common.dtos.LinkUpdateRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;

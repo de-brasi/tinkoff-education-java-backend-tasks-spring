@@ -10,12 +10,11 @@ import edu.java.bot.client.exceptions.IncorrectRequestException;
 import edu.java.bot.client.exceptions.UnexpectedResponse;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
-import java.util.Objects;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-//TODO: при обработке ошибок запросов в вывод писать И запрос, И ответ
+// TODO: при обработке ошибок запросов в вывод писать И запрос, И ответ
+// TODO: обрабатывать ошибки сервера - 5xx
 public class ScrapperClient {
 
     private final RestClient restClient;
@@ -27,6 +26,19 @@ public class ScrapperClient {
     private final static String ENDPOINT_LINK_MANAGEMENT_PREFIX = "/links";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final RestClient.ResponseSpec.ErrorHandler LINK_MANAGEMENT_CODE_4xx_ERROR_HANDLER = (req, resp) -> {
+        ApiErrorResponse errorResponse = objectMapper.readValue(
+            new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+        );
+
+        if (resp.getStatusCode().value() == 400) {
+            throw new IncorrectRequestException(errorResponse.getExceptionMessage());
+        } else {
+            throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
+        }
+
+    };
 
     public ScrapperClient(RestClient.Builder restClientBuilder) {
         this.restClient = restClientBuilder.baseUrl(ScrapperClient.DEFAULT_BASE_URL).build();
@@ -95,26 +107,12 @@ public class ScrapperClient {
             .uri(ScrapperClient.ENDPOINT_LINK_MANAGEMENT_PREFIX)
             .header("Tg-Chat-Id", "%d".formatted(chatId))
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
-                ApiErrorResponse errorResponse = objectMapper.readValue(
-                    new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
-                );
-
-                if (resp.getStatusCode().value() == 400) {
-                    throw new IncorrectRequestException(errorResponse.getExceptionMessage());
-                } else {
-                    throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
-                }
-
-            })
+            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_CODE_4xx_ERROR_HANDLER)
             .body(ListLinksResponse.class);
     }
 
     // todo: собственный DTO который хранит ссылку в типе URI
     public LinkResponse trackLink(Long chatId, String link) {
-        // todo
-        // todo: как обработать ошибку?
-
         AddLinkRequest requestBody = new AddLinkRequest(link);
         return this.restClient
             .post()
@@ -122,50 +120,20 @@ public class ScrapperClient {
             .header("Tg-Chat-Id", "%d".formatted(chatId))
             .body(requestBody)
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
-                ApiErrorResponse errorResponse = objectMapper.readValue(
-                    new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
-                );
-
-                if (resp.getStatusCode().value() == 400) {
-                    throw new IncorrectRequestException(errorResponse.getExceptionMessage());
-                } else {
-                    throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
-                }
-
-            })
+            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_CODE_4xx_ERROR_HANDLER)
             .body(LinkResponse.class);
     }
 
     // todo: собственный DTO который хранит ссылку в типе URI
     public LinkResponse untrackLink(Long chatId, String link) {
         AddLinkRequest requestBody = new AddLinkRequest(link);
-
         return this.restClient
             .method(HttpMethod.DELETE)
             .uri(ScrapperClient.ENDPOINT_LINK_MANAGEMENT_PREFIX)
             .header("Tg-Chat-Id", "%d".formatted(chatId))
             .body(requestBody)
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
-                ApiErrorResponse errorResponse = objectMapper.readValue(
-                    new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
-                );
-
-                if (resp.getStatusCode().value() == 400) {
-                    throw new IncorrectRequestException(errorResponse.getExceptionMessage());
-                } else {
-                    throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
-                }
-
-            })
+            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_CODE_4xx_ERROR_HANDLER)
             .body(LinkResponse.class);
-    }
-
-    private static void logResponseIfNotStatus2xx(ResponseEntity<?> response) {
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            // todo: better logging
-            System.out.println(response.getBody());
-        }
     }
 }

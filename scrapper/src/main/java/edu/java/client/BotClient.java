@@ -1,10 +1,12 @@
 package edu.java.client;
 
-import edu.java.api.dtos.ApiErrorResponse;
-import edu.java.api.dtos.LinkUpdateRequest;
+import edu.java.client.dtos.ApiErrorResponse;
+import edu.java.client.dtos.LinkUpdateRequest;
+import edu.java.client.exceptions.IncorrectRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 import java.util.List;
+import java.util.Objects;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 public class BotClient {
@@ -24,8 +26,7 @@ public class BotClient {
         this.restClient = restClientBuilder.baseUrl(baseUrl).build();
     }
 
-    // todo: возврат void, если ответ не 200, то бросать какую то ошибку
-    public ApiErrorResponse sendUpdates(
+    public void sendUpdates(
         int id, String updatedUrl, String updateDescription, List<Integer> subscribers
     ) {
         LinkUpdateRequest updates = new LinkUpdateRequest(id, updatedUrl, updateDescription, subscribers);
@@ -40,9 +41,10 @@ public class BotClient {
         if (!response.getStatusCode().is2xxSuccessful()) {
             // todo: better logging
             System.out.println(response.getBody());
+            throw new IncorrectRequestException(
+                Objects.requireNonNull(response.getBody()).getExceptionMessage()
+            );
         }
-
-        return response.getBody();
     }
 
 }

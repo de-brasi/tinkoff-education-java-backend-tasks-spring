@@ -5,6 +5,7 @@ import edu.java.bot.client.dtos.AddLinkRequest;
 import edu.java.bot.client.dtos.ApiErrorResponse;
 import edu.java.bot.client.dtos.LinkResponse;
 import edu.java.bot.client.dtos.ListLinksResponse;
+import edu.java.bot.client.dtos.RemoveLinkRequest;
 import edu.java.bot.client.exceptions.ChatIdNotExistsException;
 import edu.java.bot.client.exceptions.IncorrectRequestException;
 import edu.java.bot.client.exceptions.UnexpectedResponse;
@@ -126,7 +127,7 @@ public class ScrapperClient {
 
     // todo: собственный DTO который хранит ссылку в типе URI
     public LinkResponse untrackLink(Long chatId, String link) {
-        AddLinkRequest requestBody = new AddLinkRequest(link);
+        RemoveLinkRequest requestBody = new RemoveLinkRequest(link);
         return this.restClient
             .method(HttpMethod.DELETE)
             .uri(ScrapperClient.ENDPOINT_LINK_MANAGEMENT_PREFIX)

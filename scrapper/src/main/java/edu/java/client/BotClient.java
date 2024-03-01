@@ -24,6 +24,7 @@ public class BotClient {
         this.restClient = restClientBuilder.baseUrl(baseUrl).build();
     }
 
+    // todo: возврат void, если ответ не 200, то бросать какую то ошибку
     public ApiErrorResponse sendUpdates(
         int id, String updatedUrl, String updateDescription, List<Integer> subscribers
     ) {

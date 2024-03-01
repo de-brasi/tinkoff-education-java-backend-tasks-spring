@@ -30,6 +30,10 @@ public class Controllers {
         2
     );
 
+    private static final LinkResponse linksResponseStub = new LinkResponse(
+        0L, "some url"
+    );
+
     @PostMapping(value = "/tg-chat/{id}")
     public ResponseEntity<ApiErrorResponse> handleRegistryChat(@PathVariable Long id) {
         // todo:
@@ -65,7 +69,7 @@ public class Controllers {
         //  - некорректные параметры 400
         System.out.println(tgChatId);
 
-        return new ResponseEntity<>(listLinksResponseStub, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(linksResponseStub, HttpStatusCode.valueOf(200));
     }
 
     @DeleteMapping(value = "/links")
@@ -75,7 +79,7 @@ public class Controllers {
         //  - чат не существует 404
         System.out.println(tgChatId);
 
-        return new ResponseEntity<>(listLinksResponseStub, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(linksResponseStub, HttpStatusCode.valueOf(200));
     }
 
 }

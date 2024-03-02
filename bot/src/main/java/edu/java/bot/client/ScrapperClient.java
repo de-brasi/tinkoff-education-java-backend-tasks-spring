@@ -15,7 +15,6 @@ import org.springframework.web.client.RestClient;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 // TODO: при обработке ошибок запросов в вывод писать И запрос, И ответ
-// TODO: обрабатывать ошибки сервера - 5xx
 public class ScrapperClient {
 
     private final RestClient restClient;
@@ -27,6 +26,16 @@ public class ScrapperClient {
     private final static String ENDPOINT_LINK_MANAGEMENT_PREFIX = "/links";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final RestClient.ResponseSpec.ErrorHandler DEFAULT_UNEXPECTED_STATUS_HANDLER = (req, resp) -> {
+        ApiErrorResponse errorResponse = objectMapper.readValue(
+            new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+        );
+        throw new UnexpectedResponse(
+            resp.getStatusCode().value(),
+            errorResponse.getExceptionMessage()
+        );
+    };
 
     private final RestClient.ResponseSpec.ErrorHandler LINK_MANAGEMENT_STATUS_4xx_HANDLER = (req, resp) -> {
         ApiErrorResponse errorResponse = objectMapper.readValue(
@@ -55,6 +64,8 @@ public class ScrapperClient {
             .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + "/%d".formatted(chatId))
             .contentType(APPLICATION_JSON)
             .retrieve()
+            .onStatus(HttpStatusCode::is1xxInformational, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is3xxRedirection, DEFAULT_UNEXPECTED_STATUS_HANDLER)
             .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
                 ApiErrorResponse errorResponse = objectMapper.readValue(
                     new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
@@ -71,7 +82,7 @@ public class ScrapperClient {
                 );
 
             })
-            .toEntity(ApiErrorResponse.class);
+            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER);
     }
 
     public void deleteChat(Long chatId) {
@@ -79,6 +90,8 @@ public class ScrapperClient {
             .delete()
             .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + "/%d".formatted(chatId))
             .retrieve()
+            .onStatus(HttpStatusCode::is1xxInformational, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is3xxRedirection, DEFAULT_UNEXPECTED_STATUS_HANDLER)
             .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
                 ApiErrorResponse errorResponse = objectMapper.readValue(
                     new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
@@ -98,7 +111,7 @@ public class ScrapperClient {
                 }
 
             })
-            .toEntity(ApiErrorResponse.class);
+            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER);
     }
 
     // todo: собственный DTO который хранит ссылку в типе URI
@@ -108,7 +121,10 @@ public class ScrapperClient {
             .uri(ScrapperClient.ENDPOINT_LINK_MANAGEMENT_PREFIX)
             .header("Tg-Chat-Id", "%d".formatted(chatId))
             .retrieve()
+            .onStatus(HttpStatusCode::is1xxInformational, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is3xxRedirection, DEFAULT_UNEXPECTED_STATUS_HANDLER)
             .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_STATUS_4xx_HANDLER)
+            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER)
             .body(ListLinksResponse.class);
     }
 
@@ -121,7 +137,10 @@ public class ScrapperClient {
             .header("Tg-Chat-Id", "%d".formatted(chatId))
             .body(requestBody)
             .retrieve()
+            .onStatus(HttpStatusCode::is1xxInformational, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is3xxRedirection, DEFAULT_UNEXPECTED_STATUS_HANDLER)
             .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_STATUS_4xx_HANDLER)
+            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER)
             .body(LinkResponse.class);
     }
 
@@ -134,7 +153,10 @@ public class ScrapperClient {
             .header("Tg-Chat-Id", "%d".formatted(chatId))
             .body(requestBody)
             .retrieve()
+            .onStatus(HttpStatusCode::is1xxInformational, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is3xxRedirection, DEFAULT_UNEXPECTED_STATUS_HANDLER)
             .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_STATUS_4xx_HANDLER)
+            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER)
             .body(LinkResponse.class);
     }
 }

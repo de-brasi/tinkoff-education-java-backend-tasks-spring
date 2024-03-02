@@ -36,7 +36,7 @@ public class Controllers {
 
     @PostMapping(value = "/tg-chat/{id}")
     public ResponseEntity<ApiErrorResponse> handleRegistryChat(@PathVariable Long id) {
-        // todo:
+        // todo проверять на:
         //  - некорректные параметры 400
         System.out.println(id);
 
@@ -45,7 +45,7 @@ public class Controllers {
 
     @DeleteMapping(value = "/tg-chat/{id}")
     public ResponseEntity<ApiErrorResponse> handleDeleteChat(@PathVariable Long id) {
-        // todo:
+        // todo проверять на:
         //  - некорректные параметры 400
         //  - чат не существует 404
         System.out.println(id);
@@ -56,7 +56,7 @@ public class Controllers {
     // TODO: параметр в Header
     @GetMapping(value = "/links")
     public ResponseEntity<ListLinksResponse> handleGetLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
-        // todo:
+        // todo проверять на:
         //  - некорректные параметры 400
         System.out.println(tgChatId);
 
@@ -65,7 +65,7 @@ public class Controllers {
 
     @PostMapping(value = "/links")
     public ResponseEntity<?> handlePostLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
-        // todo:
+        // todo проверять на:
         //  - некорректные параметры 400
         System.out.println(tgChatId);
 
@@ -74,7 +74,7 @@ public class Controllers {
 
     @DeleteMapping(value = "/links")
     public ResponseEntity<?> handleDeleteLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
-        // todo:
+        // todo проверять на:
         //  - некорректные параметры 400
         //  - чат не существует 404
         System.out.println(tgChatId);

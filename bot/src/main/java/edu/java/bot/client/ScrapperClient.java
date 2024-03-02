@@ -64,7 +64,7 @@ public class ScrapperClient {
     public void registerChat(Long chatId) {
         this.restClient
             .post()
-            .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + chatId)
+            .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + "/%d".formatted(chatId))
             .contentType(APPLICATION_JSON)
             .retrieve()
             .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
@@ -92,7 +92,7 @@ public class ScrapperClient {
     public void deleteChat(Long chatId) {
         this.restClient
             .delete()
-            .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + chatId)
+            .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + "/%d".formatted(chatId))
             .retrieve()
             .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
             .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)

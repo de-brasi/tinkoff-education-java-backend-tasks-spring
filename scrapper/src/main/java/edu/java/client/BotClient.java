@@ -62,12 +62,12 @@ public class BotClient {
         );
     };
 
-    public BotClient(RestClient.Builder restClientBuilder) {
-        this.restClient = restClientBuilder.baseUrl(BotClient.DEFAULT_BASE_URL).build();
+    public BotClient() {
+        this.restClient = RestClient.builder().baseUrl(BotClient.DEFAULT_BASE_URL).build();
     }
 
-    public BotClient(RestClient.Builder restClientBuilder, String baseUrl) {
-        this.restClient = restClientBuilder.baseUrl(baseUrl).build();
+    public BotClient(String baseUrl) {
+        this.restClient = RestClient.builder().baseUrl(baseUrl).build();
     }
 
     public void sendUpdates(

@@ -31,7 +31,7 @@ public class Controllers {
     );
 
     private static final LinkResponse linksResponseStub = new LinkResponse(
-        0L, "some url"
+        0L, "https://www.wikipedia.org/"
     );
 
     @PostMapping(value = "/tg-chat/{id}")

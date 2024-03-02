@@ -14,13 +14,11 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-// TODO: при обработке ошибок запросов в вывод писать И запрос, И ответ
-@SuppressWarnings("MagicNumber")
+@SuppressWarnings({"MagicNumber", "MultipleStringLiterals"})
 public class ScrapperClient {
 
     private final RestClient restClient;
 
-    // TODO: получить порт приложения Bot из его файла конфигурации
     private static final String DEFAULT_BASE_URL = "http://localhost:8080/scrapper/api";
 
     private static final String ENDPOINT_CHAT_MANAGEMENT_PREFIX = "/tg-chat";

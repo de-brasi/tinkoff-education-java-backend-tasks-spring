@@ -50,12 +50,12 @@ public class ScrapperClient {
 
     };
 
-    public ScrapperClient(RestClient.Builder restClientBuilder) {
-        this.restClient = restClientBuilder.baseUrl(ScrapperClient.DEFAULT_BASE_URL).build();
+    public ScrapperClient() {
+        this.restClient = RestClient.builder().baseUrl(ScrapperClient.DEFAULT_BASE_URL).build();
     }
 
-    public ScrapperClient(RestClient.Builder restClientBuilder, String baseUrl) {
-        this.restClient = restClientBuilder.baseUrl(baseUrl).build();
+    public ScrapperClient(String baseUrl) {
+        this.restClient = RestClient.builder().baseUrl(baseUrl).build();
     }
 
     public void registerChat(Long chatId) {
@@ -82,7 +82,8 @@ public class ScrapperClient {
                 );
 
             })
-            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER);
+            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .toBodilessEntity();
     }
 
     public void deleteChat(Long chatId) {
@@ -111,10 +112,10 @@ public class ScrapperClient {
                 }
 
             })
-            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER);
+            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .toBodilessEntity();
     }
 
-    // todo: собственный DTO который хранит ссылку в типе URI
     public ListLinksResponse getAllTrackedLinks(Long chatId) {
         return this.restClient
             .get()
@@ -128,7 +129,6 @@ public class ScrapperClient {
             .body(ListLinksResponse.class);
     }
 
-    // todo: собственный DTO который хранит ссылку в типе URI
     public LinkResponse trackLink(Long chatId, String link) {
         AddLinkRequest requestBody = new AddLinkRequest(link);
         return this.restClient
@@ -144,7 +144,6 @@ public class ScrapperClient {
             .body(LinkResponse.class);
     }
 
-    // todo: собственный DTO который хранит ссылку в типе URI
     public LinkResponse untrackLink(Long chatId, String link) {
         RemoveLinkRequest requestBody = new RemoveLinkRequest(link);
         return this.restClient

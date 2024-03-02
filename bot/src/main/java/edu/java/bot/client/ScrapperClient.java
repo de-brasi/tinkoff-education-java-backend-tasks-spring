@@ -15,19 +15,22 @@ import org.springframework.web.client.RestClient;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 // TODO: при обработке ошибок запросов в вывод писать И запрос, И ответ
+@SuppressWarnings("MagicNumber")
 public class ScrapperClient {
 
     private final RestClient restClient;
 
     // TODO: получить порт приложения Bot из его файла конфигурации
-    private final static String DEFAULT_BASE_URL = "http://localhost:8080/scrapper/api";
+    private static final String DEFAULT_BASE_URL = "http://localhost:8080/scrapper/api";
 
-    private final static String ENDPOINT_CHAT_MANAGEMENT_PREFIX = "/tg-chat";
-    private final static String ENDPOINT_LINK_MANAGEMENT_PREFIX = "/links";
+    private static final String ENDPOINT_CHAT_MANAGEMENT_PREFIX = "/tg-chat";
+    private static final String ENDPOINT_LINK_MANAGEMENT_PREFIX = "/links";
+
+    private static final String CUSTOM_HEADER_TG_CHAT_ID = "Tg-Chat-Id";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final RestClient.ResponseSpec.ErrorHandler DEFAULT_UNEXPECTED_STATUS_HANDLER = (req, resp) -> {
+    private final RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler = (req, resp) -> {
         ApiErrorResponse errorResponse = objectMapper.readValue(
             new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
         );
@@ -37,7 +40,7 @@ public class ScrapperClient {
         );
     };
 
-    private final RestClient.ResponseSpec.ErrorHandler LINK_MANAGEMENT_STATUS_4xx_HANDLER = (req, resp) -> {
+    private final RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler = (req, resp) -> {
         ApiErrorResponse errorResponse = objectMapper.readValue(
             new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
         );
@@ -61,11 +64,11 @@ public class ScrapperClient {
     public void registerChat(Long chatId) {
         this.restClient
             .post()
-            .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + "/%d".formatted(chatId))
+            .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + chatId)
             .contentType(APPLICATION_JSON)
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, DEFAULT_UNEXPECTED_STATUS_HANDLER)
-            .onStatus(HttpStatusCode::is3xxRedirection, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
             .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
                 ApiErrorResponse errorResponse = objectMapper.readValue(
                     new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
@@ -82,17 +85,17 @@ public class ScrapperClient {
                 );
 
             })
-            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is5xxServerError, defaultUnexpectedStatusHandler)
             .toBodilessEntity();
     }
 
     public void deleteChat(Long chatId) {
         this.restClient
             .delete()
-            .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + "/%d".formatted(chatId))
+            .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + chatId)
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, DEFAULT_UNEXPECTED_STATUS_HANDLER)
-            .onStatus(HttpStatusCode::is3xxRedirection, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
             .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
                 ApiErrorResponse errorResponse = objectMapper.readValue(
                     new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
@@ -112,7 +115,7 @@ public class ScrapperClient {
                 }
 
             })
-            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is5xxServerError, defaultUnexpectedStatusHandler)
             .toBodilessEntity();
     }
 
@@ -120,12 +123,12 @@ public class ScrapperClient {
         return this.restClient
             .get()
             .uri(ScrapperClient.ENDPOINT_LINK_MANAGEMENT_PREFIX)
-            .header("Tg-Chat-Id", "%d".formatted(chatId))
+            .header(CUSTOM_HEADER_TG_CHAT_ID, "%d".formatted(chatId))
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, DEFAULT_UNEXPECTED_STATUS_HANDLER)
-            .onStatus(HttpStatusCode::is3xxRedirection, DEFAULT_UNEXPECTED_STATUS_HANDLER)
-            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_STATUS_4xx_HANDLER)
-            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, linkManagementStatus4xxHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, defaultUnexpectedStatusHandler)
             .body(ListLinksResponse.class);
     }
 
@@ -134,13 +137,13 @@ public class ScrapperClient {
         return this.restClient
             .post()
             .uri(ScrapperClient.ENDPOINT_LINK_MANAGEMENT_PREFIX)
-            .header("Tg-Chat-Id", "%d".formatted(chatId))
+            .header(CUSTOM_HEADER_TG_CHAT_ID, "%d".formatted(chatId))
             .body(requestBody)
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, DEFAULT_UNEXPECTED_STATUS_HANDLER)
-            .onStatus(HttpStatusCode::is3xxRedirection, DEFAULT_UNEXPECTED_STATUS_HANDLER)
-            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_STATUS_4xx_HANDLER)
-            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, linkManagementStatus4xxHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, defaultUnexpectedStatusHandler)
             .body(LinkResponse.class);
     }
 
@@ -149,13 +152,13 @@ public class ScrapperClient {
         return this.restClient
             .method(HttpMethod.DELETE)
             .uri(ScrapperClient.ENDPOINT_LINK_MANAGEMENT_PREFIX)
-            .header("Tg-Chat-Id", "%d".formatted(chatId))
+            .header(CUSTOM_HEADER_TG_CHAT_ID, "%d".formatted(chatId))
             .body(requestBody)
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, DEFAULT_UNEXPECTED_STATUS_HANDLER)
-            .onStatus(HttpStatusCode::is3xxRedirection, DEFAULT_UNEXPECTED_STATUS_HANDLER)
-            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_STATUS_4xx_HANDLER)
-            .onStatus(HttpStatusCode::is5xxServerError, DEFAULT_UNEXPECTED_STATUS_HANDLER)
+            .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, linkManagementStatus4xxHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, defaultUnexpectedStatusHandler)
             .body(LinkResponse.class);
     }
 }

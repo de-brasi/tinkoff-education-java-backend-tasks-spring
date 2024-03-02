@@ -1,11 +1,11 @@
 package edu.java.api;
 
-import java.util.Arrays;
 import edu.common.dtos.ApiErrorResponse;
 import edu.common.exceptions.ChatIdNotExistsException;
 import edu.common.exceptions.LinkNotExistsException;
 import edu.common.exceptions.ReAddingLinkException;
 import edu.common.exceptions.ReRegistrationException;
+import java.util.Arrays;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;

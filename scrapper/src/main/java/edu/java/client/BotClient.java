@@ -5,11 +5,12 @@ import edu.common.dtos.ApiErrorResponse;
 import edu.common.dtos.LinkUpdateRequest;
 import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.UnexpectedResponse;
+import java.util.List;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
-import java.util.List;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
+@SuppressWarnings("MagicNumber")
 public class BotClient {
 
     private final RestClient restClient;
@@ -21,7 +22,7 @@ public class BotClient {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final RestClient.ResponseSpec.ErrorHandler ENDPOINT_UPDATES_STATUS_1xx_HANDLER = (req, resp) -> {
+    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler = (req, resp) -> {
         ApiErrorResponse errorResponse = objectMapper.readValue(
             new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
         );
@@ -31,7 +32,7 @@ public class BotClient {
         );
     };
 
-    private final RestClient.ResponseSpec.ErrorHandler ENDPOINT_UPDATES_STATUS_3xx_HANDLER = (req, resp) -> {
+    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus3xxHandler = (req, resp) -> {
         ApiErrorResponse errorResponse = objectMapper.readValue(
             new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
         );
@@ -41,7 +42,7 @@ public class BotClient {
         );
     };
 
-    private final RestClient.ResponseSpec.ErrorHandler ENDPOINT_UPDATES_STATUS_4xx_HANDLER = (req, resp) -> {
+    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus4xxHandler = (req, resp) -> {
         ApiErrorResponse errorResponse = objectMapper.readValue(
             new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
         );
@@ -52,7 +53,7 @@ public class BotClient {
         }
     };
 
-    private final RestClient.ResponseSpec.ErrorHandler ENDPOINT_UPDATES_STATUS_5xx_HANDLER = (req, resp) -> {
+    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus5xxHandler = (req, resp) -> {
         ApiErrorResponse errorResponse = objectMapper.readValue(
             new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
         );
@@ -80,10 +81,10 @@ public class BotClient {
             .contentType(APPLICATION_JSON)
             .body(updates)
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, ENDPOINT_UPDATES_STATUS_1xx_HANDLER)
-            .onStatus(HttpStatusCode::is3xxRedirection, ENDPOINT_UPDATES_STATUS_3xx_HANDLER)
-            .onStatus(HttpStatusCode::is4xxClientError, ENDPOINT_UPDATES_STATUS_4xx_HANDLER)
-            .onStatus(HttpStatusCode::is5xxServerError, ENDPOINT_UPDATES_STATUS_5xx_HANDLER)
+            .onStatus(HttpStatusCode::is1xxInformational, endpointUpdatesStatus1xxHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, endpointUpdatesStatus3xxHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, endpointUpdatesStatus4xxHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, endpointUpdatesStatus5xxHandler)
             .toBodilessEntity();
     }
 

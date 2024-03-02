@@ -28,7 +28,7 @@ public class ScrapperClient {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final RestClient.ResponseSpec.ErrorHandler LINK_MANAGEMENT_CODE_4xx_ERROR_HANDLER = (req, resp) -> {
+    private final RestClient.ResponseSpec.ErrorHandler LINK_MANAGEMENT_STATUS_4xx_HANDLER = (req, resp) -> {
         ApiErrorResponse errorResponse = objectMapper.readValue(
             new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
         );
@@ -108,7 +108,7 @@ public class ScrapperClient {
             .uri(ScrapperClient.ENDPOINT_LINK_MANAGEMENT_PREFIX)
             .header("Tg-Chat-Id", "%d".formatted(chatId))
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_CODE_4xx_ERROR_HANDLER)
+            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_STATUS_4xx_HANDLER)
             .body(ListLinksResponse.class);
     }
 
@@ -121,7 +121,7 @@ public class ScrapperClient {
             .header("Tg-Chat-Id", "%d".formatted(chatId))
             .body(requestBody)
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_CODE_4xx_ERROR_HANDLER)
+            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_STATUS_4xx_HANDLER)
             .body(LinkResponse.class);
     }
 
@@ -134,7 +134,7 @@ public class ScrapperClient {
             .header("Tg-Chat-Id", "%d".formatted(chatId))
             .body(requestBody)
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_CODE_4xx_ERROR_HANDLER)
+            .onStatus(HttpStatusCode::is4xxClientError, LINK_MANAGEMENT_STATUS_4xx_HANDLER)
             .body(LinkResponse.class);
     }
 }

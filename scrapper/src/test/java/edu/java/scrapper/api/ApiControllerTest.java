@@ -1,9 +1,9 @@
 package edu.java.scrapper.api;
 
+import edu.common.exceptions.ChatIdNotExistsException;
+import edu.common.exceptions.LinkNotExistsException;
+import edu.common.exceptions.ReRegistrationException;
 import edu.java.api.Controllers;
-import edu.java.api.exceptions.ChatIdNotExistsException;
-import edu.java.api.exceptions.LinkNotExistsException;
-import edu.java.api.exceptions.ReRegistrationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

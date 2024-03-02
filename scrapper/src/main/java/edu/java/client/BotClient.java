@@ -83,7 +83,8 @@ public class BotClient {
             .onStatus(HttpStatusCode::is1xxInformational, ENDPOINT_UPDATES_STATUS_1xx_HANDLER)
             .onStatus(HttpStatusCode::is3xxRedirection, ENDPOINT_UPDATES_STATUS_3xx_HANDLER)
             .onStatus(HttpStatusCode::is4xxClientError, ENDPOINT_UPDATES_STATUS_4xx_HANDLER)
-            .onStatus(HttpStatusCode::is5xxServerError, ENDPOINT_UPDATES_STATUS_5xx_HANDLER);
+            .onStatus(HttpStatusCode::is5xxServerError, ENDPOINT_UPDATES_STATUS_5xx_HANDLER)
+            .toBodilessEntity();
     }
 
 }

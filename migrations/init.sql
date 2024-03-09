@@ -11,7 +11,7 @@ create table links
     url text not null
 );
 
---changeset ilya:init-table-telegram_chat
+--changeset ilya:init-table-telegram-chat
 create table telegram_chat
 (
     id      bigint generated always as identity primary key,
@@ -19,7 +19,7 @@ create table telegram_chat
     unique (chat_id)
 );
 
---changeset ilya:init-relation-table-track_info
+--changeset ilya:init-relation-table-track-info
 create table track_info
 (
     id               bigint generated always as identity primary key,

@@ -2,7 +2,6 @@ package edu.java.scrapper;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import edu.java.clients.StackOverflowClient;
-import edu.java.exceptions.EmptyResponseBodyException;
 import edu.java.exceptions.FieldNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,14 +14,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.OffsetDateTime;
 import java.util.concurrent.atomic.AtomicReference;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.shouldHaveThrown;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ClientTestConfig.class)

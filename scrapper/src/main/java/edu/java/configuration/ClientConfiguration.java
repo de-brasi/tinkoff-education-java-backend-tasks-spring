@@ -9,11 +9,13 @@ import org.springframework.context.annotation.Configuration;
 public class ClientConfiguration {
     @Bean("gitHubClient")
     public GitHubClient gitHubClient() {
-        return new GitHubClient("https://api.github.com/repos/");
+        // todo: timeout value from config
+        return new GitHubClient("https://api.github.com/repos/", 1000);
     }
 
     @Bean("stackOverflowClient")
     public StackOverflowClient stackoverflowClient() {
-        return new StackOverflowClient();
+        // todo: timeout value from config
+        return new StackOverflowClient(1000);
     }
 }

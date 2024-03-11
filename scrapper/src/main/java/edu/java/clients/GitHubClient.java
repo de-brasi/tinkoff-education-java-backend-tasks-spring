@@ -24,19 +24,25 @@ public class GitHubClient {
     }
 
 
-    public GitHubClient(RestClient.Builder restClientBuilder) {
+    public GitHubClient() {
+        RestClient.Builder restClientBuilder = RestClient.builder();
+
         this.restClient = restClientBuilder
             .baseUrl(GitHubClient.DEFAULT_BASE_URL)
             .build();
     }
 
-    public GitHubClient(RestClient.Builder restClientBuilder, String baseUrl) {
+    public GitHubClient(String baseUrl) {
+        RestClient.Builder restClientBuilder = RestClient.builder();
+
         this.restClient = restClientBuilder
             .baseUrl(baseUrl)
             .build();
     }
 
-    public GitHubClient(RestClient.Builder restClientBuilder, int timeoutInMilliseconds) {
+    public GitHubClient(int timeoutInMilliseconds) {
+        RestClient.Builder restClientBuilder = RestClient.builder();
+
         var requestFactory = new JdkClientHttpRequestFactory();
         requestFactory.setReadTimeout(timeoutInMilliseconds);
 
@@ -46,7 +52,9 @@ public class GitHubClient {
             .build();
     }
 
-    public GitHubClient(RestClient.Builder restClientBuilder, String baseUrl, int timeoutInMilliseconds) {
+    public GitHubClient(String baseUrl, int timeoutInMilliseconds) {
+        RestClient.Builder restClientBuilder = RestClient.builder();
+
         var requestFactory = new JdkClientHttpRequestFactory();
         requestFactory.setReadTimeout(timeoutInMilliseconds);
 

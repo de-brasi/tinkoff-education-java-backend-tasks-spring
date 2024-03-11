@@ -24,7 +24,9 @@ public class StackOverflowClient {
         LAST_ACTIVITY_DATE_SEARCH_PATTERN = Pattern.compile("\"last_activity_date\":\\s*([0-9]+)");
     }
 
-    public StackOverflowClient(RestClient.Builder restClientBuilder) {
+    public StackOverflowClient() {
+        RestClient.Builder restClientBuilder = RestClient.builder();
+
         var requestFactory = new ReactorNettyClientRequestFactory();
 
         this.restClient = restClientBuilder
@@ -33,7 +35,9 @@ public class StackOverflowClient {
             .build();
     }
 
-    public StackOverflowClient(RestClient.Builder restClientBuilder, String baseUrl) {
+    public StackOverflowClient(String baseUrl) {
+        RestClient.Builder restClientBuilder = RestClient.builder();
+
         var requestFactory = new ReactorNettyClientRequestFactory();
 
         this.restClient = restClientBuilder
@@ -42,7 +46,9 @@ public class StackOverflowClient {
             .build();
     }
 
-    public StackOverflowClient(RestClient.Builder restClientBuilder, int timeoutInMilliseconds) {
+    public StackOverflowClient(int timeoutInMilliseconds) {
+        RestClient.Builder restClientBuilder = RestClient.builder();
+
         var requestFactory = new ReactorNettyClientRequestFactory();
         requestFactory.setReadTimeout(timeoutInMilliseconds);
 
@@ -52,7 +58,9 @@ public class StackOverflowClient {
             .build();
     }
 
-    public StackOverflowClient(RestClient.Builder restClientBuilder, String baseUrl, int timeoutInMilliseconds) {
+    public StackOverflowClient(String baseUrl, int timeoutInMilliseconds) {
+        RestClient.Builder restClientBuilder = RestClient.builder();
+
         var requestFactory = new ReactorNettyClientRequestFactory();
         requestFactory.setReadTimeout(timeoutInMilliseconds);
 

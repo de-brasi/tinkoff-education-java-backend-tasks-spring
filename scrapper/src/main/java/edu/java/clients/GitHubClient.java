@@ -6,6 +6,7 @@ import edu.java.exceptions.FieldNotFoundException;
 import java.time.OffsetDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 public class GitHubClient {
@@ -24,11 +25,35 @@ public class GitHubClient {
 
 
     public GitHubClient(RestClient.Builder restClientBuilder) {
-        this.restClient = restClientBuilder.baseUrl(GitHubClient.DEFAULT_BASE_URL).build();
+        this.restClient = restClientBuilder
+            .baseUrl(GitHubClient.DEFAULT_BASE_URL)
+            .build();
     }
 
     public GitHubClient(RestClient.Builder restClientBuilder, String baseUrl) {
-        this.restClient = restClientBuilder.baseUrl(baseUrl).build();
+        this.restClient = restClientBuilder
+            .baseUrl(baseUrl)
+            .build();
+    }
+
+    public GitHubClient(RestClient.Builder restClientBuilder, int timeoutInMilliseconds) {
+        var requestFactory = new JdkClientHttpRequestFactory();
+        requestFactory.setReadTimeout(timeoutInMilliseconds);
+
+        this.restClient = restClientBuilder
+            .baseUrl(GitHubClient.DEFAULT_BASE_URL)
+            .requestFactory(requestFactory)
+            .build();
+    }
+
+    public GitHubClient(RestClient.Builder restClientBuilder, String baseUrl, int timeoutInMilliseconds) {
+        var requestFactory = new JdkClientHttpRequestFactory();
+        requestFactory.setReadTimeout(timeoutInMilliseconds);
+
+        this.restClient = restClientBuilder
+            .baseUrl(baseUrl)
+            .requestFactory(requestFactory)
+            .build();
     }
 
     public UpdateResponse fetchUpdate(String owner, String repo)

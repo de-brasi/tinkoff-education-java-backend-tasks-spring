@@ -10,12 +10,14 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class ClientConfiguration {
     @Bean("gitHubClient")
-    public GitHubClient gitHubClient(@Autowired RestClient.Builder builder) {
+    public GitHubClient gitHubClient() {
+        RestClient.Builder builder = RestClient.builder();
         return new GitHubClient(builder, "https://api.github.com/repos/");
     }
 
     @Bean("stackOverflowClient")
-    public StackOverflowClient stackoverflowClient(@Autowired RestClient.Builder builder) {
+    public StackOverflowClient stackoverflowClient() {
+        RestClient.Builder builder = RestClient.builder();
         return new StackOverflowClient(builder);
     }
 }

@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = ClientTestConfig.class)
 @WireMockTest(httpPort = 8080)
 @Import(ClientTestConfig.class)
 public class GitHubClientTest {

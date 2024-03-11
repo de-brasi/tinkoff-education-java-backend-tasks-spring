@@ -14,6 +14,6 @@ public class ClientTestConfig {
     @Bean("testStackOverflowClient")
     public StackOverflowClient stackoverflowClient() {
         // todo: timeout value from config
-        return new StackOverflowClient("http://localhost:8080/questions/");
+        return new StackOverflowClient("http://localhost:8080/questions/", 1000);
     }
 }

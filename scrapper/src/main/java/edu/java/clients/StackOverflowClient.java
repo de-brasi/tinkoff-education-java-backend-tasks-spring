@@ -19,13 +19,41 @@ public class StackOverflowClient {
         "https://api.stackexchange.com/2.3/questions/";
 
     public StackOverflowClient(RestClient.Builder restClientBuilder) {
-        this.restClient = restClientBuilder.requestFactory(new ReactorNettyClientRequestFactory())
-            .baseUrl(StackOverflowClient.DEFAULT_BASE_URL).build();
+        var requestFactory = new ReactorNettyClientRequestFactory();
+
+        this.restClient = restClientBuilder
+            .requestFactory(requestFactory)
+            .baseUrl(StackOverflowClient.DEFAULT_BASE_URL)
+            .build();
     }
 
     public StackOverflowClient(RestClient.Builder restClientBuilder, String baseUrl) {
-        this.restClient =
-            restClientBuilder.requestFactory(new ReactorNettyClientRequestFactory()).baseUrl(baseUrl).build();
+        var requestFactory = new ReactorNettyClientRequestFactory();
+
+        this.restClient = restClientBuilder
+            .requestFactory(requestFactory)
+            .baseUrl(baseUrl)
+            .build();
+    }
+
+    public StackOverflowClient(RestClient.Builder restClientBuilder, int timeoutInMilliseconds) {
+        var requestFactory = new ReactorNettyClientRequestFactory();
+        requestFactory.setReadTimeout(timeoutInMilliseconds);
+
+        this.restClient = restClientBuilder
+            .requestFactory(requestFactory)
+            .baseUrl(StackOverflowClient.DEFAULT_BASE_URL)
+            .build();
+    }
+
+    public StackOverflowClient(RestClient.Builder restClientBuilder, String baseUrl, int timeoutInMilliseconds) {
+        var requestFactory = new ReactorNettyClientRequestFactory();
+        requestFactory.setReadTimeout(timeoutInMilliseconds);
+
+        this.restClient = restClientBuilder
+            .requestFactory(requestFactory)
+            .baseUrl(baseUrl)
+            .build();
     }
 
     public UpdateResponse fetchUpdate(Integer questionId) throws EmptyResponseBodyException, FieldNotFoundException {

@@ -12,7 +12,15 @@ public class GitHubClient {
 
     private final RestClient restClient;
 
-    private final static String DEFAULT_BASE_URL = "https://api.github.com/repos/";
+    private static final String DEFAULT_BASE_URL = "https://api.github.com/repos/";
+
+    private static final Pattern UPDATED_AT_SEARCH_PATTERN;
+
+    static {
+        UPDATED_AT_SEARCH_PATTERN = Pattern.compile(
+            "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
+        );
+    }
 
 
     public GitHubClient(RestClient.Builder restClientBuilder) {
@@ -31,21 +39,22 @@ public class GitHubClient {
             .retrieve()
             .body(String.class);
 
-        Pattern dateSearchPattern = Pattern.compile(
-            "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
-        );
+        String updTimeString = retrieveUpdatedAtField(responseBody);
+        return new UpdateResponse(OffsetDateTime.parse(updTimeString));
+    }
 
-        if (responseBody == null) {
+    private static String retrieveUpdatedAtField(String source)
+        throws FieldNotFoundException, EmptyResponseBodyException {
+        if (source == null) {
             throw new EmptyResponseBodyException("Body has no content.");
         }
 
-        Matcher matcher = dateSearchPattern.matcher(responseBody);
+        Matcher matcher = UPDATED_AT_SEARCH_PATTERN.matcher(source);
 
         if (!matcher.find()) {
             throw new FieldNotFoundException("No match found for 'updated_at' field.");
         }
 
-        String updTimeString = matcher.group(1);
-        return new UpdateResponse(OffsetDateTime.parse(updTimeString));
+        return matcher.group(1);
     }
 }

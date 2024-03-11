@@ -4,10 +4,8 @@ import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
-@Configuration
 public class ClientTestConfig {
     @Bean("testGitHubClient")
     public GitHubClient gitHubClient(@Autowired RestClient.Builder builder) {

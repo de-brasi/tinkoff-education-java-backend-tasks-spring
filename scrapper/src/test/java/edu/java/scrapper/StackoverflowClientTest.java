@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.shouldHaveThrown;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = ClientTestConfig.class)
 @WireMockTest(httpPort = 8080)
 @Import(ClientTestConfig.class)
 public class StackoverflowClientTest {

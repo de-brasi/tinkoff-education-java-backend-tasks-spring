@@ -32,7 +32,7 @@ public class StackoverflowClientTest {
 
     @Test
     @DisplayName("Get update time with StackOverflow client; Complete response body")
-    public void test1() {
+    public void updTimeCompleteBodyTest() {
         final String testURI = "questions";
         final int testQuestionId = 123456;
         final long testDate = 1549279221;
@@ -61,7 +61,7 @@ public class StackoverflowClientTest {
 
     @Test
     @DisplayName("Get update time with GitHub client; Empty response body")
-    public void test2() {
+    public void updTimeEmptyBodyTest() {
         final String testURI = "questions";
         final int testQuestionId = 123456;
 
@@ -80,7 +80,7 @@ public class StackoverflowClientTest {
 
     @Test
     @DisplayName("Get update time with GitHub client; Incomplete response body")
-    public void test3() {
+    public void updTimeIncompleteBodyTest() {
         final String testURI = "questions";
         final int testQuestionId = 123456;
 

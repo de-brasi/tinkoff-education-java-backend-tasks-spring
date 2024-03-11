@@ -32,7 +32,7 @@ public class GitHubClientTest {
 
     @Test
     @DisplayName("Get update time with GitHub client; Complete response body")
-    public void test1() {
+    public void updTimeCompleteBodyTest() {
         final String testURI = "repos";
         final String testOwner = "owner";
         final String testRepoName = "repo";
@@ -61,7 +61,7 @@ public class GitHubClientTest {
 
     @Test
     @DisplayName("Get update time with GitHub client; Empty response body")
-    public void test2() {
+    public void updTimeEmptyBodyTest() {
         final String testURI = "repos";
         final String testOwner = "owner";
         final String testRepoName = "repo";
@@ -81,7 +81,7 @@ public class GitHubClientTest {
 
     @Test
     @DisplayName("Get update time with GitHub client; Incomplete response body")
-    public void test3() {
+    public void updTimeIncompleteBodyTest() {
         final String testURI = "repos";
         final String testOwner = "owner";
         final String testRepoName = "repo";

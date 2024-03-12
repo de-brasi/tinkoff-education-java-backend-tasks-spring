@@ -7,15 +7,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@SuppressWarnings("MagicNumber")
 public class ClientConfiguration {
     @Bean("gitHubClient")
-    public GitHubClient gitHubClient(@Value("#{@githubClientSettings.timeInMilliseconds()}") int timeoutInMilliseconds) {
+    public GitHubClient gitHubClient(
+        @Value("#{@githubClientSettings.timeInMilliseconds()}") int timeoutInMilliseconds
+    ) {
         return new GitHubClient("https://api.github.com/repos/", timeoutInMilliseconds);
     }
 
     @Bean("stackOverflowClient")
-    public StackOverflowClient stackoverflowClient(@Value("#{@stackoverflowClientSettings.timeInMilliseconds()}") int timeoutInMilliseconds) {
+    public StackOverflowClient stackoverflowClient(
+        @Value("#{@stackoverflowClientSettings.timeInMilliseconds()}") int timeoutInMilliseconds
+    ) {
         return new StackOverflowClient(timeoutInMilliseconds);
     }
 }

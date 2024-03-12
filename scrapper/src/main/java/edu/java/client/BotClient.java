@@ -15,7 +15,6 @@ public class BotClient {
 
     private final RestClient restClient;
 
-    // TODO: получить порт приложения Bot из его файла конфигурации
     private final static String DEFAULT_BASE_URL = "http://localhost:8090/bot/api";
 
     private final static String ENDPOINT_UPDATES = "/updates";

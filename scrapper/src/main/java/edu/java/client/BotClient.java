@@ -14,66 +14,107 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 public class BotClient {
 
     private final RestClient restClient;
-
     private final static String DEFAULT_BASE_URL = "http://localhost:8090/bot/api";
-
     private final static String ENDPOINT_UPDATES = "/updates";
+    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler;
+    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus3xxHandler;
+    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus4xxHandler;
+    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus5xxHandler;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler = (req, resp) -> {
-        ApiErrorResponse errorResponse = objectMapper.readValue(
-            new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
-        );
-        throw new UnexpectedResponse(
-            resp.getStatusCode().value(),
-            errorResponse.getExceptionMessage()
-        );
-    };
-
-    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus3xxHandler = (req, resp) -> {
-        ApiErrorResponse errorResponse = objectMapper.readValue(
-            new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
-        );
-        throw new UnexpectedResponse(
-            resp.getStatusCode().value(),
-            errorResponse.getExceptionMessage()
-        );
-    };
-
-    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus4xxHandler = (req, resp) -> {
-        ApiErrorResponse errorResponse = objectMapper.readValue(
-            new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
-        );
-        if (resp.getStatusCode().value() == 400) {
-            throw new IncorrectRequestException(errorResponse.getExceptionMessage());
-        } else {
-            throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
-        }
-    };
-
-    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus5xxHandler = (req, resp) -> {
-        ApiErrorResponse errorResponse = objectMapper.readValue(
-            new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
-        );
-        throw new UnexpectedResponse(
-            resp.getStatusCode().value(),
-            errorResponse.getExceptionMessage()
-        );
-    };
-
-    public BotClient() {
+    public BotClient(ObjectMapper objectMapper) {
         this.restClient = RestClient
             .builder()
             .baseUrl(BotClient.DEFAULT_BASE_URL)
             .build();
+
+        this.endpointUpdatesStatus1xxHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+            throw new UnexpectedResponse(
+                resp.getStatusCode().value(),
+                errorResponse.getExceptionMessage()
+            );
+        };
+
+        this.endpointUpdatesStatus3xxHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+            throw new UnexpectedResponse(
+                resp.getStatusCode().value(),
+                errorResponse.getExceptionMessage()
+            );
+        };
+
+        this.endpointUpdatesStatus4xxHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+            if (resp.getStatusCode().value() == 400) {
+                throw new IncorrectRequestException(errorResponse.getExceptionMessage());
+            } else {
+                throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
+            }
+        };
+
+        this.endpointUpdatesStatus5xxHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+            throw new UnexpectedResponse(
+                resp.getStatusCode().value(),
+                errorResponse.getExceptionMessage()
+            );
+        };
     }
 
-    public BotClient(String baseUrl) {
+    public BotClient(String baseUrl, ObjectMapper objectMapper) {
         this.restClient = RestClient
             .builder()
             .baseUrl(baseUrl)
             .build();
+
+        this.endpointUpdatesStatus1xxHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+            throw new UnexpectedResponse(
+                resp.getStatusCode().value(),
+                errorResponse.getExceptionMessage()
+            );
+        };
+
+        this.endpointUpdatesStatus3xxHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+            throw new UnexpectedResponse(
+                resp.getStatusCode().value(),
+                errorResponse.getExceptionMessage()
+            );
+        };
+
+        this.endpointUpdatesStatus4xxHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+            if (resp.getStatusCode().value() == 400) {
+                throw new IncorrectRequestException(errorResponse.getExceptionMessage());
+            } else {
+                throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
+            }
+        };
+
+        this.endpointUpdatesStatus5xxHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+            throw new UnexpectedResponse(
+                resp.getStatusCode().value(),
+                errorResponse.getExceptionMessage()
+            );
+        };
     }
 
     public void sendUpdates(

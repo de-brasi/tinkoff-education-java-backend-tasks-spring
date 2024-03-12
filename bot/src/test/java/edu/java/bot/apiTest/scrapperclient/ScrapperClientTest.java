@@ -9,6 +9,7 @@ import edu.common.dtos.ListLinksResponse;
 import edu.common.exceptions.ChatIdNotExistsException;
 import edu.common.exceptions.IncorrectRequestException;
 import edu.java.bot.client.ScrapperClient;
+import edu.java.bot.configuration.ScrapperClientConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest(classes = TestConfig.class)
+@SpringBootTest(classes = {TestConfig.class, ScrapperClientConfig.class})
 @WireMockTest(httpPort = 8080)
 public class ScrapperClientTest {
     @Autowired

@@ -2,6 +2,8 @@ package edu.java.bot.api;
 
 import edu.common.dtos.ApiErrorResponse;
 import edu.common.dtos.LinkUpdateRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +19,9 @@ public class Controllers {
     @PostMapping(value = "/updates", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @SuppressWarnings("RegexpSinglelineJava")
     public ResponseEntity<ApiErrorResponse> handleUpdateRequest(@RequestBody LinkUpdateRequest request) {
-        System.out.println(request);
+        LOGGER.info(request);
         return new ResponseEntity<>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 
+    private final static Logger LOGGER = LogManager.getLogger();
 }

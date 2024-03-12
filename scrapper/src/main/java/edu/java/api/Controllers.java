@@ -4,6 +4,8 @@ import edu.common.dtos.ApiErrorResponse;
 import edu.common.dtos.LinkResponse;
 import edu.common.dtos.ListLinksResponse;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +41,7 @@ public class Controllers {
     public ResponseEntity<ApiErrorResponse> handleRegistryChat(@PathVariable Long id) {
         // todo проверять на:
         //  - некорректные параметры 400
-        System.out.println(id);
+        LOGGER.info(id);
 
         return new ResponseEntity<>(HttpStatusCode.valueOf(200));
     }
@@ -49,7 +51,7 @@ public class Controllers {
         // todo проверять на:
         //  - некорректные параметры 400
         //  - чат не существует 404
-        System.out.println(id);
+        LOGGER.info(id);
 
         return new ResponseEntity<>(HttpStatusCode.valueOf(200));
     }
@@ -58,7 +60,7 @@ public class Controllers {
     public ResponseEntity<ListLinksResponse> handleGetLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
         // todo проверять на:
         //  - некорректные параметры 400
-        System.out.println(tgChatId);
+        LOGGER.info(tgChatId);
 
         return new ResponseEntity<>(LIST_LINKS_RESPONSE_STUB, HttpStatusCode.valueOf(200));
     }
@@ -67,7 +69,7 @@ public class Controllers {
     public ResponseEntity<?> handlePostLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
         // todo проверять на:
         //  - некорректные параметры 400
-        System.out.println(tgChatId);
+        LOGGER.info(tgChatId);
 
         return new ResponseEntity<>(LINKS_RESPONSE_STUB, HttpStatusCode.valueOf(200));
     }
@@ -77,9 +79,10 @@ public class Controllers {
         // todo проверять на:
         //  - некорректные параметры 400
         //  - чат не существует 404
-        System.out.println(tgChatId);
+        LOGGER.info(tgChatId);
 
         return new ResponseEntity<>(LINKS_RESPONSE_STUB, HttpStatusCode.valueOf(200));
     }
 
+    private final static Logger LOGGER = LogManager.getLogger();
 }

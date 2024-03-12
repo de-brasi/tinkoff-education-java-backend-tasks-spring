@@ -28,7 +28,10 @@ public class ScrapperClient {
 
     public ScrapperClient(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
-        this.restClient = RestClient.builder().baseUrl(ScrapperClient.DEFAULT_BASE_URL).build();
+        this.restClient = RestClient
+            .builder()
+            .baseUrl(ScrapperClient.DEFAULT_BASE_URL)
+            .build();
 
         this.defaultUnexpectedStatusHandler = (req, resp) -> {
             ApiErrorResponse errorResponse = objectMapper.readValue(
@@ -56,7 +59,10 @@ public class ScrapperClient {
 
     public ScrapperClient(String baseUrl, ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
-        this.restClient = RestClient.builder().baseUrl(baseUrl).build();
+        this.restClient = RestClient
+            .builder()
+            .baseUrl(baseUrl)
+            .build();
 
         this.defaultUnexpectedStatusHandler = (req, resp) -> {
             ApiErrorResponse errorResponse = objectMapper.readValue(

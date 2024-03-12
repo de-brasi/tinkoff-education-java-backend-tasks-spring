@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClient;
 
 @Configuration
@@ -50,7 +51,7 @@ public class BotClientConfig {
                 new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
                 ApiErrorResponse.class
             );
-            if (resp.getStatusCode().value() == 400) {
+            if (resp.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 throw new IncorrectRequestException(errorResponse.getExceptionMessage());
             } else {
                 throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());

@@ -4,7 +4,6 @@ import edu.common.dtos.ApiErrorResponse;
 import edu.common.exceptions.ChatIdNotExistsException;
 import java.util.Arrays;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -12,6 +12,8 @@ import edu.java.bot.client.dtos.ListLinksResponse;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @SuppressWarnings({"MagicNumber", "MultipleStringLiterals"})
@@ -25,6 +27,7 @@ public class ScrapperClient {
     private final ObjectMapper objectMapper;
     private final RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler;
     private final RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler;
+    private static final Charset DEFAULT_BODY_ENCODING = StandardCharsets.UTF_8;
 
     public ScrapperClient(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -35,7 +38,8 @@ public class ScrapperClient {
 
         this.defaultUnexpectedStatusHandler = (req, resp) -> {
             ApiErrorResponse errorResponse = objectMapper.readValue(
-                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
+                ApiErrorResponse.class
             );
             throw new UnexpectedResponse(
                 resp.getStatusCode().value(),
@@ -45,7 +49,8 @@ public class ScrapperClient {
 
         this.linkManagementStatus4xxHandler = (req, resp) -> {
             ApiErrorResponse errorResponse = objectMapper.readValue(
-                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
+                ApiErrorResponse.class
             );
 
             if (resp.getStatusCode().value() == 400) {
@@ -66,7 +71,8 @@ public class ScrapperClient {
 
         this.defaultUnexpectedStatusHandler = (req, resp) -> {
             ApiErrorResponse errorResponse = objectMapper.readValue(
-                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
+                ApiErrorResponse.class
             );
             throw new UnexpectedResponse(
                 resp.getStatusCode().value(),
@@ -76,7 +82,8 @@ public class ScrapperClient {
 
         this.linkManagementStatus4xxHandler = (req, resp) -> {
             ApiErrorResponse errorResponse = objectMapper.readValue(
-                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
+                ApiErrorResponse.class
             );
 
             if (resp.getStatusCode().value() == 400) {
@@ -98,17 +105,18 @@ public class ScrapperClient {
             .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
             .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
                 ApiErrorResponse errorResponse = objectMapper.readValue(
-                    new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+                    new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
+                    ApiErrorResponse.class
                 );
 
                 if (resp.getStatusCode().value() == 400) {
                     throw new IncorrectRequestException(
-                            errorResponse.getExceptionMessage()
+                        errorResponse.getExceptionMessage()
                     );
                 }
                 throw new UnexpectedResponse(
-                        resp.getStatusCode().value(),
-                        errorResponse.getExceptionMessage()
+                    resp.getStatusCode().value(),
+                    errorResponse.getExceptionMessage()
                 );
 
             })
@@ -125,7 +133,8 @@ public class ScrapperClient {
             .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
             .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
                 ApiErrorResponse errorResponse = objectMapper.readValue(
-                    new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+                    new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
+                    ApiErrorResponse.class
                 );
 
                 switch (resp.getStatusCode().value()) {

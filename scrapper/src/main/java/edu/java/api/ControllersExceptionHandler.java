@@ -7,7 +7,6 @@ import edu.common.exceptions.ReAddingLinkException;
 import edu.common.exceptions.ReRegistrationException;
 import java.util.Arrays;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -31,7 +30,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(HttpStatus.NOT_FOUND.value())
+            HttpStatus.NOT_FOUND
         );
     }
 
@@ -47,7 +46,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(HttpStatus.NOT_FOUND.value())
+            HttpStatus.NOT_FOUND
         );
     }
 
@@ -63,7 +62,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
+            HttpStatus.BAD_REQUEST
         );
     }
 
@@ -79,7 +78,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
+            HttpStatus.BAD_REQUEST
         );
     }
 
@@ -95,7 +94,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
+            HttpStatus.BAD_REQUEST
         );
     }
 
@@ -114,7 +113,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
+            HttpStatus.BAD_REQUEST
         );
     }
 
@@ -130,7 +129,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
 

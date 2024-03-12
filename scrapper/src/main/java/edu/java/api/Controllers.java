@@ -6,6 +6,7 @@ import edu.common.dtos.ListLinksResponse;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class Controllers {
         //  - некорректные параметры 400
         LOGGER.info(id);
 
-        return new ResponseEntity<>(HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/tg-chat/{id}")
@@ -53,7 +54,7 @@ public class Controllers {
         //  - чат не существует 404
         LOGGER.info(id);
 
-        return new ResponseEntity<>(HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(value = "/links")
@@ -62,7 +63,7 @@ public class Controllers {
         //  - некорректные параметры 400
         LOGGER.info(tgChatId);
 
-        return new ResponseEntity<>(LIST_LINKS_RESPONSE_STUB, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(LIST_LINKS_RESPONSE_STUB, HttpStatus.OK);
     }
 
     @PostMapping(value = "/links")
@@ -71,7 +72,7 @@ public class Controllers {
         //  - некорректные параметры 400
         LOGGER.info(tgChatId);
 
-        return new ResponseEntity<>(LINKS_RESPONSE_STUB, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(LINKS_RESPONSE_STUB, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/links")
@@ -81,7 +82,7 @@ public class Controllers {
         //  - чат не существует 404
         LOGGER.info(tgChatId);
 
-        return new ResponseEntity<>(LINKS_RESPONSE_STUB, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(LINKS_RESPONSE_STUB, HttpStatus.OK);
     }
 
     private final static Logger LOGGER = LogManager.getLogger();

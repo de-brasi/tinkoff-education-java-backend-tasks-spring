@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.common.dtos.ApiErrorResponse;
 import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.UnexpectedResponse;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClient;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 @Configuration
 public class ScrapperClientConfig {
@@ -37,7 +38,7 @@ public class ScrapperClientConfig {
                 ApiErrorResponse.class
             );
 
-            if (resp.getStatusCode().value() == 400) {
+            if (resp.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 throw new IncorrectRequestException(errorResponse.getExceptionMessage());
             } else {
                 throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());

@@ -9,11 +9,11 @@ import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.UnexpectedResponse;
 import edu.java.bot.client.dtos.LinkResponse;
 import edu.java.bot.client.dtos.ListLinksResponse;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @SuppressWarnings({"MagicNumber", "MultipleStringLiterals"})

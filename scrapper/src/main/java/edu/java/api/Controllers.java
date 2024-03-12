@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
     value = "/scrapper/api",
     produces = MediaType.APPLICATION_JSON_VALUE
 )
-@SuppressWarnings({"MultipleStringLiterals", "MagicNumber", "RegexpSinglelineJava"})
+@SuppressWarnings({"MultipleStringLiterals"})
 public class Controllers {
 
     private static final ListLinksResponse LIST_LINKS_RESPONSE_STUB = new ListLinksResponse(

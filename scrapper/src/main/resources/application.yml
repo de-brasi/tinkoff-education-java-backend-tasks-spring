@@ -3,9 +3,9 @@ app:
     enable: true
     interval: 10s
     force-check-delay: 10s
-  github-client:
+  github-client-settings:
     time-in-milliseconds: 1000
-  stackoverflow-client:
+  stackoverflow-client-settings:
     time-in-milliseconds: 1000
 
 spring:

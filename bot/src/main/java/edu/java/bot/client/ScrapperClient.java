@@ -18,45 +18,68 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 public class ScrapperClient {
 
     private final RestClient restClient;
-
     private static final String DEFAULT_BASE_URL = "http://localhost:8080/scrapper/api";
-
     private static final String ENDPOINT_CHAT_MANAGEMENT_PREFIX = "/tg-chat";
     private static final String ENDPOINT_LINK_MANAGEMENT_PREFIX = "/links";
-
     private static final String CUSTOM_HEADER_TG_CHAT_ID = "Tg-Chat-Id";
+    private final ObjectMapper objectMapper;
+    private final RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler;
+    private final RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private final RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler = (req, resp) -> {
-        ApiErrorResponse errorResponse = objectMapper.readValue(
-            new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
-        );
-        throw new UnexpectedResponse(
-            resp.getStatusCode().value(),
-            errorResponse.getExceptionMessage()
-        );
-    };
-
-    private final RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler = (req, resp) -> {
-        ApiErrorResponse errorResponse = objectMapper.readValue(
-            new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
-        );
-
-        if (resp.getStatusCode().value() == 400) {
-            throw new IncorrectRequestException(errorResponse.getExceptionMessage());
-        } else {
-            throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
-        }
-
-    };
-
-    public ScrapperClient() {
+    public ScrapperClient(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
         this.restClient = RestClient.builder().baseUrl(ScrapperClient.DEFAULT_BASE_URL).build();
+
+        this.defaultUnexpectedStatusHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+            throw new UnexpectedResponse(
+                resp.getStatusCode().value(),
+                errorResponse.getExceptionMessage()
+            );
+        };
+
+        this.linkManagementStatus4xxHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+
+            if (resp.getStatusCode().value() == 400) {
+                throw new IncorrectRequestException(errorResponse.getExceptionMessage());
+            } else {
+                throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
+            }
+
+        };
     }
 
-    public ScrapperClient(String baseUrl) {
+    public ScrapperClient(String baseUrl, ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
         this.restClient = RestClient.builder().baseUrl(baseUrl).build();
+
+        this.defaultUnexpectedStatusHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+            throw new UnexpectedResponse(
+                resp.getStatusCode().value(),
+                errorResponse.getExceptionMessage()
+            );
+        };
+
+        this.linkManagementStatus4xxHandler = (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes()), ApiErrorResponse.class
+            );
+
+            if (resp.getStatusCode().value() == 400) {
+                throw new IncorrectRequestException(errorResponse.getExceptionMessage());
+            } else {
+                throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
+            }
+
+        };
     }
 
     public void registerChat(Long chatId) {

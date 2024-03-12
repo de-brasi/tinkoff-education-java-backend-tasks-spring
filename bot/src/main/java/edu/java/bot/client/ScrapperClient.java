@@ -29,70 +29,33 @@ public class ScrapperClient {
     private final RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler;
     private static final Charset DEFAULT_BODY_ENCODING = StandardCharsets.UTF_8;
 
-    public ScrapperClient(ObjectMapper objectMapper) {
+    public ScrapperClient(
+        ObjectMapper objectMapper,
+        RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler,
+        RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler
+    ) {
+        this.defaultUnexpectedStatusHandler = defaultUnexpectedStatusHandler;
+        this.linkManagementStatus4xxHandler = linkManagementStatus4xxHandler;
         this.objectMapper = objectMapper;
         this.restClient = RestClient
             .builder()
             .baseUrl(ScrapperClient.DEFAULT_BASE_URL)
             .build();
-
-        this.defaultUnexpectedStatusHandler = (req, resp) -> {
-            ApiErrorResponse errorResponse = objectMapper.readValue(
-                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
-                ApiErrorResponse.class
-            );
-            throw new UnexpectedResponse(
-                resp.getStatusCode().value(),
-                errorResponse.getExceptionMessage()
-            );
-        };
-
-        this.linkManagementStatus4xxHandler = (req, resp) -> {
-            ApiErrorResponse errorResponse = objectMapper.readValue(
-                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
-                ApiErrorResponse.class
-            );
-
-            if (resp.getStatusCode().value() == 400) {
-                throw new IncorrectRequestException(errorResponse.getExceptionMessage());
-            } else {
-                throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
-            }
-
-        };
     }
 
-    public ScrapperClient(String baseUrl, ObjectMapper objectMapper) {
+    public ScrapperClient(
+        String baseUrl,
+        ObjectMapper objectMapper,
+        RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler,
+        RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler
+    ) {
+        this.defaultUnexpectedStatusHandler = defaultUnexpectedStatusHandler;
+        this.linkManagementStatus4xxHandler = linkManagementStatus4xxHandler;
         this.objectMapper = objectMapper;
         this.restClient = RestClient
             .builder()
             .baseUrl(baseUrl)
             .build();
-
-        this.defaultUnexpectedStatusHandler = (req, resp) -> {
-            ApiErrorResponse errorResponse = objectMapper.readValue(
-                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
-                ApiErrorResponse.class
-            );
-            throw new UnexpectedResponse(
-                resp.getStatusCode().value(),
-                errorResponse.getExceptionMessage()
-            );
-        };
-
-        this.linkManagementStatus4xxHandler = (req, resp) -> {
-            ApiErrorResponse errorResponse = objectMapper.readValue(
-                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
-                ApiErrorResponse.class
-            );
-
-            if (resp.getStatusCode().value() == 400) {
-                throw new IncorrectRequestException(errorResponse.getExceptionMessage());
-            } else {
-                throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
-            }
-
-        };
     }
 
     public void registerChat(Long chatId) {

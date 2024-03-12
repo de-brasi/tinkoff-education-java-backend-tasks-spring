@@ -2,7 +2,7 @@ package edu.java.bot.apiTest;
 
 import edu.common.dtos.LinkUpdateRequest;
 import edu.common.exceptions.ChatIdNotExistsException;
-import edu.java.bot.api.Controllers;
+import edu.java.bot.api.UpdateController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class ApiControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private Controllers controllers;
+    private UpdateController controllers;
 
     @Test
     @DisplayName("Test correct (stub) request")

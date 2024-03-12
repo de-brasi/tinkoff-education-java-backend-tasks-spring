@@ -20,7 +20,7 @@ public class Controllers {
     @SuppressWarnings("RegexpSinglelineJava")
     public ResponseEntity<ApiErrorResponse> handleUpdateRequest(@RequestBody LinkUpdateRequest request) {
         LOGGER.info(request);
-        return new ResponseEntity<>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private final static Logger LOGGER = LogManager.getLogger();

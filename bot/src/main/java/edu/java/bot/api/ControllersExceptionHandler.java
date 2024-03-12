@@ -25,7 +25,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
+            HttpStatus.BAD_REQUEST
         );
     }
 
@@ -41,7 +41,7 @@ public class ControllersExceptionHandler {
                     .map(StackTraceElement::toString)
                     .toList()
             ),
-            HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value())
+            HttpStatus.BAD_REQUEST
         );
     }
 }

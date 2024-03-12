@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(
-    value = "/scrapper/api",
-    produces = MediaType.APPLICATION_JSON_VALUE
-)
+@RequestMapping(value = "/scrapper/api/links", produces = MediaType.APPLICATION_JSON_VALUE)
 @SuppressWarnings({"MultipleStringLiterals"})
 public class LinksController {
 
@@ -35,7 +32,7 @@ public class LinksController {
         0L, "https://www.wikipedia.org/"
     );
 
-    @GetMapping(value = "/links")
+    @GetMapping()
     public ResponseEntity<ListLinksResponse> handleGetLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
         // todo проверять на:
         //  - некорректные параметры 400
@@ -44,7 +41,7 @@ public class LinksController {
         return new ResponseEntity<>(LIST_LINKS_RESPONSE_STUB, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/links")
+    @PostMapping()
     public ResponseEntity<?> handlePostLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
         // todo проверять на:
         //  - некорректные параметры 400
@@ -53,7 +50,7 @@ public class LinksController {
         return new ResponseEntity<>(LINKS_RESPONSE_STUB, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/links")
+    @DeleteMapping()
     public ResponseEntity<?> handleDeleteLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
         // todo проверять на:
         //  - некорректные параметры 400

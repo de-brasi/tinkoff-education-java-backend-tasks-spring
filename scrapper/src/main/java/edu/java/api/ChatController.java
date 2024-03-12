@@ -1,9 +1,6 @@
 package edu.java.api;
 
 import edu.common.dtos.ApiErrorResponse;
-import edu.common.dtos.LinkResponse;
-import edu.common.dtos.ListLinksResponse;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -16,13 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(
-    value = "/scrapper/api",
-    produces = MediaType.APPLICATION_JSON_VALUE
-)
+@RequestMapping(value = "/scrapper/api/tg-chat", produces = MediaType.APPLICATION_JSON_VALUE)
 @SuppressWarnings({"MultipleStringLiterals"})
 public class ChatController {
-    @PostMapping(value = "/tg-chat/{id}")
+    @PostMapping(value = "/{id}")
     public ResponseEntity<ApiErrorResponse> handleRegistryChat(@PathVariable Long id) {
         // todo проверять на:
         //  - некорректные параметры 400
@@ -31,7 +25,7 @@ public class ChatController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/tg-chat/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<ApiErrorResponse> handleDeleteChat(@PathVariable Long id) {
         // todo проверять на:
         //  - некорректные параметры 400

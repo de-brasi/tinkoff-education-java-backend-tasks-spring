@@ -1,4 +1,4 @@
-package edu.java.scrapper;
+package edu.java.scrapper.clientstest;
 
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;

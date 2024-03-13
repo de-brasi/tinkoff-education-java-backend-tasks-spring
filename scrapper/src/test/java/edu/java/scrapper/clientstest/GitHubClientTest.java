@@ -1,7 +1,8 @@
-package edu.java.scrapper;
+package edu.java.scrapper.clientstest;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.clients.StackOverflowClient;
+import edu.java.clients.GitHubClient;
+import edu.java.exceptions.EmptyResponseBodyException;
 import edu.java.exceptions.FieldNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -25,23 +25,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest(classes = ClientTestConfig.class)
 @WireMockTest(httpPort = 8080)
 @Import(ClientTestConfig.class)
-public class StackoverflowClientTest {
+public class GitHubClientTest {
     @Autowired
-    @Qualifier("testStackOverflowClient")
-    StackOverflowClient stackOverflowClient;
+    @Qualifier("testGitHubClient")
+    GitHubClient gitHubClient;
 
     @Test
-    @DisplayName("Get update time with StackOverflow client; Complete response body")
+    @DisplayName("Get update time with GitHub client; Complete response body")
     public void updTimeCompleteBodyTest() {
-        final String testURI = "questions";
-        final int testQuestionId = 123456;
-        final long testDate = 1549279221;
+        final String testURI = "repos";
+        final String testOwner = "owner";
+        final String testRepoName = "repo";
 
-
-        stubFor(get(urlMatching("/" + testURI + "/" + testQuestionId + "\\??(.*)"))
+        stubFor(get("/" + testURI + "/" + testOwner + "/" + testRepoName)
             .willReturn(
                 aResponse()
-                    .withBody("\"last_activity_date\": " + testDate)
+                    .withBody("\"updated_at\": \"2024-02-12T12:45:18Z\"")
                     .withStatus(200)
             )
         );
@@ -49,23 +48,25 @@ public class StackoverflowClientTest {
         AtomicReference<OffsetDateTime> fetchingResult = new AtomicReference<>();
 
         assertThatCode(
-            () -> fetchingResult.set(stackOverflowClient.fetchUpdate(testQuestionId).updateTime())
+            () -> fetchingResult.set(gitHubClient.fetchUpdate(testOwner, testRepoName).updateTime())
         ).doesNotThrowAnyException();
 
+
         assertThat(
-            fetchingResult.get().toEpochSecond()
+            fetchingResult.get()
         ).isEqualTo(
-            testDate
+            OffsetDateTime.parse("2024-02-12T12:45:18Z")
         );
     }
 
     @Test
     @DisplayName("Get update time with GitHub client; Empty response body")
     public void updTimeEmptyBodyTest() {
-        final String testURI = "questions";
-        final int testQuestionId = 123456;
+        final String testURI = "repos";
+        final String testOwner = "owner";
+        final String testRepoName = "repo";
 
-        stubFor(get(urlMatching("/" + testURI + "/" + testQuestionId + "\\??(.*)"))
+        stubFor(get("/" + testURI + "/" + testOwner + "/" + testRepoName)
             .willReturn(
                 aResponse()
                     .withBody("")
@@ -74,17 +75,18 @@ public class StackoverflowClientTest {
         );
 
         assertThatThrownBy(
-            () -> stackOverflowClient.fetchUpdate(testQuestionId).updateTime()
-        ).isInstanceOf(Exception.class);
+            () -> gitHubClient.fetchUpdate(testOwner, testRepoName).updateTime()
+        ).isInstanceOf(EmptyResponseBodyException.class);
     }
 
     @Test
     @DisplayName("Get update time with GitHub client; Incomplete response body")
     public void updTimeIncompleteBodyTest() {
-        final String testURI = "questions";
-        final int testQuestionId = 123456;
+        final String testURI = "repos";
+        final String testOwner = "owner";
+        final String testRepoName = "repo";
 
-        stubFor(get(urlMatching("/" + testURI + "/" + testQuestionId + "\\??(.*)"))
+        stubFor(get("/" + testURI + "/" + testOwner + "/" + testRepoName)
             .willReturn(
                 aResponse()
                     .withBody("\"some_field\": \"2024-02-12T12:45:18Z\"")
@@ -93,7 +95,7 @@ public class StackoverflowClientTest {
         );
 
         assertThatThrownBy(
-            () -> stackOverflowClient.fetchUpdate(testQuestionId).updateTime()
+            () -> gitHubClient.fetchUpdate(testOwner, testRepoName).updateTime()
         ).isInstanceOf(FieldNotFoundException.class);
     }
 }

@@ -1,9 +1,9 @@
 package edu.java.bot.core.mappers;
 
 import com.pengrad.telegrambot.model.Update;
-import edu.java.bot.entities.Command;
-import edu.java.bot.entities.CommandCallContext;
-import edu.java.bot.entities.User;
+import edu.java.bot.core.entities.Command;
+import edu.java.bot.core.entities.CommandCallContext;
+import edu.java.bot.core.entities.User;
 import java.util.Arrays;
 import java.util.List;
 

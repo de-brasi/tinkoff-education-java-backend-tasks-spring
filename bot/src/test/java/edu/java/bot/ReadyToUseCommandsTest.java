@@ -1,24 +1,19 @@
 package edu.java.bot;
 
-import static org.assertj.core.api.Assertions.*;
 import edu.java.bot.core.commands.ReadyToUseCommands;
 import edu.java.bot.core.commands.TelegramBotCommand;
-import edu.java.bot.entities.Command;
-import edu.java.bot.entities.CommandCallContext;
-import edu.java.bot.entities.User;
+import edu.java.bot.core.entities.Command;
+import edu.java.bot.core.entities.CommandCallContext;
+import edu.java.bot.core.entities.User;
 import edu.java.bot.repository.implementations.UserRepositoryMockImpl;
 import edu.java.bot.repository.interfaces.UsersRepository;
 import edu.java.bot.services.TelegramBotWrapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import java.util.List;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

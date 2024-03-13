@@ -6,8 +6,8 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
-import edu.java.bot.entities.Command;
-import edu.java.bot.entities.CommandCallContext;
+import edu.java.bot.core.entities.Command;
+import edu.java.bot.core.entities.CommandCallContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -69,10 +69,10 @@ class FromPengradTelegramBotModelsToEntitiesMapperTest {
         // setup update
         when(updateFromServer.message()).thenReturn(message);
 
-        edu.java.bot.entities.User actual =
+        edu.java.bot.core.entities.User actual =
             FromPengradTelegramBotModelsToEntitiesMapper.updateToSender(updateFromServer);
-        edu.java.bot.entities.User expected =
-            new edu.java.bot.entities.User(testUserName, testUserLastName, testUserId, testUserIsBot);
+        edu.java.bot.core.entities.User expected =
+            new edu.java.bot.core.entities.User(testUserName, testUserLastName, testUserId, testUserIsBot);
 
         assertThat(actual).isEqualTo(expected);
     }
@@ -112,7 +112,7 @@ class FromPengradTelegramBotModelsToEntitiesMapperTest {
         CommandCallContext actual =
             FromPengradTelegramBotModelsToEntitiesMapper.updateToCommandCallContext(updateFromServer);
         CommandCallContext expected = new CommandCallContext(
-            new edu.java.bot.entities.User(testUserName, testUserLastName, testUserId, testUserIsBot),
+            new edu.java.bot.core.entities.User(testUserName, testUserLastName, testUserId, testUserIsBot),
             testChatId,
             new Command("testcommand", testArgs)
         );

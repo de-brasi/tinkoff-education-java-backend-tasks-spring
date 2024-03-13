@@ -1,4 +1,4 @@
-package edu.java.bot.entities;
+package edu.java.bot.core.entities;
 
 import java.util.List;
 

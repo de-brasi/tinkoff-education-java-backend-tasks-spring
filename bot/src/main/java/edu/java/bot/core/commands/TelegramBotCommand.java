@@ -1,7 +1,7 @@
 package edu.java.bot.core.commands;
 
-import edu.java.bot.entities.Command;
-import edu.java.bot.entities.CommandCallContext;
+import edu.java.bot.core.entities.Command;
+import edu.java.bot.core.entities.CommandCallContext;
 import edu.java.bot.services.TelegramBotWrapper;
 import java.util.ArrayList;
 import java.util.Arrays;

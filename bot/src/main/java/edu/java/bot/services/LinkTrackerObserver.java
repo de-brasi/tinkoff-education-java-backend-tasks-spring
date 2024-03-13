@@ -8,9 +8,9 @@ import com.pengrad.telegrambot.model.botcommandscope.BotCommandScopeAllPrivateCh
 import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
 import edu.java.bot.core.commands.TelegramBotCommand;
+import edu.java.bot.core.customexceptions.InvalidHandlersChainException;
+import edu.java.bot.core.entities.CommandCallContext;
 import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
-import edu.java.bot.customexceptions.InvalidHandlersChainException;
-import edu.java.bot.entities.CommandCallContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

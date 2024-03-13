@@ -1,15 +1,13 @@
-package edu.java.bot;
+package edu.java.bot.coretest;
 
 import static org.assertj.core.api.Assertions.*;
-import edu.java.bot.entities.Command;
-import edu.java.bot.entities.CommandCallContext;
-import edu.java.bot.entities.User;
+import edu.java.bot.core.entities.Command;
+import edu.java.bot.core.entities.CommandCallContext;
+import edu.java.bot.core.entities.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)

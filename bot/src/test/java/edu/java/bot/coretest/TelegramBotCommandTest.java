@@ -1,21 +1,18 @@
-package edu.java.bot;
+package edu.java.bot.coretest;
 
 import static org.assertj.core.api.Assertions.*;
 import edu.java.bot.core.commands.CommandArgumentDescription;
 import edu.java.bot.core.commands.CommandArgumentValidator;
 import edu.java.bot.core.commands.TelegramBotCommand;
 import edu.java.bot.core.commands.TelegramBotCommandCallAction;
-import edu.java.bot.entities.Command;
-import edu.java.bot.entities.CommandCallContext;
-import edu.java.bot.entities.User;
-import edu.java.bot.services.LinkTrackerObserver;
+import edu.java.bot.core.entities.Command;
+import edu.java.bot.core.entities.CommandCallContext;
+import edu.java.bot.core.entities.User;
 import edu.java.bot.services.TelegramBotWrapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.lang.reflect.Field;
 import java.util.List;

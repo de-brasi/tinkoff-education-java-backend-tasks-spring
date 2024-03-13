@@ -1,4 +1,4 @@
-package edu.java.bot;
+package edu.java.bot.coretest;
 
 import static org.assertj.core.api.Assertions.*;
 import edu.java.bot.core.entities.Command;

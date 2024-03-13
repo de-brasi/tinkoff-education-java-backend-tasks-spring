@@ -1,4 +1,4 @@
-package edu.java.bot;
+package edu.java.bot.coretest;
 
 import edu.java.bot.core.commands.ReadyToUseCommands;
 import edu.java.bot.core.commands.TelegramBotCommand;

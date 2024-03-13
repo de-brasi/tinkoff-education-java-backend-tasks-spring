@@ -1,4 +1,4 @@
-package edu.java.bot.apiTest;
+package edu.java.bot.apitest;
 
 import edu.common.dtos.LinkUpdateRequest;
 import edu.common.exceptions.ChatIdNotExistsException;

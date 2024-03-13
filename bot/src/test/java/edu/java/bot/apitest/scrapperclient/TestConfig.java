@@ -1,4 +1,4 @@
-package edu.java.bot.apiTest.scrapperclient;
+package edu.java.bot.apitest.scrapperclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.java.bot.client.ScrapperClient;

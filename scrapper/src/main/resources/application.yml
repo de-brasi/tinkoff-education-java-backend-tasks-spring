@@ -13,6 +13,8 @@ spring:
     name: scrapper
   liquibase:
     enabled: false
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
 server:
   port: 8080

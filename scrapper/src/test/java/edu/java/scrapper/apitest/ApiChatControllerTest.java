@@ -1,4 +1,4 @@
-package edu.java.scrapper.api;
+package edu.java.scrapper.apitest;
 
 import edu.common.exceptions.ChatIdNotExistsException;
 import edu.common.exceptions.ReRegistrationException;

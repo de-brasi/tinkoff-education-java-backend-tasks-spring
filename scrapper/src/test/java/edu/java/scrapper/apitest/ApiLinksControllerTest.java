@@ -1,4 +1,4 @@
-package edu.java.scrapper.api;
+package edu.java.scrapper.apitest;
 
 import edu.common.exceptions.LinkNotExistsException;
 import edu.java.api.ChatController;

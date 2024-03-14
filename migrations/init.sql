@@ -8,7 +8,8 @@
 create table links
 (
     id  bigint generated always as identity primary key,
-    url text not null
+    url text not null,
+    unique (url)
 );
 
 --changeset ilya:init-table-telegram-chat

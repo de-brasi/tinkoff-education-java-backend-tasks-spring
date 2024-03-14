@@ -1,4 +1,4 @@
-package edu.java.client;
+package edu.java.clients;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.common.dtos.LinkUpdateRequest;

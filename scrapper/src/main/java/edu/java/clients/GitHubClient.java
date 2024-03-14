@@ -1,6 +1,6 @@
 package edu.java.clients;
 
-import edu.java.entities.UpdateResponse;
+import edu.java.clients.entities.UpdateResponse;
 import edu.java.exceptions.EmptyResponseBodyException;
 import edu.java.exceptions.FieldNotFoundException;
 import java.time.OffsetDateTime;

@@ -5,7 +5,11 @@ import edu.common.exceptions.ChatIdNotExistsException;
 import edu.common.exceptions.LinkNotExistsException;
 import edu.common.exceptions.ReAddingLinkException;
 import edu.common.exceptions.ReRegistrationException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -121,6 +125,14 @@ public class ControllersExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> internalErrorHandler(Exception e) {
+        LOGGER.info(
+            "Exception caught in ExceptionHandler with name: " + e.getClass().getCanonicalName()
+                + "\nstack trace is:\n"
+                + Arrays.stream(e.getStackTrace())
+                .map(StackTraceElement::toString)
+                .collect(Collectors.joining("\n"))
+        );
+
         return new ResponseEntity<>(
             new ApiErrorResponse(
                 "internal stub error",

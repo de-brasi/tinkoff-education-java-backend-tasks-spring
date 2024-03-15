@@ -1,4 +1,4 @@
-package edu.java.domain.entities;
+package edu.java.entities;
 
 import java.net.URI;
 

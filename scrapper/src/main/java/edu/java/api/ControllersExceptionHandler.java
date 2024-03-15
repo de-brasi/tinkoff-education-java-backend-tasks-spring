@@ -6,6 +6,8 @@ import edu.common.exceptions.LinkNotExistsException;
 import edu.common.exceptions.ReAddingLinkException;
 import edu.common.exceptions.ReRegistrationException;
 import java.util.Arrays;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -133,4 +135,5 @@ public class ControllersExceptionHandler {
         );
     }
 
+    private final static Logger LOGGER = LogManager.getLogger();
 }

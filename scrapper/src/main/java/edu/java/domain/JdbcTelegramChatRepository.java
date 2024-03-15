@@ -2,6 +2,7 @@ package edu.java.domain;
 
 import edu.java.entities.TelegramChat;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,7 +15,7 @@ import java.util.Collection;
 public class JdbcTelegramChatRepository implements BaseEntityRepository<TelegramChat> {
     private final JdbcTemplate jdbcTemplate;
 
-    public JdbcTelegramChatRepository(JdbcTemplate jdbcTemplate) {
+    public JdbcTelegramChatRepository(@Autowired JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

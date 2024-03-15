@@ -2,6 +2,7 @@ package edu.java.domain;
 
 import edu.java.entities.Link;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,7 +19,7 @@ import java.util.Collection;
 public class JdbcLinkRepository implements BaseEntityRepository<Link> {
     private final JdbcTemplate jdbcTemplate;
 
-    public JdbcLinkRepository(JdbcTemplate jdbcTemplate) {
+    public JdbcLinkRepository(@Autowired JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

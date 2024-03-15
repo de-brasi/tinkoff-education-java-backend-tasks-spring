@@ -1,6 +1,6 @@
 package edu.java.domain;
 
-import edu.java.domain.entities.TelegramChat;
+import edu.java.entities.TelegramChat;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

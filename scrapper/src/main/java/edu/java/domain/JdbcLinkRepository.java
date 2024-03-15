@@ -1,10 +1,8 @@
 package edu.java.domain;
 
-import edu.java.domain.entities.Link;
+import edu.java.entities.Link;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

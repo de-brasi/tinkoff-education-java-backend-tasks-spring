@@ -1,7 +1,7 @@
 package edu.java.scrapper.domaintest;
 
 import edu.java.domain.JdbcLinkRepository;
-import edu.java.domain.entities.Link;
+import edu.java.entities.Link;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

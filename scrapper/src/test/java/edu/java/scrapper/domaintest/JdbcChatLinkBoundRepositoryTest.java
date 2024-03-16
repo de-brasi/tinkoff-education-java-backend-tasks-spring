@@ -1,20 +1,21 @@
 package edu.java.scrapper.domaintest;
 
-import edu.common.exceptions.ChatIdNotExistsException;
-import edu.common.exceptions.IncorrectRequestException;
 import edu.java.domain.JdbcChatLinkBoundRepository;
 import edu.java.domain.JdbcLinkRepository;
 import edu.java.domain.JdbcTelegramChatRepository;
+import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
 import edu.java.entities.ChatLinkBound;
 import edu.java.entities.Link;
 import edu.java.entities.TelegramChat;
 import edu.java.scrapper.IntegrationTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -38,9 +39,9 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @BeforeEach
     void testTablesCleared() {
         // check all tables is empty
-        String allFromChatTableQuery = "select * from telegram_chat";
-        String allFromLinksTableQuery = "select * from links";
-        String allFromBoundsTableQuery = "select * from track_info";
+        String allFromChatTableQuery = "select count(*) from telegram_chat";
+        String allFromLinksTableQuery = "select count(*) from links";
+        String allFromBoundsTableQuery = "select count(*) from track_info";
 
         int chatRecordsCount = jdbcTemplate.queryForObject(allFromChatTableQuery, Integer.class);
         int linksRecordsCount = jdbcTemplate.queryForObject(allFromLinksTableQuery, Integer.class);
@@ -51,12 +52,19 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
         assertThat(trackingRecordsCount).isEqualTo(0);
     }
 
+    @AfterEach
+    void testTables() {
+        jdbcTemplate.update("truncate table telegram_chat cascade ");
+        jdbcTemplate.update("truncate table links cascade ");
+        jdbcTemplate.update("truncate table track_info cascade ");
+    }
+
     @Test
     @Transactional
     @Rollback
     void addCorrectPair() throws MalformedURLException {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link"));
+        final Link testLink = new Link(URI.create("https://example/link1"));
         final TelegramChat testChat = new TelegramChat(1L);
         telegramChatRepository.add(testChat);
         linkRepository.add(testLink);
@@ -67,14 +75,15 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
 
         // checkout records count
         String query =
-            "select * " +
+            "select count(*) " +
             "from track_info " +
-            "where link_id = ((select id as tg_chat_id from telegram_chat where chat_id = ?)) " +
-            "and telegram_chat_id = (select id as link_id from links where url = ?);";
+            "where link_id = (select id as link_id from links where url = ?) " +
+            "and telegram_chat_id = (select id as tg_chat_id from telegram_chat where chat_id = ?);";
+
         int rowCount = jdbcTemplate.queryForObject(
             query,
             Integer.class,
-            testChat.id() , testLink.uri().toURL().toString()
+            testLink.uri().toURL().toString(), testChat.id()
         );
         assertThat(rowCount).isEqualTo(1);
     }
@@ -84,8 +93,8 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void addCorrectPairTwice() throws MalformedURLException {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link"));
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Link testLink = new Link(URI.create("https://example/link2"));
+        final TelegramChat testChat = new TelegramChat(2L);
         telegramChatRepository.add(testChat);
         linkRepository.add(testLink);
 
@@ -98,14 +107,15 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
 
         // checkout records count
         String query =
-            "select * " +
+            "select count(*) " +
                 "from track_info " +
-                "where link_id = ((select id as tg_chat_id from telegram_chat where chat_id = ?)) " +
-                "and telegram_chat_id = (select id as link_id from links where url = ?);";
+                "where link_id = (select id as link_id from links where url = ?) " +
+                "and telegram_chat_id = (select id as tg_chat_id from telegram_chat where chat_id = ?);";
+
         int rowCount = jdbcTemplate.queryForObject(
             query,
             Integer.class,
-            testChat.id() , testLink.uri().toURL().toString()
+            testLink.uri().toURL().toString(), testChat.id()
         );
         assertThat(rowCount).isEqualTo(1);
     }
@@ -113,30 +123,30 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addInCorrectPairTgChatRequired() {
+    void addIncorrectPairTgChatRequired() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link"));
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Link testLink = new Link(URI.create("https://example/link3"));
+        final TelegramChat testChat = new TelegramChat(3L);
         linkRepository.add(testLink);
 
         assertThatThrownBy(() -> chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink))).isInstanceOf(
-            ChatIdNotExistsException.class);
+            NoExpectedEntityInDataBaseException.class);
     }
 
     @Test
     @Transactional
     @Rollback
-    void addInCorrectPairLinkRequiredTestLinkAddedToTable() throws MalformedURLException {
+    void addInCorrectPairLinkRequiredCheckLinkActuallyAddedToTable() throws MalformedURLException {
         // preconditions
-        final TelegramChat testChat = new TelegramChat(1L);
-        final Link testLink = new Link(URI.create("https://example/link"));
+        final TelegramChat testChat = new TelegramChat(4L);
+        final Link testLink = new Link(URI.create("https://example/link4"));
         telegramChatRepository.add(testChat);
 
         // bound
         chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
 
         // check link actually added
-        String queryToCheckTestLink = "select * from links where url = ?";
+        String queryToCheckTestLink = "select count(*) from links where url = ?";
         int rowCount = jdbcTemplate.queryForObject(
             queryToCheckTestLink,
             Integer.class,
@@ -148,10 +158,10 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addInCorrectPairLinkRequiredTestBoundingInformationCreated() throws MalformedURLException {
+    void addInCorrectPairLinkRequiredCheckBoundingInformationActuallyCreated() throws MalformedURLException {
         // preconditions
-        final TelegramChat testChat = new TelegramChat(1L);
-        final Link testLink = new Link(URI.create("https://example/link"));
+        final TelegramChat testChat = new TelegramChat(5L);
+        final Link testLink = new Link(URI.create("https://example/link5"));
         telegramChatRepository.add(testChat);
 
         // bound
@@ -160,14 +170,15 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
 
         // check link actually added
         String queryToCheckBoundingInfo =
-            "select * " +
+            "select count(*) " +
             "from track_info " +
-            "where link_id = ((select id as tg_chat_id from telegram_chat where chat_id = ?)) " +
-            "and telegram_chat_id = (select id as link_id from links where url = ?);";
+            "where link_id = (select id as link_id from links where url = ?) " +
+            "and telegram_chat_id = (select id as tg_chat_id from telegram_chat where chat_id = ?);";
+
         int rowCount = jdbcTemplate.queryForObject(
             queryToCheckBoundingInfo,
             Integer.class,
-            testChat.id() , testLink.uri().toURL().toString()
+            testLink.uri().toURL().toString(), testChat.id()
         );
         assertThat(rowCount).isEqualTo(1);
     }
@@ -177,11 +188,11 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void addInCorrectPairTgChatAndLinkRequired() {
         // preconditions: empty
-        final Link testLink = new Link(URI.create("https://example/link"));
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Link testLink = new Link(URI.create("https://example/link6"));
+        final TelegramChat testChat = new TelegramChat(6L);
 
         assertThatThrownBy(() -> chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink))).isInstanceOf(
-            ChatIdNotExistsException.class);
+            NoExpectedEntityInDataBaseException.class);
     }
 
     @Test
@@ -189,8 +200,8 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void removeCorrectPair() throws MalformedURLException {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link"));
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Link testLink = new Link(URI.create("https://example/link7"));
+        final TelegramChat testChat = new TelegramChat(7L);
         telegramChatRepository.add(testChat);
         linkRepository.add(testLink);
         chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
@@ -204,7 +215,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
 
         // checkout records count
         String query =
-            "select * " +
+            "select count(*) " +
                 "from track_info " +
                 "where link_id = ((select id as tg_chat_id from telegram_chat where chat_id = ?)) " +
                 "and telegram_chat_id = (select id as link_id from links where url = ?);";
@@ -221,12 +232,12 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void removeInCorrectPairTgChatNotExists() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link"));
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Link testLink = new Link(URI.create("https://example/link8"));
+        final TelegramChat testChat = new TelegramChat(8L);
         linkRepository.add(testLink);
 
         assertThatThrownBy(() -> chatLinkBoundRepository.remove(new ChatLinkBound(testChat, testLink))).isInstanceOf(
-            ChatIdNotExistsException.class);
+            NoExpectedEntityInDataBaseException.class);
     }
 
     @Test
@@ -234,18 +245,10 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void removeInCorrectPairLinkNotExists() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link"));
-        final TelegramChat testChat = new TelegramChat(1L);
-        telegramChatRepository.add(testChat);
-
-        // TODO:
-        //  надо для слоя сервиса создать свои ошибки,
-        //  которые будет перехватывать контроллер и пробрасывать уже ошибку IncorrectRequestException
-//        assertThatThrownBy(() -> chatLinkBoundRepository.remove(new ChatLinkBound(testChat, testLink))).isInstanceOf(IncorrectRequestException.class);
-
-        // todo: намеренно дурацкий класс ошибки чтоб тест упал и я не забыл про это
-        assertThatThrownBy(() -> chatLinkBoundRepository.remove(new ChatLinkBound(testChat, testLink))).isInstanceOf(
-            Link.class);
+        final Link testLink = new Link(URI.create("https://example/link9"));
+        final TelegramChat testChat = new TelegramChat(9L);
+        var res = telegramChatRepository.remove(testChat);
+        assertThat(res).isEqualTo(null);
     }
 
     @Test
@@ -253,11 +256,11 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void removeInCorrectPairLinkAndChatNotExists() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link"));
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Link testLink = new Link(URI.create("https://example/link10"));
+        final TelegramChat testChat = new TelegramChat(10L);
 
         // if no link and chat - firstly need to notify that chat not exists
         assertThatThrownBy(() -> chatLinkBoundRepository.remove(new ChatLinkBound(testChat, testLink))).isInstanceOf(
-            ChatIdNotExistsException.class);
+            NoExpectedEntityInDataBaseException.class);
     }
 }

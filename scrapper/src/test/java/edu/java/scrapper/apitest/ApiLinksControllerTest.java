@@ -1,6 +1,6 @@
 package edu.java.scrapper.apitest;
 
-import edu.common.exceptions.LinkNotExistsException;
+import edu.common.exceptions.LinksNotAddedException;
 import edu.java.api.ChatController;
 import edu.java.api.LinksController;
 import org.junit.jupiter.api.DisplayName;
@@ -68,7 +68,7 @@ public class ApiLinksControllerTest {
     public void test11() throws Exception {
         when(linksController.handleGetLinks(any(Long.class)))
             .thenAnswer(invocation -> {
-                throw new LinkNotExistsException();
+                throw new LinksNotAddedException();
             });
 
         mockMvc.perform(
@@ -131,7 +131,7 @@ public class ApiLinksControllerTest {
     public void test15() throws Exception {
         when(linksController.handleDeleteLinks(any(Long.class)))
             .thenAnswer(invocation -> {
-                throw new LinkNotExistsException();
+                throw new LinksNotAddedException();
             });
 
         mockMvc.perform(

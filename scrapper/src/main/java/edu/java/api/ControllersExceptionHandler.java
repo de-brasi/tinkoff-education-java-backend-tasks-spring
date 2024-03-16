@@ -2,12 +2,10 @@ package edu.java.api;
 
 import edu.common.dtos.ApiErrorResponse;
 import edu.common.exceptions.ChatIdNotExistsException;
-import edu.common.exceptions.LinkNotExistsException;
+import edu.common.exceptions.LinksNotAddedException;
 import edu.common.exceptions.ReAddingLinkException;
 import edu.common.exceptions.ReRegistrationException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -40,7 +38,7 @@ public class ControllersExceptionHandler {
         );
     }
 
-    @ExceptionHandler(LinkNotExistsException.class)
+    @ExceptionHandler(LinksNotAddedException.class)
     public ResponseEntity<ApiErrorResponse> linkNotFoundErrorHandler(Exception e) {
         return new ResponseEntity<>(
             new ApiErrorResponse(

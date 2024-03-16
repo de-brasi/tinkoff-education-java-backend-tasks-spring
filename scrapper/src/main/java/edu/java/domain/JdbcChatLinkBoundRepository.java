@@ -1,14 +1,22 @@
 package edu.java.domain;
 
+import edu.java.domain.exceptions.DataBaseInteractingException;
+import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
+import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
+import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import edu.java.entities.ChatLinkBound;
 import edu.java.entities.Link;
 import edu.java.entities.TelegramChat;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,6 +26,8 @@ import java.util.Collection;
 public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLinkBound> {
     private final JdbcTemplate jdbcTemplate;
 
+    private static final String CHAT_ENTITY_NAME = "telegram_chat";
+
     public JdbcChatLinkBoundRepository(@Autowired JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -25,46 +35,93 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
     @Override
     @Transactional
     public boolean add(ChatLinkBound chatLinkBound) {
-        // todo:
-        //  проверить что есть чат -
-        //      если нет, то ошибка що нет чата;
-        //  проверить что есть ссылка -
-        //      если нет, то создать ссылку
-        //  попробовать вставить пару -
-        //      если ошибка повторной вставки, то вернуть false,
-        //      иначе проверить (affectedRows == 1),
-        //          если false -
-        //              выкинуть какую нибудь кастомную ошибку взаимодействия с бд,
-        //          иначе true
+        /*
+        Add bound between chat and link in table 'track_info'.
+        If link with passed url not saved in table 'links' creates record in 'links' table and
+            try to store pair <chat_id, link_id> in table 'track_info'.
 
-        // todo:
-        //  контракт:
-        //      return true - успешная вставка
-        //      return false - повторная вставка
-        //      срем разные кастомные ошибки: просто ОшибкаРаботыСБД (пока только одна)
-        return false;
+        In case such bound already exists returns false,
+        otherwise - true.
+
+        Throws:
+        - InvalidArgumentForTypeInDataBase: in case of invalid url value passed;
+        - NoExpectedEntityInDataBaseException: if telegram chat not saved yet in table 'telegram_chat';
+        - DataBaseInteractingException: if some error occurs when working with JdbcTemplate;
+        */
+
+        try {
+            if (!checkChatExists(chatLinkBound.chat())) {
+                throw new NoExpectedEntityInDataBaseException(CHAT_ENTITY_NAME);
+            }
+            if (!checkLinkExists(chatLinkBound.link())) {
+                saveNewLink(chatLinkBound.link());
+            }
+
+            final String insertBoundQuery =
+                "insert into track_info(telegram_chat_id, link_id) " +
+                    "values (" +
+                    "(select id as tg_chat_id from telegram_chat where chat_id = ?), " +
+                    "(select id as link_id from links where url = ?)" +
+                    ")";
+            int affectedRowsCount = jdbcTemplate.queryForObject(
+                insertBoundQuery,
+                Integer.class,
+                chatLinkBound.chat().id(), chatLinkBound.link().uri().toURL().toString()
+            );
+            return (affectedRowsCount == 1);
+        } catch (DuplicateKeyException e) {
+            return false;
+        } catch (MalformedURLException e) {
+            throw new InvalidArgumentForTypeInDataBase(e);
+        } catch (DataAccessException | NullPointerException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
     @Override
     @Transactional
     public @Nullable ChatLinkBound remove(ChatLinkBound chatLinkBound) {
-        // todo:
-        //  проверить что есть чат -
-        //      если нет, то ошибка що нет чата;
-        //  попробовать удалить пару -
-        //      если ошибка удаления несуществующего, то кастомная ошибка ОшибкаЧтоНетЧатаСтакимИД (потом пробросить InvalidRequest),
-        //      иначе проверить (affectedRows == 1),
-        //          если false -
-        //              выкинуть какую нибудь кастомную ошибку взаимодействия с бд,
-        //          иначе -
-        //              вернуть ChatLinkBound
+        /*
+        Remove bound between chat and link in table 'track_info'.
 
-        // todo:
-        //  контракт:
-        //      return true - успешное удаление
-        //      return false - повторная вставка
-        //      срем разные кастомные ошибки: просто ОшибкаРаботыСБД, ОшибкаЧтоНетЧатаСтакимИД
-        return null;
+        Returns:
+        - chatLinkBound: if removed,
+        - null: otherwise.
+
+        Throws:
+        - InvalidArgumentForTypeInDataBase: in case of invalid url value passed;
+        - NoExpectedEntityInDataBaseException: if telegram chat not saved yet in table 'telegram_chat';
+        - DataBaseInteractingException: if some error occurs when working with JdbcTemplate;
+        */
+
+        try {
+            if (!checkChatExists(chatLinkBound.chat())) {
+                throw new NoExpectedEntityInDataBaseException(CHAT_ENTITY_NAME);
+            }
+
+            final String deleteBoundaryRecordQuery =
+                "delete " +
+                "from track_info " +
+                "where telegram_chat_id = (select id from telegram_chat where chat_id = ?) " +
+                    "and link_id = (select id from links where url = ?)";
+            int affectedRowsCount = jdbcTemplate.queryForObject(
+                deleteBoundaryRecordQuery,
+                Integer.class,
+                chatLinkBound.chat().id(), chatLinkBound.link().uri().toURL().toString()
+            );
+
+            if (affectedRowsCount > 1) {
+                throw new UnexpectedDataBaseStateException(
+                    "Too many records in table 'track_info' for unique pair of telegram_chat id and link id"
+                );
+            }
+
+            return (affectedRowsCount == 1) ? chatLinkBound : null;
+        } catch (MalformedURLException e) {
+            throw new InvalidArgumentForTypeInDataBase(e);
+        } catch (DataAccessException | NullPointerException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
     @Override
@@ -81,5 +138,44 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
             String url = rs.getString("url");
             return new ChatLinkBound(new TelegramChat(tgChatId), new Link(URI.create(url)));
         }
+    }
+
+    private boolean checkChatExists(TelegramChat telegramChat) {
+        final String queryToCountChatWithId = "select * from telegram_chat where chat_id = ?";
+        int recordsCount = jdbcTemplate.queryForObject(
+            queryToCountChatWithId,
+            Integer.class,
+            telegramChat.id()
+        );
+
+        if (recordsCount > 1) {
+            throw new UnexpectedDataBaseStateException(
+                "Too many records in table 'telegram_chat' for unique telegram chat id value"
+            );
+        }
+
+        return (recordsCount == 1);
+    }
+
+    private boolean checkLinkExists(Link link) throws MalformedURLException {
+        final String queryToCountLinksWithUrl = "select * from links where url = ?";
+        int recordsCount = jdbcTemplate.queryForObject(
+            queryToCountLinksWithUrl,
+            Integer.class,
+            link.uri().toURL().toString()
+        );
+
+        if (recordsCount > 1) {
+            throw new UnexpectedDataBaseStateException(
+                "Too many records in table 'links' for unique link's url value"
+            );
+        }
+
+        return (recordsCount == 1);
+    }
+
+    private void saveNewLink(Link link) throws MalformedURLException {
+        final String queryToAddLink = "insert into links(url) values (?)";
+        jdbcTemplate.update(queryToAddLink, link.uri().toURL().toString());
     }
 }

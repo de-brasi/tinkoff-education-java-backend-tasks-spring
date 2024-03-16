@@ -34,7 +34,6 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
             System.out.println("hi");
             return false;
         } catch (MalformedURLException e) {
-            // todo: better exception; may be custom or smth else
             throw new IncorrectRequestException(e.getMessage());
         }
     }
@@ -46,7 +45,6 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
             int affectedRowCount = jdbcTemplate.update("delete from links where url = (?)", link.uri().toURL().toString());
             return (affectedRowCount == 1) ? link : null;
         } catch (MalformedURLException e) {
-            // todo: better exception; may be custom or smth else
             throw new IncorrectRequestException(e.getMessage());
         }
     }

@@ -1,5 +1,6 @@
 package edu.java.domain;
 
+import edu.common.exceptions.IncorrectRequestException;
 import edu.java.entities.Link;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
             return false;
         } catch (MalformedURLException e) {
             // todo: better exception; may be custom or smth else
-            throw new RuntimeException(e);
+            throw new IncorrectRequestException(e.getMessage());
         }
     }
 
@@ -46,7 +47,7 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
             return (affectedRowCount == 1) ? link : null;
         } catch (MalformedURLException e) {
             // todo: better exception; may be custom or smth else
-            throw new RuntimeException(e);
+            throw new IncorrectRequestException(e.getMessage());
         }
     }
 

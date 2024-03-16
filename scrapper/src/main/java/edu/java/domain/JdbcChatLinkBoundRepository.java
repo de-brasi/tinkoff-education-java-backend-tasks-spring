@@ -57,16 +57,40 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
                 saveNewLink(chatLinkBound.link());
             }
 
-            final String insertBoundQuery =
-                "insert into track_info(telegram_chat_id, link_id) " +
-                    "values (" +
-                    "(select id as tg_chat_id from telegram_chat where chat_id = ?), " +
-                    "(select id as link_id from links where url = ?)" +
-                    ")";
-            int affectedRowsCount = jdbcTemplate.queryForObject(
-                insertBoundQuery,
+            final String getTgChatIdQuery = "select id from telegram_chat where chat_id = ? limit 1";
+            int telegramChatIdInDatabase = jdbcTemplate.queryForObject(
+                getTgChatIdQuery,
                 Integer.class,
-                chatLinkBound.chat().id(), chatLinkBound.link().uri().toURL().toString()
+                chatLinkBound.chat().id()
+            );
+
+            final String getLinkIdQuery = "select id from links where url = ? limit 1";
+            int linkIdInDatabase = jdbcTemplate.queryForObject(
+                getLinkIdQuery,
+                Integer.class,
+                chatLinkBound.link().uri().toURL().toString()
+            );
+
+            final String countSuchPairQuery =
+                "select count(*) from track_info where link_id = ? and telegram_chat_id = ?";
+            int pairsCount = jdbcTemplate.queryForObject(
+                countSuchPairQuery,
+                Integer.class,
+                linkIdInDatabase, telegramChatIdInDatabase
+            );
+
+            if (pairsCount == 1) {
+                return false;
+            } else if (pairsCount > 1) {
+                throw new UnexpectedDataBaseStateException("There are unique pairs in 'track_info' tables!");
+            }
+
+            final String insertBoundQuery =
+                "insert into track_info(telegram_chat_id, link_id) values (?, ?)";
+            System.out.println("Inserting into track_info: [chat_id: " + telegramChatIdInDatabase + ", link_id: " + linkIdInDatabase + "]");
+            int affectedRowsCount = jdbcTemplate.update(
+                insertBoundQuery,
+                telegramChatIdInDatabase, linkIdInDatabase
             );
             return (affectedRowsCount == 1);
         } catch (DuplicateKeyException e) {
@@ -104,9 +128,8 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
                 "from track_info " +
                 "where telegram_chat_id = (select id from telegram_chat where chat_id = ?) " +
                     "and link_id = (select id from links where url = ?)";
-            int affectedRowsCount = jdbcTemplate.queryForObject(
+            int affectedRowsCount = jdbcTemplate.update(
                 deleteBoundaryRecordQuery,
-                Integer.class,
                 chatLinkBound.chat().id(), chatLinkBound.link().uri().toURL().toString()
             );
 
@@ -141,10 +164,10 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
     }
 
     private boolean checkChatExists(TelegramChat telegramChat) {
-        final String queryToCountChatWithId = "select * from telegram_chat where chat_id = ?";
+        final String queryToCountChatWithId = "select count(*) from telegram_chat where chat_id = ?";
+
         int recordsCount = jdbcTemplate.queryForObject(
-            queryToCountChatWithId,
-            Integer.class,
+            queryToCountChatWithId, Integer.class,
             telegramChat.id()
         );
 
@@ -158,7 +181,7 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
     }
 
     private boolean checkLinkExists(Link link) throws MalformedURLException {
-        final String queryToCountLinksWithUrl = "select * from links where url = ?";
+        final String queryToCountLinksWithUrl = "select count(*) from links where url = ?";
         int recordsCount = jdbcTemplate.queryForObject(
             queryToCountLinksWithUrl,
             Integer.class,

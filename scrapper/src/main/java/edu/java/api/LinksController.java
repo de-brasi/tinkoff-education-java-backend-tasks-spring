@@ -48,7 +48,7 @@ public class LinksController {
     );
 
     @GetMapping()
-    public ResponseEntity<ListLinksResponse> handleGetLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
+    public ResponseEntity<ListLinksResponse> getAllTrackedLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
         // todo проверять на:
         //  - некорректные параметры 400
 
@@ -72,9 +72,8 @@ public class LinksController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    // todo: better naming for all handlers (in this change name pattern from linkS to link_)
     @PostMapping()
-    public ResponseEntity<?> handlePostLinks(
+    public ResponseEntity<?> addTrackingLinkForChat(
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody AddLinkRequest request
     ) throws MalformedURLException {
@@ -90,7 +89,7 @@ public class LinksController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> handleDeleteLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
+    public ResponseEntity<?> untrackLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
         // todo проверять на:
         //  - некорректные параметры 400
         //  - чат не существует 404

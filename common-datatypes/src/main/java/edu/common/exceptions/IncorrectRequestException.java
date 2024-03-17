@@ -9,4 +9,8 @@ public class IncorrectRequestException extends RuntimeException {
     public IncorrectRequestException(String errorMessage) {
         super(errorMessage);
     }
+
+    public IncorrectRequestException(Exception e) {
+        super(e);
+    }
 }

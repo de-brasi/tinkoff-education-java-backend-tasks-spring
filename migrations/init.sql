@@ -5,6 +5,8 @@ create table links
 (
     id  bigint generated always as identity primary key,
     url text not null,
+    last_check_time timestamp with time zone not null,
+    last_update_time timestamp with time zone not null,
     unique (url)
 );
 

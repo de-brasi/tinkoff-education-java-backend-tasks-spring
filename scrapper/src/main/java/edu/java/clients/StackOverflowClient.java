@@ -85,6 +85,10 @@ public class StackOverflowClient {
         return new UpdateResponse(updDate);
     }
 
+    public static String getDefaultBaseUrl() {
+        return DEFAULT_BASE_URL;
+    }
+
     private static String retrieveLastActivityDateField(String source)
         throws FieldNotFoundException, EmptyResponseBodyException {
         if (source == null) {

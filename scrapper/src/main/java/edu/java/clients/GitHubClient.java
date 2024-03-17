@@ -76,6 +76,10 @@ public class GitHubClient {
         return new UpdateResponse(OffsetDateTime.parse(updTimeString));
     }
 
+    public static String getDefaultBaseUrl() {
+        return DEFAULT_BASE_URL;
+    }
+
     private static String retrieveUpdatedAtField(String source)
         throws FieldNotFoundException, EmptyResponseBodyException {
         if (source == null) {

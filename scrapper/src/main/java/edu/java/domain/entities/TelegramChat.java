@@ -1,3 +1,3 @@
-package edu.java.entities;
+package edu.java.domain.entities;
 
 public record TelegramChat(Long id) { }

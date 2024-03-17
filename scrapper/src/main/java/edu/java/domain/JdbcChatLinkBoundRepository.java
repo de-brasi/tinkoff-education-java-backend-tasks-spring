@@ -20,16 +20,24 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
+import java.util.TimerTask;
 
 @Repository
 public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLinkBound> {
     private final JdbcTemplate jdbcTemplate;
+    private final JdbcLinkRepository linkRepository;
 
     private static final String CHAT_ENTITY_NAME = "telegram_chat";
 
-    public JdbcChatLinkBoundRepository(@Autowired JdbcTemplate jdbcTemplate) {
+    public JdbcChatLinkBoundRepository(
+        @Autowired JdbcTemplate jdbcTemplate,
+        @Autowired JdbcLinkRepository linkRepository
+    ) {
         this.jdbcTemplate = jdbcTemplate;
+        this.linkRepository = linkRepository;
     }
 
     @Override
@@ -54,7 +62,7 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
                 throw new NoExpectedEntityInDataBaseException(CHAT_ENTITY_NAME);
             }
             if (!checkLinkExists(chatLinkBound.link())) {
-                saveNewLink(chatLinkBound.link());
+                linkRepository.add(chatLinkBound.link());
             }
 
             final String getTgChatIdQuery = "select id from telegram_chat where chat_id = ? limit 1";
@@ -199,10 +207,5 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
         }
 
         return (recordsCount == 1);
-    }
-
-    private void saveNewLink(Link link) throws MalformedURLException {
-        final String queryToAddLink = "insert into links(url) values (?)";
-        jdbcTemplate.update(queryToAddLink, link.uri().toURL().toString());
     }
 }

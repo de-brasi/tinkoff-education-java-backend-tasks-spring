@@ -1,8 +1,10 @@
 package edu.java.api;
 
+import edu.common.dtos.AddLinkRequest;
 import edu.common.dtos.LinkResponse;
 import edu.common.dtos.ListLinksResponse;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,14 +72,21 @@ public class LinksController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    // todo: better naming for all handlers (in this change name pattern from linkS to link_)
     @PostMapping()
-    public ResponseEntity<?> handlePostLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
+    public ResponseEntity<?> handlePostLinks(
+        @RequestHeader("Tg-Chat-Id") Long tgChatId,
+        @RequestBody AddLinkRequest request
+    ) throws MalformedURLException {
         // todo проверять на:
         //  - некорректные параметры 400
-        LOGGER.info(tgChatId);
-//        linkService.a
 
-        return new ResponseEntity<>(LINKS_RESPONSE_STUB, HttpStatus.OK);
+        LOGGER.info(tgChatId);
+        Link added = linkService.add(tgChatId, URI.create(request.getLink()));
+        // todo: добавить id в сущность Link, брать id оттуда
+        LinkResponse response = new LinkResponse(1, added.uri().toURL().toString());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping()

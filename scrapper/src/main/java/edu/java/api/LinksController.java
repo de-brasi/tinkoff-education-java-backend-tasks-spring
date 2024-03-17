@@ -2,9 +2,16 @@ package edu.java.api;
 
 import edu.common.dtos.LinkResponse;
 import edu.common.dtos.ListLinksResponse;
+import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import edu.java.entities.Link;
+import edu.java.services.interfaces.LinkService;
+import edu.java.services.interfaces.TgChatService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/scrapper/api/links", produces = MediaType.APPLICATION_JSON_VALUE)
 @SuppressWarnings({"MultipleStringLiterals"})
 public class LinksController {
+    private final LinkService linkService;
+
+    public LinksController(@Autowired LinkService linkService) {
+        this.linkService = linkService;
+    }
 
     private static final ListLinksResponse LIST_LINKS_RESPONSE_STUB = new ListLinksResponse(
         List.of(
@@ -36,9 +48,25 @@ public class LinksController {
     public ResponseEntity<ListLinksResponse> handleGetLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
         // todo проверять на:
         //  - некорректные параметры 400
-        LOGGER.info(tgChatId);
 
-        return new ResponseEntity<>(LIST_LINKS_RESPONSE_STUB, HttpStatus.OK);
+        Collection<Link> allLinks = linkService.listAll(tgChatId);
+        // todo: добавить id в сущность Link, брать id оттуда
+        List<LinkResponse> linkResponseList = allLinks
+            .stream()
+            .map(e -> {
+                try {
+                    return new LinkResponse(1, e.uri().toURL().toString());
+                } catch (MalformedURLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            })
+            .collect(Collectors.toList());
+
+        ListLinksResponse response = new ListLinksResponse(
+            linkResponseList, linkResponseList.size()
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping()
@@ -46,6 +74,7 @@ public class LinksController {
         // todo проверять на:
         //  - некорректные параметры 400
         LOGGER.info(tgChatId);
+//        linkService.a
 
         return new ResponseEntity<>(LINKS_RESPONSE_STUB, HttpStatus.OK);
     }

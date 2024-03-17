@@ -76,7 +76,7 @@ public class GitHubClient {
         return new UpdateResponse(OffsetDateTime.parse(updTimeString));
     }
 
-    public static String getDefaultBaseUrl() {
+    public String getDefaultBaseUrl() {
         return DEFAULT_BASE_URL;
     }
 

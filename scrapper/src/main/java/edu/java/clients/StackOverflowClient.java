@@ -85,7 +85,7 @@ public class StackOverflowClient {
         return new UpdateResponse(updDate);
     }
 
-    public static String getDefaultBaseUrl() {
+    public String getDefaultBaseUrl() {
         return DEFAULT_BASE_URL;
     }
 

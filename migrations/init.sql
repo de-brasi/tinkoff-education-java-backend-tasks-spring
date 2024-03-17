@@ -1,9 +1,5 @@
 --liquibase formatted sql
 
--- TODO:
---  Понять зачем в задаче дали ссылку на дизайн liquibase-проекта
---      (https://docs.liquibase.com/start/design-liquibase-project.html)
-
 --changeset ilya:init-table-links
 create table links
 (
@@ -27,5 +23,6 @@ create table track_info
     telegram_chat_id bigint not null,
     link_id          bigint not null,
     foreign key (link_id) references links (id),
-    foreign key (telegram_chat_id) references telegram_chat (id)
+    foreign key (telegram_chat_id) references telegram_chat (id) on delete cascade,
+    unique (telegram_chat_id, link_id)
 )

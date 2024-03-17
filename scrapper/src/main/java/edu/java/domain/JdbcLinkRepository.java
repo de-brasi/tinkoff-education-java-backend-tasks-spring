@@ -14,6 +14,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 
 @Repository
@@ -28,7 +30,12 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
     @Transactional
     public boolean add(Link link) {
         try {
-            int affectedRowCount = jdbcTemplate.update("insert into links(url) values (?)", link.uri().toURL().toString());
+            int affectedRowCount = jdbcTemplate.update(
+                "insert into links(url, last_check_time, last_update_time) values (?, ?, ?)",
+                link.uri().toURL().toString(),
+                Timestamp.from(Instant.now()),
+                Timestamp.from(Instant.MIN)
+            );
             return (affectedRowCount == 1);
         } catch (DataAccessException e) {
             System.out.println("hi");

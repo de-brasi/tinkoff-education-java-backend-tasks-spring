@@ -1,7 +1,7 @@
 package edu.java.domain;
 
 import edu.common.exceptions.IncorrectRequestException;
-import edu.java.entities.Link;
+import edu.java.domain.entities.Link;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;

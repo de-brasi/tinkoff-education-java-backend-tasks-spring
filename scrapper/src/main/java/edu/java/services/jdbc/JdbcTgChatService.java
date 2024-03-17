@@ -4,7 +4,7 @@ import edu.common.exceptions.ChatIdNotExistsException;
 import edu.common.exceptions.ReRegistrationException;
 import edu.java.domain.BaseEntityRepository;
 import edu.java.domain.JdbcTelegramChatRepository;
-import edu.java.entities.TelegramChat;
+import edu.java.domain.entities.TelegramChat;
 import edu.java.services.interfaces.TgChatService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

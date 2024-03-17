@@ -1,6 +1,6 @@
 package edu.java.services.interfaces;
 
-import edu.java.entities.Link;
+import edu.java.domain.entities.Link;
 import java.net.URI;
 import java.util.Collection;
 

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import edu.common.dtos.RemoveLinkRequest;
-import edu.java.entities.Link;
+import edu.java.domain.entities.Link;
 import edu.java.services.interfaces.LinkService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

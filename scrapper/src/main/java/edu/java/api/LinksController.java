@@ -8,9 +8,9 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import edu.common.dtos.RemoveLinkRequest;
 import edu.java.entities.Link;
 import edu.java.services.interfaces.LinkService;
-import edu.java.services.interfaces.TgChatService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +34,6 @@ public class LinksController {
     public LinksController(@Autowired LinkService linkService) {
         this.linkService = linkService;
     }
-
-    private static final LinkResponse LINKS_RESPONSE_STUB = new LinkResponse(
-        0L, "https://www.wikipedia.org/"
-    );
 
     @GetMapping()
     public ResponseEntity<ListLinksResponse> getAllTrackedLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
@@ -81,13 +77,19 @@ public class LinksController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> untrackLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
+    public ResponseEntity<?> untrackLinkForChat(
+        @RequestHeader("Tg-Chat-Id") Long tgChatId,
+        @RequestBody RemoveLinkRequest request
+    ) throws MalformedURLException {
         // todo проверять на:
         //  - некорректные параметры 400
         //  - чат не существует 404
         LOGGER.info(tgChatId);
+        Link removed = linkService.remove(tgChatId, URI.create(request.getLink()));
+        // todo: добавить id в сущность Link, брать id оттуда
+        LinkResponse response = new LinkResponse(1, removed.uri().toURL().toString());
 
-        return new ResponseEntity<>(LINKS_RESPONSE_STUB, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private final static Logger LOGGER = LogManager.getLogger();

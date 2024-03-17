@@ -150,7 +150,11 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
     @Override
     @Transactional
     public Collection<ChatLinkBound> findAll() {
-        String sql = "select * from track_info";
+        String sql =
+            "select tg_chats.id, chat_id, link_id, url " +
+            "from track_info " +
+            "join telegram_chat tg_chats on track_info.telegram_chat_id = tg_chats.id " +
+            "join links links_table on links_table.id = track_info.link_id;";
         return jdbcTemplate.query(sql, new JdbcChatLinkBoundRepository.LinkRowMapper());
     }
 

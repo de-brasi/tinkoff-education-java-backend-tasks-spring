@@ -1,8 +1,8 @@
 package edu.java.clients;
 
 import edu.java.clients.entities.UpdateResponse;
-import edu.java.exceptions.EmptyResponseBodyException;
-import edu.java.exceptions.FieldNotFoundException;
+import edu.java.clients.exceptions.EmptyResponseBodyException;
+import edu.java.clients.exceptions.FieldNotFoundException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;

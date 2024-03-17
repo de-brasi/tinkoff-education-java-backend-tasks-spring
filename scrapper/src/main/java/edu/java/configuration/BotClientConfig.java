@@ -6,7 +6,9 @@ import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.UnexpectedResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import edu.java.clients.BotClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -71,5 +73,35 @@ public class BotClientConfig {
                 errorResponse.getExceptionMessage()
             );
         };
+    }
+
+    @Bean("botClient")
+    BotClient botClient(
+        @Autowired
+        ObjectMapper objectMapper,
+
+        @Autowired
+        @Qualifier("endpointUpdatesStatus1xxHandler")
+        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler,
+
+        @Autowired
+        @Qualifier("endpointUpdatesStatus3xxHandler")
+        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus3xxHandler,
+
+        @Autowired
+        @Qualifier("endpointUpdatesStatus4xxHandler")
+        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus4xxHandler,
+
+        @Autowired
+        @Qualifier("endpointUpdatesStatus5xxHandler")
+        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus5xxHandler
+    ) {
+        return new BotClient(
+            objectMapper,
+            endpointUpdatesStatus1xxHandler,
+            endpointUpdatesStatus3xxHandler,
+            endpointUpdatesStatus4xxHandler,
+            endpointUpdatesStatus5xxHandler
+        );
     }
 }

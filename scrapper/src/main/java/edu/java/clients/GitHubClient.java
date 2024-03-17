@@ -15,13 +15,12 @@ public class GitHubClient {
 
     private static final String DEFAULT_BASE_URL = "https://api.github.com/repos/";
 
-    private static final Pattern UPDATED_AT_SEARCH_PATTERN;
-
-    static {
-        UPDATED_AT_SEARCH_PATTERN = Pattern.compile(
-            "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
-        );
-    }
+    private static final Pattern UPDATED_AT_SEARCH_PATTERN = Pattern.compile(
+        "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
+    );
+    private static final Pattern RETRIEVE_GH_NAME_AND_REPO_NAME_FROM_URL = Pattern.compile(
+        "https://github\\.com/([^/\\s]+)/([^/\\s]+)/.*"
+    );
 
 
     public GitHubClient() {
@@ -74,6 +73,22 @@ public class GitHubClient {
 
         String updTimeString = retrieveUpdatedAtField(responseBody);
         return new UpdateResponse(OffsetDateTime.parse(updTimeString));
+    }
+
+    public UpdateResponse fetchUpdate(String url)
+        throws EmptyResponseBodyException, FieldNotFoundException {
+
+        Matcher matcher = RETRIEVE_GH_NAME_AND_REPO_NAME_FROM_URL.matcher(url);
+
+        if (matcher.find()) {
+            String username = matcher.group(1);
+            String repoName = matcher.group(2);
+
+            return fetchUpdate(username, repoName);
+        } else {
+            throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"
+                .formatted(url));
+        }
     }
 
     public String getDefaultBaseUrl() {

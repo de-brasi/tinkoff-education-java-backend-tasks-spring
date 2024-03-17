@@ -35,14 +35,6 @@ public class LinksController {
         this.linkService = linkService;
     }
 
-    private static final ListLinksResponse LIST_LINKS_RESPONSE_STUB = new ListLinksResponse(
-        List.of(
-            new LinkResponse(1, "https://www.wikipedia.org/"),
-            new LinkResponse(2, "https://en.wikipedia.org/wiki/Main_Page")
-        ),
-        2
-    );
-
     private static final LinkResponse LINKS_RESPONSE_STUB = new LinkResponse(
         0L, "https://www.wikipedia.org/"
     );

@@ -44,7 +44,10 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     @Override
     @Transactional
-    public int update(Collection<Link> toUpdate) {
+    public int update(Duration updateInterval) {
+        Collection<Link> toUpdate = getNotCheckedForAWhile(updateInterval);
+        LOGGER.info("Links need to update: " + toUpdate);
+
         int updatedLinks = 0;
 
         for (Link link : toUpdate) {
@@ -94,8 +97,6 @@ public class JdbcLinkUpdater implements LinkUpdater {
         return updatedLinks;
     }
 
-    @Override
-    @Transactional
     public Collection<Link> getNotCheckedForAWhile(Duration duration) {
         Instant threshold = Instant.now().minus(duration);
 
@@ -111,9 +112,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
             .toList();
     }
 
-    @Override
-    @Transactional
-    public Collection<TelegramChat> getSubscribers(Link link) {
+    private Collection<TelegramChat> getSubscribers(Link link) {
         String getSubsQuery =
             "select chat_id " +
                 "from track_info " +
@@ -136,50 +135,6 @@ public class JdbcLinkUpdater implements LinkUpdater {
             .toList();
     }
 
-    @Override
-    public boolean compareAndSetLastUpdateTime(Link target, OffsetDateTime actualTime) throws MalformedURLException {
-        /*
-        Return:
-        - true: time updated
-        - false: time not updated
-        */
-        final String url = target.uri().toURL().toString();
-
-        OffsetDateTime storedLastUpdateTime = jdbcTemplate.queryForObject(
-            "select last_update_time from links where url = ?",
-            OffsetDateTime.class,
-            url
-        );
-
-        if (storedLastUpdateTime == null) {
-            throw new UnexpectedDataBaseStateException(
-                "Stored 'last_update_time' value not retrieved from database!"
-            );
-        }
-
-        final boolean storedTimeOutdated = storedLastUpdateTime.isBefore(actualTime);
-        if (storedTimeOutdated) {
-            final String query =
-                "update links " +
-                    "set last_update_time = ? " +
-                "where url = ?";
-
-            int affectedRowsCount = jdbcTemplate.update(
-                query,
-                Timestamp.from(actualTime.toInstant()),
-                url
-            );
-
-            if (affectedRowsCount != 1) {
-                throw new UnexpectedDataBaseStateException(
-                    "Saving new 'last_update_time' not affect to database!"
-                );
-            }
-        }
-
-        return storedTimeOutdated;
-    }
-
     public boolean checkLastUpdateTimeChanged(Link target, OffsetDateTime actualTime) throws MalformedURLException {
         /*
         Return:
@@ -200,28 +155,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
             );
         }
 
-        final boolean storedTimeOutdated = storedLastUpdateTime.isBefore(actualTime);
-        // todo: это точно должно тут быть?
-        if (storedTimeOutdated) {
-            final String query =
-                "update links " +
-                    "set last_update_time = ? " +
-                    "where url = ?";
-
-            int affectedRowsCount = jdbcTemplate.update(
-                query,
-                Timestamp.from(actualTime.toInstant()),
-                url
-            );
-
-            if (affectedRowsCount != 1) {
-                throw new UnexpectedDataBaseStateException(
-                    "Saving new 'last_update_time' not affect to database!"
-                );
-            }
-        }
-
-        return storedTimeOutdated;
+        return storedLastUpdateTime.isBefore(actualTime);
     }
 
     private boolean notifyClientsIfUpdatedTimeChanged(OffsetDateTime actualTime, Link link, List<Long> subscribersId)

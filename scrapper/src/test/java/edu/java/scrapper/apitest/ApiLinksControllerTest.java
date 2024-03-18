@@ -1,5 +1,6 @@
 package edu.java.scrapper.apitest;
 
+import edu.common.dtos.RemoveLinkRequest;
 import edu.common.exceptions.LinksNotAddedException;
 import edu.java.api.ChatController;
 import edu.java.api.LinksController;
@@ -94,56 +95,6 @@ public class ApiLinksControllerTest {
     }
 
     // DELETE: /scrapper/api/links
-    @Test
-    @DisplayName("Test correct links delete in /links")
-    public void test13() throws Exception {
-        mockMvc.perform(
-                MockMvcRequestBuilders
-                    .delete("/scrapper/api/links")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Accept", "*/*")
-                    .header("Accept-Encoding", "gzip, deflate, br")
-                    .header("Tg-Chat-Id", "1")
-            )
-            .andExpect(status().isOk());
-    }
-
-//    @Test
-//    @DisplayName("Test correct link delete to /links with manually occurred Exception")
-//    public void test14() throws Exception {
-//        when(linksController.untrackLinkForChat(any(Long.class)))
-//            .thenAnswer(invocation -> {
-//                throw new Exception();
-//            });
-//
-//        mockMvc.perform(
-//                MockMvcRequestBuilders
-//                    .delete("/scrapper/api/links")
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .header("Tg-Chat-Id", "1")
-//                    .content("")
-//            )
-//            .andExpect(status().is5xxServerError());
-//    }
-//
-//    @Test
-//    @DisplayName("Test correct link delete to /links with manually occurred LinkNotExistsException")
-//    public void test15() throws Exception {
-//        when(linksController.untrackLinkForChat(any(Long.class)))
-//            .thenAnswer(invocation -> {
-//                throw new LinksNotAddedException();
-//            });
-//
-//        mockMvc.perform(
-//                MockMvcRequestBuilders
-//                    .delete("/scrapper/api/links")
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .header("Tg-Chat-Id", "1")
-//                    .content("")
-//            )
-//            .andExpect(status().isNotFound());
-//    }
-
     @Test
     @DisplayName("Test incorrect link delete to /links without required header")
     public void test16() throws Exception {

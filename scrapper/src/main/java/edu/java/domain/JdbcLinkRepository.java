@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +36,7 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
                 "insert into links(url, last_check_time, last_update_time) values (?, ?, ?)",
                 link.uri().toURL().toString(),
                 Timestamp.from(Instant.now()),
-                Timestamp.from(Instant.MIN)
+                Timestamp.from(Instant.ofEpochSecond(0))
             );
             return (affectedRowCount == 1);
         } catch (DataAccessException e) {

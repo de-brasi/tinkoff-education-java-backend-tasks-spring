@@ -17,12 +17,6 @@ import java.util.Collection;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@TestPropertySource(
-    properties = {
-        // exclude nothing - for correct jdbc.DataSourceAutoConfiguration working till main property file exclude it
-        "spring.autoconfigure.exclude="
-    }
-)
 public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;

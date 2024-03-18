@@ -7,12 +7,6 @@ import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import edu.java.services.interfaces.LinkUpdater;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.sql.Timestamp;
@@ -22,6 +16,12 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class JdbcLinkUpdater implements LinkUpdater {
@@ -114,10 +114,10 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     private Collection<TelegramChat> getSubscribers(Link link) {
         String getSubsQuery =
-            "select chat_id " +
-                "from track_info " +
-                "join public.links l on l.id = track_info.link_id and url = ? " +
-                "join public.telegram_chat tc on tc.id = track_info.telegram_chat_id";
+            "select chat_id "
+                + "from track_info "
+                + "join public.links l on l.id = track_info.link_id and url = ? "
+                + "join public.telegram_chat tc on tc.id = track_info.telegram_chat_id";
         Collection<TelegramChat> result = jdbcTemplate.query(
             getSubsQuery,
             ps -> {
@@ -201,9 +201,9 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     private void actualizeLastUpdateTimeForLink(String url, OffsetDateTime actualTime) {
         final String query =
-            "update links " +
-                "set last_update_time = ? " +
-                "where url = ?";
+            "update links "
+                + "set last_update_time = ? "
+                + "where url = ?";
 
         int affectedRowsCount = jdbcTemplate.update(
             query,

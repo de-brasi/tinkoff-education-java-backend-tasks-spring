@@ -2,14 +2,6 @@ package edu.java.domain;
 
 import edu.common.exceptions.IncorrectRequestException;
 import edu.java.domain.entities.Link;
-import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.sql.ResultSet;
@@ -17,6 +9,15 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JdbcLinkRepository implements BaseEntityRepository<Link> {
@@ -38,7 +39,7 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
             );
             return (affectedRowCount == 1);
         } catch (DataAccessException e) {
-            System.out.println("hi");
+            LOGGER.info("hi");
             return false;
         } catch (MalformedURLException e) {
             throw new IncorrectRequestException(e.getMessage());
@@ -49,7 +50,10 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
     @Transactional
     public @Nullable Link remove(Link link) {
         try {
-            int affectedRowCount = jdbcTemplate.update("delete from links where url = (?)", link.uri().toURL().toString());
+            int affectedRowCount = jdbcTemplate.update(
+                "delete from links where url = (?)",
+                link.uri().toURL().toString()
+            );
             return (affectedRowCount == 1) ? link : null;
         } catch (MalformedURLException e) {
             throw new IncorrectRequestException(e.getMessage());
@@ -62,6 +66,8 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
         String sql = "select * from links";
         return jdbcTemplate.query(sql, new LinkRowMapper());
     }
+
+    private final static Logger LOGGER = LogManager.getLogger();
 
     private static class LinkRowMapper implements RowMapper<Link> {
         @Override

@@ -2,13 +2,13 @@ package edu.java;
 
 import edu.java.services.interfaces.LinkUpdater;
 import edu.java.services.jdbc.JdbcLinkUpdater;
+import java.time.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import java.time.Duration;
 
 @Service
 @EnableScheduling

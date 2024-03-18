@@ -7,7 +7,6 @@ import edu.common.exceptions.ReAddingLinkException;
 import edu.common.exceptions.ReRegistrationException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;

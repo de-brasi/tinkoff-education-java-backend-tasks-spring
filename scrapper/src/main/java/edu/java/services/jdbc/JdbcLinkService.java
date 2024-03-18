@@ -5,17 +5,17 @@ import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.ReAddingLinkException;
 import edu.java.domain.BaseEntityRepository;
 import edu.java.domain.JdbcChatLinkBoundRepository;
-import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
-import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
+import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
+import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
 import edu.java.services.interfaces.LinkService;
+import java.net.URI;
+import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.net.URI;
-import java.util.Collection;
 
 @Service
 public class JdbcLinkService implements LinkService {

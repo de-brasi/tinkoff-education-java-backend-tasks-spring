@@ -1,15 +1,17 @@
 package edu.java.domain;
 
 import edu.java.domain.entities.TelegramChat;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
 
 @Repository
 public class JdbcTelegramChatRepository implements BaseEntityRepository<TelegramChat> {
@@ -28,7 +30,7 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Telegram
             );
             return (affectedRowCount == 1);
         } catch (DataAccessException e) {
-            System.out.println("hi");
+            LOGGER.info("hi");
             return false;
         }
     }
@@ -44,6 +46,8 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Telegram
         String sql = "select * from telegram_chat";
         return jdbcTemplate.query(sql, new JdbcTelegramChatRepository.LinkRowMapper());
     }
+
+    private final static Logger LOGGER = LogManager.getLogger();
 
     private static class LinkRowMapper implements RowMapper<TelegramChat> {
         @Override

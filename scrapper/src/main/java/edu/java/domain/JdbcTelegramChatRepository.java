@@ -3,8 +3,6 @@ package edu.java.domain;
 import edu.java.domain.entities.TelegramChat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Collection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -90,6 +90,7 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
         return jdbcTemplate.query(sql, new LinkRowMapper());
     }
 
+    @Override
     @Transactional
     public Collection<Link> search(Predicate<Link> condition) {
 

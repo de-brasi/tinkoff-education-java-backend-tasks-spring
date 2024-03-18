@@ -1,6 +1,5 @@
 package edu.java;
 
-import edu.java.domain.entities.Link;
 import edu.java.services.interfaces.LinkUpdater;
 import edu.java.services.jdbc.JdbcLinkUpdater;
 import org.apache.logging.log4j.LogManager;
@@ -10,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
-import java.util.Collection;
 
 @Service
 @EnableScheduling
@@ -27,11 +25,8 @@ public class LinkUpdaterScheduler {
         LOGGER.info("Update");
 
         Duration checkingDeadline = Duration.ofMinutes(1);
-        Collection<Link> linksToCheckForUpdate = linkUpdater.getNotCheckedForAWhile(checkingDeadline);
 
-        System.out.println("Checked links: " + linksToCheckForUpdate);
-
-        int updated = linkUpdater.update(linksToCheckForUpdate);
+        int updated = linkUpdater.update(checkingDeadline);
         LOGGER.info("Updated %d links.".formatted(updated));
     }
 

@@ -31,14 +31,35 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
     @Override
     @Transactional
     public boolean add(Link link) {
+
+        // TODO:
+        //  Почему-то если пытаться вставлять новую запись и ловить
+        //  исключение DataAccessException
+        //  (когда добавляется повторная запись; возникает из-за ограничение на уникальность ссылок)
+        //  исключение обрабатывается (проверяется логирующим принтом),
+        //  однако потом возникает снова в вызывающем коде (в тестах например).
+        //  Как будто бы прокси объект обрабатывает исключение но пробрасывает его дальше.
+        //  Для решения проблемы пришлось сначала проверять число записей с таким url.
+
         try {
-            int affectedRowCount = jdbcTemplate.update(
-                "insert into links(url, last_check_time, last_update_time) values (?, ?, ?)",
-                link.uri().toURL().toString(),
-                Timestamp.from(Instant.now()),
-                Timestamp.from(Instant.ofEpochSecond(0))
+            int equalLinksCount = jdbcTemplate.queryForObject(
+                "select count(*) from links where url = ?",
+                Integer.class,
+                link.uri().toURL().toString()
             );
-            return (affectedRowCount == 1);
+
+            if (equalLinksCount == 0) {
+                int affectedRowCount = jdbcTemplate.update(
+                    "insert into links(url, last_check_time, last_update_time) values (?, ?, ?)",
+                    link.uri().toURL().toString(),
+                    Timestamp.from(Instant.now()),
+                    Timestamp.from(Instant.ofEpochSecond(0))
+                );
+
+                return (affectedRowCount == 1);
+            } else {
+                return false;
+            }
         } catch (DataAccessException e) {
             LOGGER.info("hi");
             return false;

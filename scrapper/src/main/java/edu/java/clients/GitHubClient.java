@@ -90,10 +90,6 @@ public class GitHubClient {
         }
     }
 
-    public String getDefaultBaseUrl() {
-        return DEFAULT_BASE_URL;
-    }
-
     public boolean checkURLSupportedByService(String url) {
         return url.startsWith(SUPPOERTED_PREFIX);
     }

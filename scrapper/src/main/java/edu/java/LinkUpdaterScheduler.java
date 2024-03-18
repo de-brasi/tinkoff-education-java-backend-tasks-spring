@@ -29,6 +29,8 @@ public class LinkUpdaterScheduler {
         Duration checkingDeadline = Duration.ofMinutes(1);
         Collection<Link> linksToCheckForUpdate = linkUpdater.getNotCheckedForAWhile(checkingDeadline);
 
+        System.out.println("Checked links: " + linksToCheckForUpdate);
+
         int updated = linkUpdater.update(linksToCheckForUpdate);
         LOGGER.info("Updated %d links.".formatted(updated));
     }

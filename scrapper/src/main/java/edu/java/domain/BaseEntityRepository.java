@@ -1,6 +1,8 @@
 package edu.java.domain;
 
 import java.util.Collection;
+import java.util.function.Predicate;
+import edu.java.domain.entities.Link;
 import org.jetbrains.annotations.Nullable;
 
 public interface BaseEntityRepository<E> {
@@ -9,4 +11,6 @@ public interface BaseEntityRepository<E> {
     @Nullable E remove(E entity);
 
     Collection<E> findAll();
+
+    Collection<E> search(Predicate<E> condition);
 }

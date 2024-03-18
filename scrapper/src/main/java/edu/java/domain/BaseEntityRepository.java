@@ -1,10 +1,12 @@
 package edu.java.domain;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
+import org.jetbrains.annotations.Nullable;
 
-public interface BaseEntityRepository<Entity> {
-    boolean add(Entity entity);
-    @Nullable Entity remove(Entity entity);
-    Collection<Entity> findAll();
+public interface BaseEntityRepository<E> {
+    boolean add(E entity);
+
+    @Nullable E remove(E entity);
+
+    Collection<E> findAll();
 }

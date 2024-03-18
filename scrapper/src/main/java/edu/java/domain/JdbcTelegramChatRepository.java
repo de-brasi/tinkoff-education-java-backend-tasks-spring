@@ -3,6 +3,8 @@ package edu.java.domain;
 import edu.java.domain.entities.TelegramChat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,12 +25,33 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Telegram
 
     @Override
     public boolean add(TelegramChat telegramChat) {
+
+        // TODO:
+        //  Почему-то если пытаться вставлять новую запись и ловить
+        //  исключение DataAccessException
+        //  (когда добавляется повторная запись; возникает из-за ограничение на уникальность ссылок)
+        //  исключение обрабатывается (проверяется логирующим принтом),
+        //  однако потом возникает снова в вызывающем коде (в тестах например).
+        //  Как будто бы прокси объект обрабатывает исключение но пробрасывает его дальше.
+        //  Для решения проблемы пришлось сначала проверять число записей с таким chat_id.
+
         try {
-            int affectedRowCount = jdbcTemplate.update(
-                "INSERT into telegram_chat(chat_id) values (?)",
+            int equalLinksCount = jdbcTemplate.queryForObject(
+                "select count(*) from telegram_chat where chat_id = ?",
+                Integer.class,
                 telegramChat.id()
             );
-            return (affectedRowCount == 1);
+
+            if (equalLinksCount == 0) {
+                int affectedRowCount = jdbcTemplate.update(
+                    "insert into telegram_chat(chat_id) values (?)",
+                    telegramChat.id()
+                );
+
+                return (affectedRowCount == 1);
+            } else {
+                return false;
+            }
         } catch (DataAccessException e) {
             LOGGER.info("hi");
             return false;

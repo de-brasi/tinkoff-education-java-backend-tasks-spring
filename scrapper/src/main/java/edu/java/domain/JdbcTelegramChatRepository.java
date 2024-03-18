@@ -4,6 +4,8 @@ import edu.java.domain.entities.TelegramChat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +14,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JdbcTelegramChatRepository implements BaseEntityRepository<TelegramChat> {
@@ -22,6 +25,7 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Telegram
     }
 
     @Override
+    @Transactional
     public boolean add(TelegramChat telegramChat) {
 
         // TODO:
@@ -57,15 +61,26 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Telegram
     }
 
     @Override
+    @Transactional
     public @Nullable TelegramChat remove(TelegramChat telegramChat) {
         int affectedRowCount = jdbcTemplate.update("delete from telegram_chat where chat_id = (?)", telegramChat.id());
         return (affectedRowCount == 1) ? telegramChat : null;
     }
 
     @Override
+    @Transactional
     public Collection<TelegramChat> findAll() {
         String sql = "select * from telegram_chat";
         return jdbcTemplate.query(sql, new JdbcTelegramChatRepository.LinkRowMapper());
+    }
+
+    @Override
+    @Transactional
+    public Collection<TelegramChat> search(Predicate<TelegramChat> condition) {
+        return findAll()
+            .stream()
+            .filter(condition)
+            .collect(Collectors.toList());
     }
 
     private final static Logger LOGGER = LogManager.getLogger();

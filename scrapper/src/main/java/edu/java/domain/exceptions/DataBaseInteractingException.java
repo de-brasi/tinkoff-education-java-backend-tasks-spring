@@ -6,9 +6,7 @@ public class DataBaseInteractingException extends RuntimeException {
         super(errorMessage);
     }
 
-    public DataBaseInteractingException() {
-        super();
-    }
+    public DataBaseInteractingException() {}
 
     public DataBaseInteractingException(Exception exception) {
         super(exception);

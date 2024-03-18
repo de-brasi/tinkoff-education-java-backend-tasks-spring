@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@SuppressWarnings("MultipleStringLiterals")
 public class JdbcLinkUpdater implements LinkUpdater {
     private final JdbcTemplate jdbcTemplate;
     private final GitHubClient gitHubClient;

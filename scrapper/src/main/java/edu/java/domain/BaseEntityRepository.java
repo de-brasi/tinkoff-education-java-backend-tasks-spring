@@ -2,7 +2,6 @@ package edu.java.domain;
 
 import java.util.Collection;
 import java.util.function.Predicate;
-import edu.java.domain.entities.Link;
 import org.jetbrains.annotations.Nullable;
 
 public interface BaseEntityRepository<E> {

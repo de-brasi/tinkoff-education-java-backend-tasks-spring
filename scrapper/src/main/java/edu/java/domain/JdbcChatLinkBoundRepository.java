@@ -12,6 +12,8 @@ import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -165,6 +167,15 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
             + "join telegram_chat tg_chats on track_info.telegram_chat_id = tg_chats.id "
             + "join links links_table on links_table.id = track_info.link_id;";
         return jdbcTemplate.query(sql, new JdbcChatLinkBoundRepository.LinkRowMapper());
+    }
+
+    @Override
+    @Transactional
+    public Collection<ChatLinkBound> search(Predicate<ChatLinkBound> condition) {
+        return findAll()
+            .stream()
+            .filter(condition)
+            .collect(Collectors.toList());
     }
 
     private boolean checkChatExists(TelegramChat telegramChat) {

@@ -109,7 +109,7 @@ public class StackOverflowClient {
         Matcher matcher = LAST_ACTIVITY_DATE_SEARCH_PATTERN.matcher(source);
 
         if (!matcher.find()) {
-            throw new FieldNotFoundException("No match found for 'updated_at' field.");
+            throw new FieldNotFoundException("No match found for 'last_activity_date' field.");
         }
 
         return matcher.group(1);

@@ -3,6 +3,8 @@ package edu.java.services.jdbc;
 import edu.java.clients.BotClient;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
+import edu.java.domain.BaseEntityRepository;
+import edu.java.domain.JdbcLinkRepository;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
@@ -16,6 +18,7 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,23 +32,36 @@ public class JdbcLinkUpdater implements LinkUpdater {
     private final GitHubClient gitHubClient;
     private final StackOverflowClient stackOverflowClient;
     private final BotClient botClient;
+    private final BaseEntityRepository<Link> linkRepository;
 
     public JdbcLinkUpdater(
         @Autowired JdbcTemplate jdbcTemplate,
         @Autowired GitHubClient gitHubClient,
         @Autowired StackOverflowClient stackOverflowClient,
-        @Autowired BotClient botClient
+        @Autowired BotClient botClient,
+        @Autowired JdbcLinkRepository jdbcLinkRepository
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.stackOverflowClient = stackOverflowClient;
         this.gitHubClient = gitHubClient;
         this.botClient = botClient;
+        this.linkRepository = jdbcLinkRepository;
     }
 
     @Override
     @Transactional
     public int update(Duration updateInterval) {
-        Collection<Link> toUpdate = getNotCheckedForAWhile(updateInterval);
+//        Collection<Link> toUpdate = getNotCheckedForAWhile(updateInterval);
+
+        Predicate<Link> outdatedLinkPredicate = link -> {
+            try {
+                return Duration.between(OffsetDateTime.now(), getLinkUpdateTime(link)).compareTo(updateInterval) > 0;
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+        Collection<Link> toUpdate = getAllLinksFilteredByPredicate(outdatedLinkPredicate);
+
         LOGGER.info("Links need to update: " + toUpdate);
 
         int updatedLinks = 0;
@@ -110,6 +126,18 @@ public class JdbcLinkUpdater implements LinkUpdater {
         return result
             .stream()
             .toList();
+    }
+
+    public Collection<Link> getAllLinksFilteredByPredicate(Predicate<Link> predicate) {
+        return linkRepository.search(predicate);
+    }
+
+    private OffsetDateTime getLinkUpdateTime(Link link) throws MalformedURLException {
+        return jdbcTemplate.queryForObject(
+            "select last_update_time from links where url = ?",
+            OffsetDateTime.class,
+            link.uri().toURL().toString()
+        );
     }
 
     private Collection<TelegramChat> getSubscribers(Link link) {

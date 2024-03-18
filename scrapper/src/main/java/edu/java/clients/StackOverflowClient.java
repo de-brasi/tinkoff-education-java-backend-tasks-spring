@@ -14,10 +14,9 @@ import org.springframework.web.client.RestClient;
 
 public class StackOverflowClient {
     private final RestClient restClient;
-
-    private final static String DEFAULT_BASE_URL =
+    private static final String DEFAULT_BASE_URL =
         "https://api.stackexchange.com/2.3/questions/";
-
+    private static final String SUPPOERTED_PREFIX = "https://stackoverflow";
     private static final Pattern LAST_ACTIVITY_DATE_SEARCH_PATTERN =
         Pattern.compile("\"last_activity_date\":\\s*([0-9]+)");
     private static final Pattern RETRIEVE_QUESTION_NUMBER_FROM_URL = Pattern.compile(
@@ -99,6 +98,10 @@ public class StackOverflowClient {
 
     public String getDefaultBaseUrl() {
         return DEFAULT_BASE_URL;
+    }
+
+    public boolean checkURLSupportedByService(String url) {
+        return url.startsWith(SUPPOERTED_PREFIX);
     }
 
     private static String retrieveLastActivityDateField(String source)

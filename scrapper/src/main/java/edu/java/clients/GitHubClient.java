@@ -12,9 +12,8 @@ import org.springframework.web.client.RestClient;
 public class GitHubClient {
 
     private final RestClient restClient;
-
     private static final String DEFAULT_BASE_URL = "https://api.github.com/repos/";
-
+    private static final String SUPPOERTED_PREFIX = "https://github";
     private static final Pattern UPDATED_AT_SEARCH_PATTERN = Pattern.compile(
         "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
     );
@@ -94,6 +93,11 @@ public class GitHubClient {
     public String getDefaultBaseUrl() {
         return DEFAULT_BASE_URL;
     }
+
+    public boolean checkURLSupportedByService(String url) {
+        return url.startsWith(SUPPOERTED_PREFIX);
+    }
+
 
     private static String retrieveUpdatedAtField(String source)
         throws FieldNotFoundException, EmptyResponseBodyException {

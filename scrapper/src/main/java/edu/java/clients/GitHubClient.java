@@ -115,6 +115,11 @@ public class GitHubClient implements ExternalServiceClient {
         return DB_SERVICE_NAME;
     }
 
+    @Override
+    public String getChangeDescriptionFromResponseBodies(String jsonStringBodyBefore, String jsonStringBodyAfter) {
+        return "Some updates!";
+    }
+
     public boolean checkURLSupportedByService(String url) {
         return url.startsWith(SUPPOERTED_PREFIX);
     }

@@ -24,6 +24,10 @@ public class StackOverflowClient implements ExternalServiceClient {
         "https://stackoverflow\\.com/questions/([0-9]+)/.*"
     );
 
+    // check difference
+    private static final Pattern IS_ANSWERED_PATTERN = Pattern.compile(".*\\\"is_answered\\\":\\s*(true|false),.*");
+    private static final Pattern ANSWER_COUNT_PATTERN = Pattern.compile(".*\\\"answer_count\\\":\\s*(\\d+),.*");
+
     public StackOverflowClient() {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
@@ -118,6 +122,33 @@ public class StackOverflowClient implements ExternalServiceClient {
     @Override
     public String getServiceNameInDatabase() {
         return DB_SERVICE_NAME;
+    }
+
+    @Override
+    public String getChangeDescriptionFromResponseBodies(String jsonStringBodyBefore, String jsonStringBodyAfter) {
+        Matcher beforeJsonIsAnsweredMatcher = IS_ANSWERED_PATTERN.matcher(jsonStringBodyBefore);
+        Matcher afterJsonIsAnsweredMatcher = IS_ANSWERED_PATTERN.matcher(jsonStringBodyAfter);
+
+        if (
+            beforeJsonIsAnsweredMatcher.find()
+            && afterJsonIsAnsweredMatcher.find()
+            && !beforeJsonIsAnsweredMatcher.group(1).equals(afterJsonIsAnsweredMatcher.group(1))
+        ) {
+            return "Question answered!";
+        }
+
+        Matcher beforeJsonAnswersCountMatcher = ANSWER_COUNT_PATTERN.matcher(jsonStringBodyBefore);
+        Matcher afterJsonAnswersCountMatcher = ANSWER_COUNT_PATTERN.matcher(jsonStringBodyAfter);
+
+        if (
+            beforeJsonAnswersCountMatcher.find()
+                && afterJsonAnswersCountMatcher.find()
+                && !beforeJsonAnswersCountMatcher.group(1).equals(afterJsonAnswersCountMatcher.group(1))
+        ) {
+            return "New answer!";
+        }
+
+        return "Some updates!";
     }
 
     public boolean checkURLSupportedByService(String url) {

@@ -3,7 +3,6 @@ package edu.java.services;
 import edu.java.clients.ExternalServiceClient;
 import edu.java.clients.exceptions.EmptyResponseBodyException;
 import edu.java.clients.exceptions.FieldNotFoundException;
-
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -26,11 +25,7 @@ public class ExternalServicesObserver {
     }
 
     public OffsetDateTime getActualUpdateTime(String url) {
-        final ExternalServiceClient relatedService = services
-            .stream()
-            .filter(s -> s.checkURLSupportedByService(url))
-            .findFirst()
-            .orElseThrow();
+        final ExternalServiceClient relatedService = getSuitableServiceOrThrow(url);
 
         try {
             return relatedService.fetchUpdate(url).updateTime();
@@ -40,13 +35,7 @@ public class ExternalServicesObserver {
     }
 
     public String getRelativeServiceNameInDatabase(String url) {
-        final ExternalServiceClient relatedService = services
-            .stream()
-            .filter(s -> s.checkURLSupportedByService(url))
-            .findFirst()
-            .orElseThrow();
-
-        return relatedService.getServiceNameInDatabase();
+        return getSuitableServiceOrThrow(url).getServiceNameInDatabase();
     }
 
     public String getChangingDescription(String url, String oldSnapshot) {
@@ -55,12 +44,14 @@ public class ExternalServicesObserver {
     }
 
     public String getActualSnapshot(String url) {
-        final ExternalServiceClient relatedService = services
+        return getSuitableServiceOrThrow(url).getBodyJSONContent(url);
+    }
+
+    private ExternalServiceClient getSuitableServiceOrThrow(String url) {
+        return services
             .stream()
             .filter(s -> s.checkURLSupportedByService(url))
             .findFirst()
             .orElseThrow();
-
-        return relatedService.getBodyJSONContent(url);
     }
 }

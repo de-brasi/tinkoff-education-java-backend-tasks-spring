@@ -11,6 +11,8 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
+import edu.java.services.ExternalServicesObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -24,9 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class JdbcLinkRepository implements BaseEntityRepository<Link> {
     private final JdbcTemplate jdbcTemplate;
+    private final ExternalServicesObserver servicesObserver;
 
-    public JdbcLinkRepository(@Autowired JdbcTemplate jdbcTemplate) {
+    public JdbcLinkRepository(
+        @Autowired JdbcTemplate jdbcTemplate,
+        @Autowired ExternalServicesObserver externalServicesObserver
+    ) {
         this.jdbcTemplate = jdbcTemplate;
+        this.servicesObserver = externalServicesObserver;
     }
 
     @Override
@@ -43,18 +50,34 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
         //  Для решения проблемы пришлось сначала проверять число записей с таким url.
 
         try {
+            final String url = link.uri().toURL().toString();
+
             int equalLinksCount = jdbcTemplate.queryForObject(
                 "select count(*) from links where url = ?",
                 Integer.class,
-                link.uri().toURL().toString()
+                url
             );
 
             if (equalLinksCount == 0) {
+                final String serviceName = servicesObserver.getRelativeServiceNameInDatabase(url);
+                checkServiceExistsInDatabaseElseThrowException(serviceName);
+                int serviceIndex = jdbcTemplate.queryForObject(
+                    "select id from supported_services where name = ?",
+                    Integer.class,
+                    serviceName
+                );
+
+                final String snapshot = servicesObserver.getActualSnapshot(url);
+
                 int affectedRowCount = jdbcTemplate.update(
-                    "insert into links(url, last_check_time, last_update_time) values (?, ?, ?)",
+                    "insert "
+                        + "into links(url, last_check_time, last_update_time, service, snapshot) "
+                        + "values (?, ?, ?, ?, cast(? as json))",
                     link.uri().toURL().toString(),
                     Timestamp.from(Instant.now()),
-                    Timestamp.from(Instant.ofEpochSecond(0))
+                    Timestamp.from(Instant.ofEpochSecond(0)),
+                    serviceIndex,
+                    snapshot
                 );
 
                 return (affectedRowCount == 1);
@@ -115,6 +138,18 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
             .stream()
             .filter(condition)
             .collect(Collectors.toList());
+    }
+
+    private void checkServiceExistsInDatabaseElseThrowException(String serviceName) {
+        boolean serviceExists = (jdbcTemplate.queryForObject(
+            "select count(*) from supported_services where name = ?",
+            Integer.class,
+            serviceName
+        ) > 0);
+
+        if (!serviceExists) {
+            throw new InvalidArgumentForTypeInDataBase("Unexpected service with name " + serviceName);
+        }
     }
 
     private final static Logger LOGGER = LogManager.getLogger();

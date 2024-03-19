@@ -8,4 +8,6 @@ public interface ExternalServiceClient {
     boolean checkURLSupportedByService(String url);
 
     UpdateResponse fetchUpdate(String url) throws EmptyResponseBodyException, FieldNotFoundException;
+
+    String getJSONContent(String url);
 }

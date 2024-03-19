@@ -201,8 +201,8 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
         if (timeUpdated) {
             final String oldSnapshot = getSnapshot(currentLinkUrl);
-            final String changesDescription = servicesObserver.getChangingDescription(currentLinkUrl, oldSnapshot);
             final String actualSnapshot = servicesObserver.getActualSnapshot(currentLinkUrl);
+            final String changesDescription = servicesObserver.getChangingDescription(currentLinkUrl, oldSnapshot, actualSnapshot);
 
             // todo: использовать id ссылки, пока заглушка
             botClient.sendUpdates(

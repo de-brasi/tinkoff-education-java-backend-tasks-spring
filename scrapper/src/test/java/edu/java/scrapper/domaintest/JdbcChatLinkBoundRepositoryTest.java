@@ -63,7 +63,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void addCorrectPair() throws MalformedURLException {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link1"));
+        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
         final TelegramChat testChat = new TelegramChat(1L);
         telegramChatRepository.add(testChat);
         linkRepository.add(testLink);
@@ -92,7 +92,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void addCorrectPairTwice() throws MalformedURLException {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link2"));
+        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
         final TelegramChat testChat = new TelegramChat(2L);
         telegramChatRepository.add(testChat);
         linkRepository.add(testLink);
@@ -124,7 +124,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void addIncorrectPairTgChatRequired() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link3"));
+        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
         final TelegramChat testChat = new TelegramChat(3L);
         linkRepository.add(testLink);
 
@@ -138,7 +138,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     void addInCorrectPairLinkRequiredCheckLinkActuallyAddedToTable() throws MalformedURLException {
         // preconditions
         final TelegramChat testChat = new TelegramChat(4L);
-        final Link testLink = new Link(URI.create("https://example/link4"));
+        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
         telegramChatRepository.add(testChat);
 
         // bound
@@ -160,7 +160,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     void addInCorrectPairLinkRequiredCheckBoundingInformationActuallyCreated() throws MalformedURLException {
         // preconditions
         final TelegramChat testChat = new TelegramChat(5L);
-        final Link testLink = new Link(URI.create("https://example/link5"));
+        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
         telegramChatRepository.add(testChat);
 
         // bound
@@ -199,7 +199,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void removeCorrectPair() throws MalformedURLException {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link7"));
+        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
         final TelegramChat testChat = new TelegramChat(7L);
         telegramChatRepository.add(testChat);
         linkRepository.add(testLink);
@@ -231,7 +231,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void removeInCorrectPairTgChatNotExists() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link8"));
+        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
         final TelegramChat testChat = new TelegramChat(8L);
         linkRepository.add(testLink);
 

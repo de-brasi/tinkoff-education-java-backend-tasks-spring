@@ -92,7 +92,7 @@ public class GitHubClient implements ExternalServiceClient {
     }
 
     @Override
-    public String getJSONContent(String url) {
+    public String getBodyJSONContent(String url) {
         Matcher matcher = RETRIEVE_GH_NAME_AND_REPO_NAME_FROM_URL.matcher(url);
 
         if (matcher.find()) {

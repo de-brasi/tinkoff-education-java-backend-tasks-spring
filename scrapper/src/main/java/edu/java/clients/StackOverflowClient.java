@@ -98,7 +98,7 @@ public class StackOverflowClient implements ExternalServiceClient {
     }
 
     @Override
-    public String getJSONContent(String url) {
+    public String getBodyJSONContent(String url) {
         Matcher matcher = RETRIEVE_QUESTION_NUMBER_FROM_URL.matcher(url);
 
         if (matcher.find()) {

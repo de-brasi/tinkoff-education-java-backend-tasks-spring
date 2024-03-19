@@ -12,7 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ReactorNettyClientRequestFactory;
 import org.springframework.web.client.RestClient;
 
-public class StackOverflowClient {
+public class StackOverflowClient implements ExternalServiceClient {
     private final RestClient restClient;
     private static final String DEFAULT_BASE_URL =
         "https://api.stackexchange.com/2.3/questions/";

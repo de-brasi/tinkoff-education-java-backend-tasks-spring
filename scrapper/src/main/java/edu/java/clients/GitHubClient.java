@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
-public class GitHubClient {
+public class GitHubClient implements ExternalServiceClient {
 
     private final RestClient restClient;
     private static final String DEFAULT_BASE_URL = "https://api.github.com/repos/";

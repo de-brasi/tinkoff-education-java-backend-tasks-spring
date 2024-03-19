@@ -8,6 +8,7 @@ import edu.java.domain.JdbcLinkRepository;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
+import edu.java.services.ExternalServicesObserver;
 import edu.java.services.interfaces.LinkUpdater;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -34,19 +35,22 @@ public class JdbcLinkUpdater implements LinkUpdater {
     private final StackOverflowClient stackOverflowClient;
     private final BotClient botClient;
     private final BaseEntityRepository<Link> linkRepository;
+    private final ExternalServicesObserver servicesObserver;
 
     public JdbcLinkUpdater(
         @Autowired JdbcTemplate jdbcTemplate,
         @Autowired GitHubClient gitHubClient,
         @Autowired StackOverflowClient stackOverflowClient,
         @Autowired BotClient botClient,
-        @Autowired JdbcLinkRepository jdbcLinkRepository
+        @Autowired JdbcLinkRepository jdbcLinkRepository,
+        @Autowired ExternalServicesObserver externalServicesObserver
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.stackOverflowClient = stackOverflowClient;
         this.gitHubClient = gitHubClient;
         this.botClient = botClient;
         this.linkRepository = jdbcLinkRepository;
+        this.servicesObserver = externalServicesObserver;
     }
 
     @Override
@@ -77,23 +81,18 @@ public class JdbcLinkUpdater implements LinkUpdater {
                         .map(TelegramChat::id)
                         .toList();
 
-                boolean linkUpdated;
-                if (gitHubClient.checkURLSupportedByService(currentLinkUrl)) {
+                if (servicesObserver.checkURLSupported(currentLinkUrl)) {
                     final OffsetDateTime actualUpdateTime =
-                        gitHubClient.fetchUpdate(currentLinkUrl).updateTime();
-                    linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link, subscribers);
-                } else if (stackOverflowClient.checkURLSupportedByService(currentLinkUrl)) {
-                    final OffsetDateTime actualUpdateTime =
-                        stackOverflowClient.fetchUpdate(currentLinkUrl).updateTime();
-                    linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link, subscribers);
+                        servicesObserver.getActualUpdateTime(currentLinkUrl);
+                    boolean linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link, subscribers);
+
+                    if (linkUpdated) {
+                        updatedLinks++;
+                    }
                 } else {
                     throw new RuntimeException(
                         "Unexpected API for fetching update for URL %s".formatted(currentLinkUrl)
                     );
-                }
-
-                if (linkUpdated) {
-                    updatedLinks++;
                 }
 
             } catch (Exception e) {
@@ -187,8 +186,11 @@ public class JdbcLinkUpdater implements LinkUpdater {
         return storedLastUpdateTime.isBefore(actualTime);
     }
 
-    private boolean notifyClientsIfUpdatedTimeChanged(OffsetDateTime actualTime, Link link, List<Long> subscribersId)
-        throws MalformedURLException {
+    private boolean notifyClientsIfUpdatedTimeChanged(
+        OffsetDateTime actualTime,
+        Link link,
+        List<Long> subscribersId
+    ) throws MalformedURLException {
         /*
         Return:
         - true: time updated
@@ -198,19 +200,49 @@ public class JdbcLinkUpdater implements LinkUpdater {
         final String currentLinkUrl = link.uri().toURL().toString();
 
         if (timeUpdated) {
+            final String currentSnapshot = servicesObserver.getActualSnapshot(currentLinkUrl);
+            final String oldSnapshot = getSnapshot(currentLinkUrl);
+            final String changesDescription = servicesObserver.getChangingDescription(currentLinkUrl, oldSnapshot);
+            final String actualSnapshot = servicesObserver.getActualSnapshot(currentLinkUrl);
+
             // todo: использовать id ссылки, пока заглушка
             botClient.sendUpdates(
                 -1,
                 link.uri().toURL().toString(),
-                "updated",
+                changesDescription,
                 subscribersId
             );
 
+            actualizeSnapshot(currentLinkUrl, actualSnapshot);
             actualizeLastUpdateTimeForLink(currentLinkUrl, actualTime);
             actualizeCheckingTimeForLink(currentLinkUrl);
         }
 
         return timeUpdated;
+    }
+
+    private String getSnapshot(String url) {
+        return jdbcTemplate.queryForObject(
+            "select snapshot from links where url = ?",
+            String.class,
+            url
+        );
+    }
+
+    private void actualizeSnapshot(String url, String snapshot) {
+        int affectedRows = jdbcTemplate.update(
+            "update links set snapshot = ? where url = ?",
+            snapshot,
+            url
+            );
+
+        if (affectedRows != 1) {
+            throw new UnexpectedDataBaseStateException(
+                "Expected to update field 'snapshot' one row with actual value for link with url "
+                    + url
+                    + " but no one row changed!"
+            );
+        }
     }
 
     private void actualizeCheckingTimeForLink(String url) {

@@ -39,13 +39,28 @@ public class ExternalServicesObserver {
         }
     }
 
-    public String getChangingDescription(String url, /* todo: type */ String oldSnapshot) {
+    public String getRelativeServiceNameInDatabase(String url) {
+        final ExternalServiceClient relatedService = services
+            .stream()
+            .filter(s -> s.checkURLSupportedByService(url))
+            .findFirst()
+            .orElseThrow();
+
+        return relatedService.getServiceNameInDatabase();
+    }
+
+    public String getChangingDescription(String url, String oldSnapshot) {
         // todo:
         return null;
     }
 
-    public /* todo: type */ String getActualSnapshot(String url) {
-        // todo
-        return null;
+    public String getActualSnapshot(String url) {
+        final ExternalServiceClient relatedService = services
+            .stream()
+            .filter(s -> s.checkURLSupportedByService(url))
+            .findFirst()
+            .orElseThrow();
+
+        return relatedService.getBodyJSONContent(url);
     }
 }

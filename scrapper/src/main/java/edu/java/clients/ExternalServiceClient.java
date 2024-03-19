@@ -12,4 +12,6 @@ public interface ExternalServiceClient {
     String getBodyJSONContent(String url);
 
     String getServiceNameInDatabase();
+
+    String getChangeDescriptionFromResponseBodies(String jsonStringBodyBefore, String jsonStringBodyAfter);
 }

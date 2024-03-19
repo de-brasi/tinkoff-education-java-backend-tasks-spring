@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
+@SuppressWarnings("MultipleStringLiterals")
 public class GitHubClient implements ExternalServiceClient {
 
     private final RestClient restClient;

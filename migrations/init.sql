@@ -1,5 +1,12 @@
 --liquibase formatted sql
 
+--changeset ilya:init-table-supported-services
+create table supported_services
+(
+    id  bigint generated always as identity primary key,
+    name text not null
+);
+
 --changeset ilya:init-table-links
 create table links
 (
@@ -7,6 +14,9 @@ create table links
     url text not null,
     last_check_time timestamp with time zone not null,
     last_update_time timestamp with time zone not null,
+    service bigint not null,
+    snapshot json not null,
+    foreign key (service) references supported_services(id),
     unique (url)
 );
 

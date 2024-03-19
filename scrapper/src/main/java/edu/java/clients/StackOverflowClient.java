@@ -96,6 +96,24 @@ public class StackOverflowClient implements ExternalServiceClient {
         }
     }
 
+    @Override
+    public String getJSONContent(String url) {
+        Matcher matcher = RETRIEVE_QUESTION_NUMBER_FROM_URL.matcher(url);
+
+        if (matcher.find()) {
+            Integer questionId = Integer.valueOf(matcher.group(1));
+            return this.restClient
+                .get()
+                .uri("/%s?site=stackoverflow&filter=withbody".formatted(questionId))
+                .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+                .retrieve()
+                .body(String.class);
+        } else {
+            throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"
+                .formatted(url));
+        }
+    }
+
     public boolean checkURLSupportedByService(String url) {
         return url.startsWith(SUPPOERTED_PREFIX);
     }

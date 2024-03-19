@@ -10,4 +10,6 @@ public interface ExternalServiceClient {
     UpdateResponse fetchUpdate(String url) throws EmptyResponseBodyException, FieldNotFoundException;
 
     String getJSONContent(String url);
+
+    String getServiceNameInDatabase();
 }

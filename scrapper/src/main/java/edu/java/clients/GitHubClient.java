@@ -14,6 +14,7 @@ public class GitHubClient implements ExternalServiceClient {
     private final RestClient restClient;
     private static final String DEFAULT_BASE_URL = "https://api.github.com/repos/";
     private static final String SUPPOERTED_PREFIX = "https://github";
+    private static final String DB_SERVICE_NAME = "github";
     private static final Pattern UPDATED_AT_SEARCH_PATTERN = Pattern.compile(
         "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
     );
@@ -107,6 +108,11 @@ public class GitHubClient implements ExternalServiceClient {
             throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"
                 .formatted(url));
         }
+    }
+
+    @Override
+    public String getServiceNameInDatabase() {
+        return DB_SERVICE_NAME;
     }
 
     public boolean checkURLSupportedByService(String url) {

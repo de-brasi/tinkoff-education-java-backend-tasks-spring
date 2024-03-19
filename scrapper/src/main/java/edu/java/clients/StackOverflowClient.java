@@ -17,6 +17,7 @@ public class StackOverflowClient implements ExternalServiceClient {
     private static final String DEFAULT_BASE_URL =
         "https://api.stackexchange.com/2.3/questions/";
     private static final String SUPPOERTED_PREFIX = "https://stackoverflow";
+    private static final String DB_SERVICE_NAME = "stackoverflow";
     private static final Pattern LAST_ACTIVITY_DATE_SEARCH_PATTERN =
         Pattern.compile("\"last_activity_date\":\\s*([0-9]+)");
     private static final Pattern RETRIEVE_QUESTION_NUMBER_FROM_URL = Pattern.compile(
@@ -112,6 +113,11 @@ public class StackOverflowClient implements ExternalServiceClient {
             throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"
                 .formatted(url));
         }
+    }
+
+    @Override
+    public String getServiceNameInDatabase() {
+        return DB_SERVICE_NAME;
     }
 
     public boolean checkURLSupportedByService(String url) {

@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
 import edu.java.services.ExternalServicesObserver;
 import org.apache.logging.log4j.LogManager;
@@ -85,8 +86,7 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
                 return false;
             }
         } catch (DataAccessException e) {
-            LOGGER.info("hi");
-            return false;
+            throw new DataBaseInteractingException(e);
         } catch (MalformedURLException e) {
             throw new IncorrectRequestException(e.getMessage());
         }

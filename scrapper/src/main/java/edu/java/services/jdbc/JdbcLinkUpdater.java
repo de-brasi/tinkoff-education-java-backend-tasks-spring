@@ -200,7 +200,6 @@ public class JdbcLinkUpdater implements LinkUpdater {
         final String currentLinkUrl = link.uri().toURL().toString();
 
         if (timeUpdated) {
-            final String currentSnapshot = servicesObserver.getActualSnapshot(currentLinkUrl);
             final String oldSnapshot = getSnapshot(currentLinkUrl);
             final String changesDescription = servicesObserver.getChangingDescription(currentLinkUrl, oldSnapshot);
             final String actualSnapshot = servicesObserver.getActualSnapshot(currentLinkUrl);

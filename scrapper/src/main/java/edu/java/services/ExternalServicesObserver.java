@@ -25,7 +25,7 @@ public class ExternalServicesObserver {
             );
     }
 
-    public boolean checkUpdateTimeChanged(String url, OffsetDateTime storedTime) {
+    public OffsetDateTime getActualUpdateTime(String url) {
         final ExternalServiceClient relatedService = services
             .stream()
             .filter(s -> s.checkURLSupportedByService(url))
@@ -33,8 +33,7 @@ public class ExternalServicesObserver {
             .orElseThrow();
 
         try {
-            final OffsetDateTime actualUpdateTime = relatedService.fetchUpdate(url).updateTime();
-            return storedTime.isBefore(actualUpdateTime);
+            return relatedService.fetchUpdate(url).updateTime();
         } catch (EmptyResponseBodyException | FieldNotFoundException e) {
             throw new RuntimeException(e);
         }

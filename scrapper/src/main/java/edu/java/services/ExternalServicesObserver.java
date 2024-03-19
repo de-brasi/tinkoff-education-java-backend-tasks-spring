@@ -38,9 +38,8 @@ public class ExternalServicesObserver {
         return getSuitableServiceOrThrow(url).getServiceNameInDatabase();
     }
 
-    public String getChangingDescription(String url, String oldSnapshot) {
-        // todo:
-        return null;
+    public String getChangingDescription(String url, String oldSnapshot, String actualSnapshot) {
+        return getSuitableServiceOrThrow(url).getChangeDescriptionFromResponseBodies(oldSnapshot, actualSnapshot);
     }
 
     public String getActualSnapshot(String url) {

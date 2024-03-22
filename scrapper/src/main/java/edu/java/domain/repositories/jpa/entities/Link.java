@@ -36,6 +36,5 @@ public class Link {
     @JoinColumn(name = "service", referencedColumnName = "id")
     private SupportedService service;
 
-    @Column(nullable = false)
     private String snapshot;
 }

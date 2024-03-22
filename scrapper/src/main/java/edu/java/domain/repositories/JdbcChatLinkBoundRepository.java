@@ -1,4 +1,4 @@
-package edu.java.domain;
+package edu.java.domain.repositories;
 
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;

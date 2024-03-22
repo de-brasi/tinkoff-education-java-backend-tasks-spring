@@ -1,4 +1,4 @@
-package edu.java.domain;
+package edu.java.domain.repositories;
 
 import java.util.Collection;
 import java.util.function.Predicate;

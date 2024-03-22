@@ -24,6 +24,6 @@ public record ApplicationConfig(
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
     }
 
-    public record ClientSettings(int timeInMilliseconds){
+    public record ClientSettings(int timeoutInMilliseconds){
     }
 }

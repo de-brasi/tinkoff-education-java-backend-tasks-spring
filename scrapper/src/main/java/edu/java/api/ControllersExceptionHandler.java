@@ -2,10 +2,13 @@ package edu.java.api;
 
 import edu.common.dtos.ApiErrorResponse;
 import edu.common.exceptions.ChatIdNotExistsException;
-import edu.common.exceptions.LinkNotExistsException;
+import edu.common.exceptions.LinksNotAddedException;
 import edu.common.exceptions.ReAddingLinkException;
 import edu.common.exceptions.ReRegistrationException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -34,7 +37,7 @@ public class ControllersExceptionHandler {
         );
     }
 
-    @ExceptionHandler(LinkNotExistsException.class)
+    @ExceptionHandler(LinksNotAddedException.class)
     public ResponseEntity<ApiErrorResponse> linkNotFoundErrorHandler(Exception e) {
         return new ResponseEntity<>(
             new ApiErrorResponse(
@@ -119,6 +122,14 @@ public class ControllersExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> internalErrorHandler(Exception e) {
+        LOGGER.info(
+            "Exception caught in ExceptionHandler with name: " + e.getClass().getCanonicalName()
+                + "\nstack trace is:\n"
+                + Arrays.stream(e.getStackTrace())
+                .map(StackTraceElement::toString)
+                .collect(Collectors.joining("\n"))
+        );
+
         return new ResponseEntity<>(
             new ApiErrorResponse(
                 "internal stub error",
@@ -133,4 +144,5 @@ public class ControllersExceptionHandler {
         );
     }
 
+    private final static Logger LOGGER = LogManager.getLogger();
 }

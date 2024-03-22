@@ -12,5 +12,5 @@ public class LinkUpdateRequest {
     int id;
     String url;
     String description;
-    List<Integer> tgChatIds;
+    List<Long> tgChatIds;
 }

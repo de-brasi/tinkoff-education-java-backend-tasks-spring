@@ -1,9 +1,10 @@
-package edu.java.domain.repositories;
+package edu.java.domain.repositories.jdbc;
 
 import edu.common.exceptions.IncorrectRequestException;
 import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
+import edu.java.domain.repositories.BaseEntityRepository;
 import edu.java.services.ExternalServicesObserver;
 import java.net.MalformedURLException;
 import java.net.URI;

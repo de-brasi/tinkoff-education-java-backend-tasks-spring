@@ -20,7 +20,7 @@ public class GitHubClient implements ExternalServiceClient {
         "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
     );
     private static final Pattern RETRIEVE_GH_NAME_AND_REPO_NAME_FROM_URL = Pattern.compile(
-        "https://github\\.com/([^/\\s]+)/([^/\\s]+)/.*"
+        "https://github\\.com/([^/\\s]+)/([^/\\s]+)/?.*"
     );
 
 

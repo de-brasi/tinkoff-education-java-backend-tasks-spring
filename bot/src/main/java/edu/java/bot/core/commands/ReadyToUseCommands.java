@@ -6,16 +6,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ReadyToUseCommands {
-    private ReadyToUseCommands() {}
+    private ReadyToUseCommands() {
+    }
 
     public static TelegramBotCommand start() {
         return new TelegramBotCommand()
             .withCommandName("start")
             .withCommandTextDescription("register me")
             .withCallAction((usedBot, context) -> {
-                usedBot.sendPlainTextMessage(context.getChatId(), "command 'start' was called");
-                LOGGER.info("...Command start called...");
-            });
+                    usedBot.sendPlainTextMessage(context.getChatId(), "command 'start' was called");
+                    LOGGER.info("...Command start called...");
+                }
+            );
     }
 
     public static TelegramBotCommand help() {
@@ -24,9 +26,10 @@ public class ReadyToUseCommands {
             .withCommandTextDescription(
                 "get list of commands")
             .withCallAction((usedBot, context) -> {
-                usedBot.sendPlainTextMessage(context.getChatId(), "command 'help' was called");
-                LOGGER.info("...Command help called...");
-            });
+                    usedBot.sendPlainTextMessage(context.getChatId(), "command 'help' was called");
+                    LOGGER.info("...Command help called...");
+                }
+            );
     }
 
     public static TelegramBotCommand track(UsersRepository repository) {
@@ -37,15 +40,16 @@ public class ReadyToUseCommands {
                 CommandArgumentDescription.of(Link::validate, true)
             )
             .withCallAction((usedBot, context) -> {
-                var userId = context.getUser().getTelegramId();
-                var links = context.getCommand().args();
-                repository.storeLinksForUser(userId, links);
-                usedBot.sendPlainTextMessage(
-                    context.getChatId(),
-                    "Tracked links:\n" + String.join("\n", links)
-                );
-                LOGGER.info("...Command track called...");
-            });
+                    var userId = context.getUser().getTelegramId();
+                    var links = context.getCommand().args();
+                    repository.storeLinksForUser(userId, links);
+                    usedBot.sendPlainTextMessage(
+                        context.getChatId(),
+                        "Tracked links:\n" + String.join("\n", links)
+                    );
+                    LOGGER.info("...Command track called...");
+                }
+            );
     }
 
     public static TelegramBotCommand untrack(UsersRepository repository) {
@@ -56,15 +60,16 @@ public class ReadyToUseCommands {
                 CommandArgumentDescription.of(Link::validate, true)
             )
             .withCallAction((usedBot, context) -> {
-                var userId = context.getUser().getTelegramId();
-                var links = context.getCommand().args();
-                repository.deleteLinksForUser(userId, links);
-                usedBot.sendPlainTextMessage(
-                    context.getChatId(),
-                    "Untracked links:\n" + String.join("\n", links)
-                );
-                LOGGER.info("...Command untrack called...");
-            });
+                    var userId = context.getUser().getTelegramId();
+                    var links = context.getCommand().args();
+                    repository.deleteLinksForUser(userId, links);
+                    usedBot.sendPlainTextMessage(
+                        context.getChatId(),
+                        "Untracked links:\n" + String.join("\n", links)
+                    );
+                    LOGGER.info("...Command untrack called...");
+                }
+            );
     }
 
     public static TelegramBotCommand list(UsersRepository repository) {
@@ -72,14 +77,15 @@ public class ReadyToUseCommands {
             .withCommandName("list")
             .withCommandTextDescription("show tracked links")
             .withCallAction((usedBot, context) -> {
-                var userId = context.getUser().getTelegramId();
-                var links = repository.getLinksForUser(userId);
-                usedBot.sendPlainTextMessage(
-                    context.getChatId(),
-                    "Tracked links is:\n" + String.join("\n", links)
-                );
-                LOGGER.info("...Command list called...");
-            });
+                    var userId = context.getUser().getTelegramId();
+                    var links = repository.getLinksForUser(userId);
+                    usedBot.sendPlainTextMessage(
+                        context.getChatId(),
+                        "Tracked links is:\n" + String.join("\n", links)
+                    );
+                    LOGGER.info("...Command list called...");
+                }
+            );
     }
 
     public static TelegramBotCommand unexpectedCommand() {

@@ -4,7 +4,7 @@ import edu.common.exceptions.ChatIdNotExistsException;
 import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.ReAddingLinkException;
 import edu.java.domain.repositories.BaseEntityRepository;
-import edu.java.domain.repositories.JdbcChatLinkBoundRepository;
+import edu.java.domain.repositories.jdbc.JdbcChatLinkBoundRepository;
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;

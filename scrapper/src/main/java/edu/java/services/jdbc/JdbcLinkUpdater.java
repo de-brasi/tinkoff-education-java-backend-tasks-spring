@@ -4,7 +4,7 @@ import edu.java.clients.BotClient;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
 import edu.java.domain.repositories.BaseEntityRepository;
-import edu.java.domain.repositories.JdbcLinkRepository;
+import edu.java.domain.repositories.jdbc.JdbcLinkRepository;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;

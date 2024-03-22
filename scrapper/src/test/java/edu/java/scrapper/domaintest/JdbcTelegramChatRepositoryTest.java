@@ -1,6 +1,6 @@
 package edu.java.scrapper.domaintest;
 
-import edu.java.domain.repositories.JdbcTelegramChatRepository;
+import edu.java.domain.repositories.jdbc.JdbcTelegramChatRepository;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.Test;

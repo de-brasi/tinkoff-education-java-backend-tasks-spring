@@ -1,6 +1,6 @@
 package edu.java.scrapper.domaintest;
 
-import edu.java.domain.repositories.JdbcLinkRepository;
+import edu.java.domain.repositories.jdbc.JdbcLinkRepository;
 import edu.java.domain.entities.Link;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.Test;

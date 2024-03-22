@@ -1,8 +1,8 @@
 package edu.java.scrapper.domaintest;
 
-import edu.java.domain.repositories.JdbcChatLinkBoundRepository;
-import edu.java.domain.repositories.JdbcLinkRepository;
-import edu.java.domain.repositories.JdbcTelegramChatRepository;
+import edu.java.domain.repositories.jdbc.JdbcChatLinkBoundRepository;
+import edu.java.domain.repositories.jdbc.JdbcLinkRepository;
+import edu.java.domain.repositories.jdbc.JdbcTelegramChatRepository;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;

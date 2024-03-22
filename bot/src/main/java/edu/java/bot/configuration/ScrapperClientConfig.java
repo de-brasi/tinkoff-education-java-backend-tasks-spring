@@ -6,7 +6,9 @@ import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.UnexpectedResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import edu.java.bot.client.ScrapperClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -45,5 +47,26 @@ public class ScrapperClientConfig {
             }
 
         };
+    }
+
+    @Bean("scrapperClient")
+    public ScrapperClient scrapperClient(
+        @Autowired
+        ObjectMapper mapper,
+
+        @Autowired
+        @Qualifier("defaultUnexpectedStatusHandler")
+        RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler,
+
+        @Autowired
+        @Qualifier("linkManagementStatus4xxHandler")
+        RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler
+    ) {
+        return new ScrapperClient(
+            "http://localhost:8080/scrapperMock/",
+            mapper,
+            defaultUnexpectedStatusHandler,
+            linkManagementStatus4xxHandler
+        );
     }
 }

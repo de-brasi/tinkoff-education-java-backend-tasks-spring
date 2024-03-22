@@ -63,7 +63,7 @@ public class ScrapperClientConfig {
         RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler
     ) {
         return new ScrapperClient(
-            "http://localhost:8080/scrapperMock/",
+            "http://localhost:8080/scrapper/",
             mapper,
             defaultUnexpectedStatusHandler,
             linkManagementStatus4xxHandler

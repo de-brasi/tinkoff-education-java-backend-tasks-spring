@@ -1,4 +1,4 @@
-package edu.java.entities;
+package edu.java.clients.entities;
 
 import java.time.OffsetDateTime;
 

@@ -1,4 +1,4 @@
-package edu.java.client;
+package edu.java.clients;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.common.dtos.LinkUpdateRequest;
@@ -56,7 +56,7 @@ public class BotClient {
     }
 
     public void sendUpdates(
-        int id, String updatedUrl, String updateDescription, List<Integer> subscribers
+        int id, String updatedUrl, String updateDescription, List<Long> subscribers
     ) {
         LinkUpdateRequest updates = new LinkUpdateRequest(id, updatedUrl, updateDescription, subscribers);
         this.restClient

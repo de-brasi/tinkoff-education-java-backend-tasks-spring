@@ -1,8 +1,8 @@
 package edu.java.clients;
 
-import edu.java.entities.UpdateResponse;
-import edu.java.exceptions.EmptyResponseBodyException;
-import edu.java.exceptions.FieldNotFoundException;
+import edu.java.clients.entities.UpdateResponse;
+import edu.java.clients.exceptions.EmptyResponseBodyException;
+import edu.java.clients.exceptions.FieldNotFoundException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -14,15 +14,14 @@ import org.springframework.web.client.RestClient;
 
 public class StackOverflowClient {
     private final RestClient restClient;
-
-    private final static String DEFAULT_BASE_URL =
+    private static final String DEFAULT_BASE_URL =
         "https://api.stackexchange.com/2.3/questions/";
-
-    private static final Pattern LAST_ACTIVITY_DATE_SEARCH_PATTERN;
-
-    static {
-        LAST_ACTIVITY_DATE_SEARCH_PATTERN = Pattern.compile("\"last_activity_date\":\\s*([0-9]+)");
-    }
+    private static final String SUPPOERTED_PREFIX = "https://stackoverflow";
+    private static final Pattern LAST_ACTIVITY_DATE_SEARCH_PATTERN =
+        Pattern.compile("\"last_activity_date\":\\s*([0-9]+)");
+    private static final Pattern RETRIEVE_QUESTION_NUMBER_FROM_URL = Pattern.compile(
+        "https://stackoverflow\\.com/questions/([0-9]+)/.*"
+    );
 
     public StackOverflowClient() {
         RestClient.Builder restClientBuilder = RestClient.builder();
@@ -85,6 +84,22 @@ public class StackOverflowClient {
         return new UpdateResponse(updDate);
     }
 
+    public UpdateResponse fetchUpdate(String url) throws EmptyResponseBodyException, FieldNotFoundException {
+        Matcher matcher = RETRIEVE_QUESTION_NUMBER_FROM_URL.matcher(url);
+
+        if (matcher.find()) {
+            Integer questionId = Integer.valueOf(matcher.group(1));
+            return fetchUpdate(questionId);
+        } else {
+            throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"
+                .formatted(url));
+        }
+    }
+
+    public boolean checkURLSupportedByService(String url) {
+        return url.startsWith(SUPPOERTED_PREFIX);
+    }
+
     private static String retrieveLastActivityDateField(String source)
         throws FieldNotFoundException, EmptyResponseBodyException {
         if (source == null) {
@@ -94,7 +109,7 @@ public class StackOverflowClient {
         Matcher matcher = LAST_ACTIVITY_DATE_SEARCH_PATTERN.matcher(source);
 
         if (!matcher.find()) {
-            throw new FieldNotFoundException("No match found for 'updated_at' field.");
+            throw new FieldNotFoundException("No match found for 'last_activity_date' field.");
         }
 
         return matcher.group(1);

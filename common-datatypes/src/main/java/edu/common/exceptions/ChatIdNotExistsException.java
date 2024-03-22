@@ -9,4 +9,8 @@ public class ChatIdNotExistsException extends RuntimeException {
     public ChatIdNotExistsException(String errorMessage) {
         super(errorMessage);
     }
+
+    public ChatIdNotExistsException(Exception e) {
+        super(e);
+    }
 }

@@ -4,17 +4,20 @@ app:
     interval: 10s
     force-check-delay: 10s
   github-client-settings:
-    time-in-milliseconds: 1000
+    timeout-in-milliseconds: 1000
   stackoverflow-client-settings:
-    time-in-milliseconds: 1000
+    timeout-in-milliseconds: 1000
 
 spring:
   application:
     name: scrapper
   liquibase:
     enabled: false
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/scrapper
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
 
 server:
   port: 8080

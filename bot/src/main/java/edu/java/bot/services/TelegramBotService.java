@@ -13,6 +13,7 @@ public class TelegramBotService {
         LinkTrackerObserver listener = new LinkTrackerObserver(bot);
         listener.setCommands(
             ReadyToUseCommands.unexpectedCommand(),
+            ReadyToUseCommands.start(),
             ReadyToUseCommands.help(),
             ReadyToUseCommands.track(usersRepository),
             ReadyToUseCommands.untrack(usersRepository),

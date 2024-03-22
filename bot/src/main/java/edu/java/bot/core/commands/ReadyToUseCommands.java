@@ -6,6 +6,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ReadyToUseCommands {
+    // TODO:
+    //  сделать вставку (injection) ScrapperClient,
+    //  добавить команду для отмены регистрации чата
+
     private ReadyToUseCommands() {
     }
 
@@ -14,6 +18,11 @@ public class ReadyToUseCommands {
             .withCommandName("start")
             .withCommandTextDescription("register me")
             .withCallAction((usedBot, context) -> {
+                // todo:
+                //  - вызывается команда ScrapperClient::registerChat(Long chatId)
+                //  - аргументы: id ЧАТА!
+                //  - исправить сообщение пользователю
+
                     usedBot.sendPlainTextMessage(context.getChatId(), "command 'start' was called");
                     LOGGER.info("...Command start called...");
                 }
@@ -23,9 +32,11 @@ public class ReadyToUseCommands {
     public static TelegramBotCommand help() {
         return new TelegramBotCommand()
             .withCommandName("help")
-            .withCommandTextDescription(
-                "get list of commands")
+            .withCommandTextDescription("get list of commands")
             .withCallAction((usedBot, context) -> {
+                // todo:
+                //  - исправить сообщение пользователю
+
                     usedBot.sendPlainTextMessage(context.getChatId(), "command 'help' was called");
                     LOGGER.info("...Command help called...");
                 }
@@ -40,6 +51,11 @@ public class ReadyToUseCommands {
                 CommandArgumentDescription.of(Link::validate, true)
             )
             .withCallAction((usedBot, context) -> {
+                // todo:
+                //  - вызывается команда ScrapperClient::trackLink(Long chatId, String link)
+                //  - аргументы: id ЧАТА, ссылка для отслеживания
+                //  - исправить сообщение пользователю
+
                     var userId = context.getUser().getTelegramId();
                     var links = context.getCommand().args();
                     repository.storeLinksForUser(userId, links);
@@ -60,6 +76,11 @@ public class ReadyToUseCommands {
                 CommandArgumentDescription.of(Link::validate, true)
             )
             .withCallAction((usedBot, context) -> {
+                // todo:
+                //  - вызывается команда ScrapperClient::untrackLink(Long chatId, String link)
+                //  - аргументы: id ЧАТА, ссылка для УДАЛЕНИЯ отслеживания
+                //  - исправить сообщение пользователю
+
                     var userId = context.getUser().getTelegramId();
                     var links = context.getCommand().args();
                     repository.deleteLinksForUser(userId, links);
@@ -77,6 +98,11 @@ public class ReadyToUseCommands {
             .withCommandName("list")
             .withCommandTextDescription("show tracked links")
             .withCallAction((usedBot, context) -> {
+                // todo:
+                //  - вызывается команда ScrapperClient::getAllTrackedLinks(Long chatId)
+                //  - аргументы: id ЧАТА
+                //  - исправить сообщение пользователю
+
                     var userId = context.getUser().getTelegramId();
                     var links = repository.getLinksForUser(userId);
                     usedBot.sendPlainTextMessage(
@@ -90,8 +116,10 @@ public class ReadyToUseCommands {
 
     public static TelegramBotCommand unexpectedCommand() {
         return new TelegramBotCommand()
-            .withCallAction(
-                (usedBot, context) -> {
+            .withCallAction((usedBot, context) -> {
+                    // todo:
+                    //  - исправить сообщение пользователю
+
                     usedBot.sendPlainTextMessage(
                         context.getChatId(),
                         "Unexpected command or argument. Please, check out your query!"

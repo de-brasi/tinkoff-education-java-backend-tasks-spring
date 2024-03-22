@@ -1,6 +1,6 @@
 package edu.java.domain.repositories.jpa.util;
 
-public enum SupportedServices {
+public enum Services {
     GITHUB,
     STACKOVERFLOW;
 

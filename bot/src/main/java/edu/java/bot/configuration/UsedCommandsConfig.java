@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Configuration
 public class UsedCommandsConfig {
@@ -33,7 +35,7 @@ public class UsedCommandsConfig {
                     try {
                         scrapperClient.registerChat(context.getChatId());
                     } catch (Exception e) {
-                        LOGGER.info("Exception occurs: " + e.getClass().getName() + "\nwith message: " + e.getMessage());
+                        logException(e, "start");
                     }
                 }
             );
@@ -79,8 +81,7 @@ public class UsedCommandsConfig {
                         //  и формированием соответствующего ответа.
                         scrapperClient.trackLink(context.getChatId(), links.get(0));
                     } catch (Exception e) {
-                        LOGGER.info("Exception occurs: " + e.getClass().getName()
-                            + "\nwith message: " + e.getMessage());
+                        logException(e, "track");
                     }
                 }
             );
@@ -112,8 +113,7 @@ public class UsedCommandsConfig {
                         //  и формированием соответствующего ответа.
                         scrapperClient.untrackLink(context.getChatId(), links.get(0));
                     } catch (Exception e) {
-                        LOGGER.info("Exception occurs: " + e.getClass().getName()
-                            + "\nwith message: " + e.getMessage());
+                        logException(e, "untrack");
                     }
                 }
             );
@@ -136,8 +136,7 @@ public class UsedCommandsConfig {
                             "Response: " + resp.toString()
                         );
                     } catch (Exception e) {
-                        LOGGER.info("Exception occurs: " + e.getClass().getName()
-                            + "\nwith message: " + e.getMessage());
+                        logException(e, "list");
                     }
                 }
             );
@@ -154,6 +153,26 @@ public class UsedCommandsConfig {
                     LOGGER.info("...Unexpected command called...");
                 }
             );
+    }
+
+    private static void logException(Exception e, String commandName) {
+        LOGGER.info((
+                """
+                    Exception occurs when command %s action!
+                    Exception name: %s
+                    Exception message: %s
+                    Stacktrace:
+                    %s
+                    """
+            ).formatted(
+                commandName,
+                e.getClass().getCanonicalName(),
+                e.getMessage(),
+                Arrays.stream(e.getStackTrace())
+                    .map(StackTraceElement::toString)
+                    .collect(Collectors.joining("\n"))
+            )
+        );
     }
 
     private final static Logger LOGGER = LogManager.getLogger();

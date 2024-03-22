@@ -4,12 +4,14 @@ import edu.java.domain.repositories.jpa.entities.SupportedService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 public class JpaSupportedServicesRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Transactional
     public SupportedService getService(String name) {
         try {
             return entityManager.createQuery(

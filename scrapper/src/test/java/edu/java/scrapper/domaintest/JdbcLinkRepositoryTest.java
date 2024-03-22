@@ -23,12 +23,15 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Autowired
     private JdbcLinkRepository linkRepository;
 
+    final Link testLink = new Link(URI.create(
+            "https://stackoverflow.com/questions/70914106/" +
+                "show-multiple-descriptions-for-a-response-code-using-springdoc-openapi-for-a-spr"
+        ));
+
     @Test
     @Transactional
     @Rollback
     void addURLTest() throws MalformedURLException {
-        final Link testLink = new Link(URI.create("https://example/add-uri-test"));
-
         final boolean res = linkRepository.add(testLink);
         assertThat(res).isTrue();
 
@@ -41,12 +44,9 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addEqualURLsTest() throws MalformedURLException {
-        final Link testLink = new Link(URI.create("https://example/add-equal-urls-test"));
-
         final boolean res = linkRepository.add(testLink);
         assertThat(res).isTrue();
 
-        // TODO: какого черта не отлавливается ошибка в "catch" внутри метода JdbcLinkRepository::add?
         final boolean resOneMore = linkRepository.add(testLink);
         assertThat(resOneMore).isFalse();
 
@@ -59,8 +59,6 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void removeTest() throws MalformedURLException {
-        final Link testLink = new Link(URI.create("https://example/remove-test"));
-
         // add record
         final boolean addResult = linkRepository.add(testLink);
         assertThat(addResult).isTrue();
@@ -82,8 +80,6 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void removeTwiceTest() throws MalformedURLException {
-        final Link testLink = new Link(URI.create("https://example/remove-twice-test"));
-
         // add record
         final boolean addResult = linkRepository.add(testLink);
         assertThat(addResult).isTrue();
@@ -109,9 +105,12 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void getAllTest() throws MalformedURLException {
-        final Link testLink1 = new Link(URI.create("https://en.wikipedia.org/wiki/Main_Page1"));
-        final Link testLink2 = new Link(URI.create("https://en.wikipedia.org/wiki/Main_Page2"));
-        final Link testLink3 = new Link(URI.create("https://en.wikipedia.org/wiki/Main_Page3"));
+        final Link testLink1 =
+            new Link(URI.create("https://stackoverflow.com/questions/78205360/how-to-add-driver-to-iso-or-bootable-usb"));
+        final Link testLink2 = new Link(URI.create(
+            "https://stackoverflow.com/questions/35534959/access-key-and-value-of-object-using-ngfor?rq=2"));
+        final Link testLink3 = new Link(URI.create(
+            "https://stackoverflow.com/questions/78205354/can-we-make-an-angular-project-in-javascript"));
 
         // add records
         final boolean addResult1 = linkRepository.add(testLink1);

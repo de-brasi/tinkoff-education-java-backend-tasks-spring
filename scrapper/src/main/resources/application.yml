@@ -1,8 +1,8 @@
 app:
   scheduler:
     enable: true
-    interval: 10s
-    force-check-delay: 10s
+    interval: 60s
+    force-check-delay: 60s
   github-client-settings:
     timeout-in-milliseconds: 1000
   stackoverflow-client-settings:

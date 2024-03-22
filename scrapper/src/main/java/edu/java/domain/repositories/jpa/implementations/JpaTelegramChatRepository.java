@@ -3,6 +3,7 @@ package edu.java.domain.repositories.jpa.implementations;
 import edu.java.domain.repositories.jpa.entities.TelegramChat;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
@@ -13,10 +14,13 @@ public class JpaTelegramChatRepository {
 
     @Transactional
     public void add(Long id) {
-        TelegramChat chat = new TelegramChat();
-        chat.setChatId(id);
-        entityManager.persist(chat);
-        entityManager.flush();
+        try {
+            TelegramChat chat = new TelegramChat();
+            chat.setChatId(id);
+            entityManager.persist(chat);
+            entityManager.flush();
+        } catch (PersistenceException ignored) {
+        }
     }
 
     @Transactional

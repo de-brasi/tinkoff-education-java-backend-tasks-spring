@@ -4,6 +4,7 @@ import edu.java.domain.repositories.jpa.entities.Link;
 import edu.java.domain.repositories.jpa.entities.SupportedService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 import java.time.Instant;
@@ -21,13 +22,16 @@ public class JpaLinkRepository {
         OffsetDateTime.ofInstant(Instant.ofEpochSecond(0), ZoneOffset.UTC);
 
     public void add(String url, SupportedService service) {
-        Link link = new Link();
-        link.setUrl(url);
-        link.setLastCheckTime(DEFAULT_TIME);
-        link.setLastUpdateTime(DEFAULT_TIME);
-        link.setService(service);
-        entityManager.persist(link);
-        entityManager.flush();
+        try {
+            Link link = new Link();
+            link.setUrl(url);
+            link.setLastCheckTime(DEFAULT_TIME);
+            link.setLastUpdateTime(DEFAULT_TIME);
+            link.setService(service);
+            entityManager.persist(link);
+            entityManager.flush();
+        } catch (PersistenceException ignored) {
+        }
     }
 
     @Transactional

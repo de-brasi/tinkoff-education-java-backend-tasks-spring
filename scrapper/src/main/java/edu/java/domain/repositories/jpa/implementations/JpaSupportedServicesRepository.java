@@ -5,7 +5,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class JpaSupportedServicesRepository {
 
     @PersistenceContext

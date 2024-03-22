@@ -4,7 +4,9 @@ import edu.java.domain.repositories.jpa.entities.TelegramChat;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class JpaTelegramChatRepository {
     @PersistenceContext
     private EntityManager entityManager;

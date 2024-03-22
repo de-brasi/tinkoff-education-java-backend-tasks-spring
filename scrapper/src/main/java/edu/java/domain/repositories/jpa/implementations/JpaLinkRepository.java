@@ -5,7 +5,6 @@ import edu.java.domain.repositories.jpa.entities.SupportedService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import java.time.Instant;
 import java.time.OffsetDateTime;

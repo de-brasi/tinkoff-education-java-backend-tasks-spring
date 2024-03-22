@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,14 +59,15 @@ public class JdbcLinkUpdater implements LinkUpdater {
     public int update(Duration updateInterval) {
 //        Collection<Link> toUpdate = getNotCheckedForAWhile(updateInterval);
 
-        Predicate<Link> outdatedLinkPredicate = link -> {
+        Predicate<Link> needToBeCheckedLinkPredicate = link -> {
             try {
-                return Duration.between(OffsetDateTime.now(), getLinkUpdateTime(link)).compareTo(updateInterval) > 0;
+                // todo: нужно сравнивать на > 0; почему же это работает?
+                return Duration.between(OffsetDateTime.now(), getLinkCheckTime(link)).compareTo(updateInterval) < 0;
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
         };
-        Collection<Link> toUpdate = getAllLinksFilteredByPredicate(outdatedLinkPredicate);
+        Collection<Link> toUpdate = getAllLinksFilteredByPredicate(needToBeCheckedLinkPredicate);
 
         LOGGER.info("Links need to update: " + toUpdate);
 
@@ -75,16 +77,10 @@ public class JdbcLinkUpdater implements LinkUpdater {
             try {
                 final String currentLinkUrl = link.uri().toURL().toString();
 
-                List<Long> subscribers =
-                    getSubscribers(link)
-                        .stream()
-                        .map(TelegramChat::id)
-                        .toList();
-
                 if (servicesObserver.checkURLSupported(currentLinkUrl)) {
                     final OffsetDateTime actualUpdateTime =
                         servicesObserver.getActualUpdateTime(currentLinkUrl);
-                    boolean linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link, subscribers);
+                    boolean linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link);
 
                     if (linkUpdated) {
                         updatedLinks++;
@@ -102,11 +98,15 @@ public class JdbcLinkUpdater implements LinkUpdater {
                     Message: %s
                     Stacktrace:
                     %s
-                    """).formatted(link, e.getClass().getCanonicalName(), e.getMessage(),
-                    Arrays.stream(e.getStackTrace())
-                        .map(StackTraceElement::toString)
-                        .toList()
-                ));
+                    """)
+                    .formatted(
+                        link,
+                        e.getClass().getCanonicalName(),
+                        e.getMessage(),
+                        Arrays.stream(e.getStackTrace())
+                            .map(StackTraceElement::toString)
+                            .collect(Collectors.joining("\n"))
+                    ));
             }
         }
 
@@ -132,9 +132,9 @@ public class JdbcLinkUpdater implements LinkUpdater {
         return linkRepository.search(predicate);
     }
 
-    private OffsetDateTime getLinkUpdateTime(Link link) throws MalformedURLException {
+    private OffsetDateTime getLinkCheckTime(Link link) throws MalformedURLException {
         return jdbcTemplate.queryForObject(
-            "select last_update_time from links where url = ?",
+            "select last_check_time from links where url = ?",
             OffsetDateTime.class,
             link.uri().toURL().toString()
         );
@@ -188,29 +188,34 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     private boolean notifyClientsIfUpdatedTimeChanged(
         OffsetDateTime actualTime,
-        Link link,
-        List<Long> subscribersId
+        Link link
     ) throws MalformedURLException {
         /*
         Return:
         - true: time updated
         - false: time not updated
         */
-        final boolean timeUpdated = checkLastUpdateTimeChanged(link, actualTime);
+        final boolean resourceUpdated = checkLastUpdateTimeChanged(link, actualTime);
         final String currentLinkUrl = link.uri().toURL().toString();
 
-        if (timeUpdated) {
+        if (resourceUpdated) {
             final String oldSnapshot = getSnapshot(currentLinkUrl);
             final String actualSnapshot = servicesObserver.getActualSnapshot(currentLinkUrl);
             final String changesDescription =
                 servicesObserver.getChangingDescription(currentLinkUrl, oldSnapshot, actualSnapshot);
+
+            List<Long> subscribers =
+                getSubscribers(link)
+                    .stream()
+                    .map(TelegramChat::id)
+                    .toList();
 
             // todo: использовать id ссылки, пока заглушка
             botClient.sendUpdates(
                 -1,
                 link.uri().toURL().toString(),
                 changesDescription,
-                subscribersId
+                subscribers
             );
 
             actualizeSnapshot(currentLinkUrl, actualSnapshot);
@@ -218,7 +223,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
             actualizeCheckingTimeForLink(currentLinkUrl);
         }
 
-        return timeUpdated;
+        return resourceUpdated;
     }
 
     private String getSnapshot(String url) {
@@ -231,7 +236,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     private void actualizeSnapshot(String url, String snapshot) {
         int affectedRows = jdbcTemplate.update(
-            "update links set snapshot = ? where url = ?",
+            "update links set snapshot = cast(? as json) where url = ?",
             snapshot,
             url
             );

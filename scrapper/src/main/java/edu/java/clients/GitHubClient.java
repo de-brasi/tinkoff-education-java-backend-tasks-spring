@@ -16,8 +16,8 @@ public class GitHubClient implements ExternalServiceClient {
     private static final String DEFAULT_BASE_URL = "https://api.github.com/repos/";
     private static final String SUPPOERTED_PREFIX = "https://github";
     private static final String DB_SERVICE_NAME = "github";
-    private static final Pattern UPDATED_AT_SEARCH_PATTERN = Pattern.compile(
-        "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
+    private static final Pattern PUSHED_AT_SEARCH_PATTERN = Pattern.compile(
+        "\"pushed_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
     );
     private static final Pattern RETRIEVE_GH_NAME_AND_REPO_NAME_FROM_URL = Pattern.compile(
         "https://github\\.com/([^/\\s]+)/([^/\\s]+)/?.*"
@@ -72,7 +72,7 @@ public class GitHubClient implements ExternalServiceClient {
             .retrieve()
             .body(String.class);
 
-        String updTimeString = retrieveUpdatedAtField(responseBody);
+        String updTimeString = retrievePushedAtField(responseBody);
         return new UpdateResponse(OffsetDateTime.parse(updTimeString));
     }
 
@@ -126,13 +126,13 @@ public class GitHubClient implements ExternalServiceClient {
     }
 
 
-    private static String retrieveUpdatedAtField(String source)
+    private static String retrievePushedAtField(String source)
         throws FieldNotFoundException, EmptyResponseBodyException {
         if (source == null) {
             throw new EmptyResponseBodyException("Body has no content.");
         }
 
-        Matcher matcher = UPDATED_AT_SEARCH_PATTERN.matcher(source);
+        Matcher matcher = PUSHED_AT_SEARCH_PATTERN.matcher(source);
 
         if (!matcher.find()) {
             throw new FieldNotFoundException("No match found for 'updated_at' field.");

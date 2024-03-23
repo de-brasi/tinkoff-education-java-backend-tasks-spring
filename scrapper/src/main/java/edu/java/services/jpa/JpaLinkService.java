@@ -14,16 +14,10 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 public class JpaLinkService implements LinkService {
-    public JpaLinkService(
-        @Autowired JpaLinkRepository jpaLinkRepository,
-        @Autowired JpaTelegramChatRepository jpaTelegramChatRepository
-    ) {
+    public JpaLinkService(JpaLinkRepository jpaLinkRepository, JpaTelegramChatRepository jpaTelegramChatRepository) {
         this.linkRepository = jpaLinkRepository;
         this.chatRepository = jpaTelegramChatRepository;
     }

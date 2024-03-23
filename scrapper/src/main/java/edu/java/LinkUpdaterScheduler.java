@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class LinkUpdaterScheduler {
     private final LinkUpdater linkUpdater;
 
-    public LinkUpdaterScheduler(@Autowired JdbcLinkUpdater linkUpdater) {
+    public LinkUpdaterScheduler(@Autowired LinkUpdater linkUpdater) {
         this.linkUpdater = linkUpdater;
     }
 

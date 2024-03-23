@@ -23,7 +23,6 @@ public class ChatController {
 
     public ChatController(
         @Autowired
-        @Qualifier("jdbcTgChatService")
         TgChatService tgChatService
     ) {
         this.tgChatService = tgChatService;

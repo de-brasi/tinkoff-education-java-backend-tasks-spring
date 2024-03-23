@@ -37,6 +37,12 @@ public class JpaLinkRepository {
     }
 
     @Transactional
+    public void save(Link link) {
+        entityManager.persist(link);
+        entityManager.flush();
+    }
+
+    @Transactional
     public Link get(String url) {
         try {
             return entityManager.createQuery("SELECT link FROM Link link WHERE link.url = :url", Link.class)

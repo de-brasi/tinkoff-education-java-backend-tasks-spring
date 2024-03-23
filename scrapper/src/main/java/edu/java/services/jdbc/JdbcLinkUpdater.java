@@ -187,7 +187,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
     }
 
     private boolean notifyClientsIfUpdatedTimeChanged(
-        OffsetDateTime actualTime,
+        OffsetDateTime actualUpdateTime,
         Link link
     ) throws MalformedURLException {
         /*
@@ -195,7 +195,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
         - true: time updated
         - false: time not updated
         */
-        final boolean resourceUpdated = checkLastUpdateTimeChanged(link, actualTime);
+        final boolean resourceUpdated = checkLastUpdateTimeChanged(link, actualUpdateTime);
         final String currentLinkUrl = link.uri().toURL().toString();
 
         if (resourceUpdated) {
@@ -219,7 +219,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
             );
 
             actualizeSnapshot(currentLinkUrl, actualSnapshot);
-            actualizeLastUpdateTimeForLink(currentLinkUrl, actualTime);
+            actualizeLastUpdateTimeForLink(currentLinkUrl, actualUpdateTime);
             actualizeCheckingTimeForLink(currentLinkUrl);
         }
 

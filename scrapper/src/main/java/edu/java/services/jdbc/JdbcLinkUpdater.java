@@ -236,7 +236,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     private void actualizeSnapshot(String url, String snapshot) {
         int affectedRows = jdbcTemplate.update(
-            "update links set snapshot = cast(? as json) where url = ?",
+            "update links set snapshot = ? where url = ?",
             snapshot,
             url
             );

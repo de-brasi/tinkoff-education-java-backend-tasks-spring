@@ -23,32 +23,23 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 @SuppressWarnings("MultipleStringLiterals")
 public class JdbcLinkUpdater implements LinkUpdater {
     private final JdbcTemplate jdbcTemplate;
-    private final GitHubClient gitHubClient;
-    private final StackOverflowClient stackOverflowClient;
     private final BotClient botClient;
     private final BaseEntityRepository<Link> linkRepository;
     private final ExternalServicesObserver servicesObserver;
 
     public JdbcLinkUpdater(
-        @Autowired JdbcTemplate jdbcTemplate,
-        @Autowired GitHubClient gitHubClient,
-        @Autowired StackOverflowClient stackOverflowClient,
-        @Autowired BotClient botClient,
-        @Autowired JdbcLinkRepository jdbcLinkRepository,
-        @Autowired ExternalServicesObserver externalServicesObserver
+        JdbcTemplate jdbcTemplate,
+        BotClient botClient,
+        JdbcLinkRepository jdbcLinkRepository,
+        ExternalServicesObserver externalServicesObserver
     ) {
         this.jdbcTemplate = jdbcTemplate;
-        this.stackOverflowClient = stackOverflowClient;
-        this.gitHubClient = gitHubClient;
         this.botClient = botClient;
         this.linkRepository = jdbcLinkRepository;
         this.servicesObserver = externalServicesObserver;

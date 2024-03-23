@@ -13,15 +13,12 @@ import edu.java.domain.repositories.jdbc.JdbcChatLinkBoundRepository;
 import edu.java.services.interfaces.LinkService;
 import java.net.URI;
 import java.util.Collection;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 public class JdbcLinkService implements LinkService {
     private final BaseEntityRepository<ChatLinkBound> linkBoundRepository;
 
-    public JdbcLinkService(@Autowired JdbcChatLinkBoundRepository linkBoundRepository) {
+    public JdbcLinkService(JdbcChatLinkBoundRepository linkBoundRepository) {
         this.linkBoundRepository = linkBoundRepository;
     }
 

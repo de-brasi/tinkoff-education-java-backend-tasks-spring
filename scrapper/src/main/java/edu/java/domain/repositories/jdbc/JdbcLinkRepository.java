@@ -65,7 +65,7 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
                 int affectedRowCount = jdbcTemplate.update(
                     "insert "
                         + "into links(url, last_check_time, last_update_time, service, snapshot) "
-                        + "values (?, ?, ?, ?, cast(? as json))",
+                        + "values (?, ?, ?, ?, ?)",
                     link.uri().toURL().toString(),
                     Timestamp.from(Instant.now()),
                     Timestamp.from(Instant.ofEpochSecond(0)),

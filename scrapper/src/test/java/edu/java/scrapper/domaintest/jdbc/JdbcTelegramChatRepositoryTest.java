@@ -1,4 +1,4 @@
-package edu.java.scrapper.domaintest;
+package edu.java.scrapper.domaintest.jdbc;
 
 import edu.java.domain.repositories.jdbc.JdbcTelegramChatRepository;
 import edu.java.domain.entities.TelegramChat;

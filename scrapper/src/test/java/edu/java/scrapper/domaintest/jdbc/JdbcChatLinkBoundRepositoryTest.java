@@ -1,4 +1,4 @@
-package edu.java.scrapper.domaintest;
+package edu.java.scrapper.domaintest.jdbc;
 
 import edu.java.domain.repositories.jdbc.JdbcChatLinkBoundRepository;
 import edu.java.domain.repositories.jdbc.JdbcLinkRepository;

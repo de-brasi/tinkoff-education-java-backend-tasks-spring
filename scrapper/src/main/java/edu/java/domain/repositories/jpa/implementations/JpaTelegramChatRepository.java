@@ -2,6 +2,7 @@ package edu.java.domain.repositories.jpa.implementations;
 
 import edu.java.domain.repositories.jpa.entities.TelegramChat;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
@@ -20,6 +21,17 @@ public class JpaTelegramChatRepository {
             entityManager.persist(chat);
             entityManager.flush();
         } catch (PersistenceException ignored) {
+        }
+    }
+
+    @Transactional
+    public TelegramChat get(Long id) {
+        try {
+            return entityManager.createQuery("SELECT chat FROM TelegramChat chat WHERE chat.chatId = :id", TelegramChat.class)
+                .setParameter("id", id)
+                .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         }
     }
 

@@ -34,7 +34,6 @@ public class LinksController {
 
     public LinksController(
         @Autowired
-        @Qualifier("jdbcLinkService")
         LinkService linkService
     ) {
         this.linkService = linkService;

@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@SuppressWarnings("MultipleStringLiterals")
 public class JpaTelegramChatRepository {
     @PersistenceContext
     private EntityManager entityManager;
@@ -27,7 +28,10 @@ public class JpaTelegramChatRepository {
     @Transactional
     public TelegramChat get(Long id) {
         try {
-            return entityManager.createQuery("SELECT chat FROM TelegramChat chat WHERE chat.chatId = :id", TelegramChat.class)
+            return entityManager.createQuery(
+                    "SELECT chat FROM TelegramChat chat WHERE chat.chatId = :id",
+                    TelegramChat.class
+                )
                 .setParameter("id", id)
                 .getSingleResult();
         } catch (NoResultException e) {

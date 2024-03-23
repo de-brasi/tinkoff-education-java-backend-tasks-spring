@@ -4,13 +4,13 @@ import edu.java.bot.client.ScrapperClient;
 import edu.java.bot.core.commands.CommandArgumentDescription;
 import edu.java.bot.core.commands.TelegramBotCommand;
 import edu.java.bot.core.util.Link;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 @Configuration
 public class UsedCommandsConfig {
@@ -22,8 +22,9 @@ public class UsedCommandsConfig {
 
     @Bean("commandStart")
     TelegramBotCommand commandStart() {
+        final String commandName = "start";
         return new TelegramBotCommand()
-            .withCommandName("start")
+            .withCommandName(commandName)
             .withCommandTextDescription("register me")
             .withCallAction((usedBot, context) -> {
                     // todo:
@@ -35,7 +36,7 @@ public class UsedCommandsConfig {
                     try {
                         scrapperClient.registerChat(context.getChatId());
                     } catch (Exception e) {
-                        logException(e, "start");
+                        logException(e, commandName);
                     }
                 }
             );
@@ -43,8 +44,9 @@ public class UsedCommandsConfig {
 
     @Bean("commandHelp")
     TelegramBotCommand commandHelp() {
+        final String commandName = "help";
         return new TelegramBotCommand()
-            .withCommandName("help")
+            .withCommandName(commandName)
             .withCommandTextDescription("get list of commands")
             .withCallAction((usedBot, context) -> {
                     // todo: исправить сообщение пользователю
@@ -59,8 +61,9 @@ public class UsedCommandsConfig {
 
     @Bean("commandTrack")
     TelegramBotCommand commandTrack() {
+        final String commandName = "track";
         return new TelegramBotCommand()
-            .withCommandName("track")
+            .withCommandName(commandName)
             .withCommandTextDescription("track links in arguments")
             .withOrderedArguments(CommandArgumentDescription.of(Link::validate, true))
             .withCallAction((usedBot, context) -> {
@@ -81,7 +84,7 @@ public class UsedCommandsConfig {
                         //  и формированием соответствующего ответа.
                         scrapperClient.trackLink(context.getChatId(), links.get(0));
                     } catch (Exception e) {
-                        logException(e, "track");
+                        logException(e, commandName);
                     }
                 }
             );
@@ -89,8 +92,9 @@ public class UsedCommandsConfig {
 
     @Bean("commandUntrack")
     TelegramBotCommand commandUntrack() {
+        final String commandName = "untrack";
         return new TelegramBotCommand()
-            .withCommandName("untrack")
+            .withCommandName(commandName)
             .withCommandTextDescription("untrack links in arguments")
             .withOrderedArguments(
                 CommandArgumentDescription.of(Link::validate, true)
@@ -113,7 +117,7 @@ public class UsedCommandsConfig {
                         //  и формированием соответствующего ответа.
                         scrapperClient.untrackLink(context.getChatId(), links.get(0));
                     } catch (Exception e) {
-                        logException(e, "untrack");
+                        logException(e, commandName);
                     }
                 }
             );
@@ -121,8 +125,9 @@ public class UsedCommandsConfig {
 
     @Bean("commandList")
     TelegramBotCommand commandList() {
+        final String commandName = "list";
         return new TelegramBotCommand()
-            .withCommandName("list")
+            .withCommandName(commandName)
             .withCommandTextDescription("show tracked links")
             .withCallAction((usedBot, context) -> {
                     // todo:
@@ -136,7 +141,7 @@ public class UsedCommandsConfig {
                             "Response: " + resp.toString()
                         );
                     } catch (Exception e) {
-                        logException(e, "list");
+                        logException(e, commandName);
                     }
                 }
             );

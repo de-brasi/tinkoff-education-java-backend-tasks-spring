@@ -7,13 +7,14 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Repository;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import org.springframework.stereotype.Repository;
 
 @Repository
+@SuppressWarnings("MultipleStringLiterals")
 public class JpaLinkRepository {
 
     @PersistenceContext

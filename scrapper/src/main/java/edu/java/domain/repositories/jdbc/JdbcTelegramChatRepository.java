@@ -1,12 +1,12 @@
 package edu.java.domain.repositories.jdbc;
 
 import edu.java.domain.entities.TelegramChat;
+import edu.java.domain.repositories.BaseEntityRepository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import edu.java.domain.repositories.BaseEntityRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;

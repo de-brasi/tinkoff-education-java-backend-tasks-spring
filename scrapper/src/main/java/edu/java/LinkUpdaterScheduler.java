@@ -1,7 +1,6 @@
 package edu.java;
 
 import edu.java.services.interfaces.LinkUpdater;
-import edu.java.services.jdbc.JdbcLinkUpdater;
 import java.time.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

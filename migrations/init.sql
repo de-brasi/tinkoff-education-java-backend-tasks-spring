@@ -15,7 +15,7 @@ create table links
     last_check_time timestamp with time zone not null,
     last_update_time timestamp with time zone not null,
     service bigint not null,
-    snapshot json,
+    snapshot text,
     foreign key (service) references supported_services(id),
     unique (url)
 );

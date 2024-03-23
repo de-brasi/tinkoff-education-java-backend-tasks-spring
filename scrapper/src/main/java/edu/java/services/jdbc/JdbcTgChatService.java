@@ -8,15 +8,12 @@ import edu.java.domain.repositories.jdbc.JdbcTelegramChatRepository;
 import edu.java.services.interfaces.TgChatService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Service;
 
-@Service
 public class JdbcTgChatService implements TgChatService {
     private final BaseEntityRepository<TelegramChat> chatRepository;
 
-    public JdbcTgChatService(@Autowired JdbcTelegramChatRepository chatRepository) {
+    public JdbcTgChatService(JdbcTelegramChatRepository chatRepository) {
         this.chatRepository = chatRepository;
     }
 

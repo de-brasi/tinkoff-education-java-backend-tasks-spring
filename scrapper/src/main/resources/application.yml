@@ -23,11 +23,6 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        connection:
-          driver_class: org.postgresql.Driver
-          url: jdbc:postgresql://localhost:5432/scrapper
-          username: postgres
-          password: postgres
         hbm2ddl:
           auto: validate
 

@@ -2,6 +2,7 @@ package edu.java.domain.repositories.jpa.implementations;
 
 import edu.java.domain.repositories.jpa.entities.Link;
 import edu.java.domain.repositories.jpa.entities.SupportedService;
+import edu.java.services.ExternalServicesObserver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -11,6 +12,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -19,6 +21,12 @@ public class JpaLinkRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    public JpaLinkRepository(@Autowired ExternalServicesObserver observer) {
+        servicesObserver = observer;
+    }
+
+    private final ExternalServicesObserver servicesObserver;
 
     private static final OffsetDateTime DEFAULT_TIME =
         OffsetDateTime.ofInstant(Instant.ofEpochSecond(0), ZoneOffset.UTC);
@@ -31,6 +39,10 @@ public class JpaLinkRepository {
             link.setLastCheckTime(DEFAULT_TIME);
             link.setLastUpdateTime(DEFAULT_TIME);
             link.setService(service);
+
+            final String snapshot = servicesObserver.getActualSnapshot(url);
+            link.setSnapshot(snapshot);
+
             entityManager.persist(link);
             entityManager.flush();
         } catch (PersistenceException ignored) {

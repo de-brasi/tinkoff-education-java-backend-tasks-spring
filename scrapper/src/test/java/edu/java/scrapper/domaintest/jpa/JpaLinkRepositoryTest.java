@@ -4,11 +4,14 @@ import edu.java.domain.entities.Link;
 import edu.java.domain.repositories.jpa.entities.SupportedService;
 import edu.java.domain.repositories.jpa.implementations.JpaLinkRepository;
 import edu.java.scrapper.IntegrationTest;
+import edu.java.services.ExternalServicesObserver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import java.net.MalformedURLException;
@@ -16,10 +19,15 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class JpaLinkRepositoryTest extends IntegrationTest {
     @Autowired JpaLinkRepository linkRepository;
+
+    @MockBean
+    ExternalServicesObserver externalServicesObserver;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -105,6 +113,9 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
             "select service from SupportedService service where service.name = 'stackoverflow'",
             SupportedService.class
         ).getSingleResult();
+
+        when(externalServicesObserver.getActualSnapshot(any(String.class))).thenReturn("example");
+
         linkRepository.add(testLink1.uri().toURL().toString(), stackoverflowService);
         linkRepository.add(testLink2.uri().toURL().toString(), stackoverflowService);
 

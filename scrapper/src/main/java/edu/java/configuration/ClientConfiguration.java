@@ -10,14 +10,14 @@ import org.springframework.context.annotation.Configuration;
 public class ClientConfiguration {
     @Bean("gitHubClient")
     public GitHubClient gitHubClient(
-        @Value("#{@githubClientSettings.timeInMilliseconds()}") int timeoutInMilliseconds
+        @Value("#{@githubClientSettings.timeoutInMilliseconds()}") int timeoutInMilliseconds
     ) {
         return new GitHubClient("https://api.github.com/repos/", timeoutInMilliseconds);
     }
 
     @Bean("stackOverflowClient")
     public StackOverflowClient stackoverflowClient(
-        @Value("#{@stackoverflowClientSettings.timeInMilliseconds()}") int timeoutInMilliseconds
+        @Value("#{@stackoverflowClientSettings.timeoutInMilliseconds()}") int timeoutInMilliseconds
     ) {
         return new StackOverflowClient(timeoutInMilliseconds);
     }

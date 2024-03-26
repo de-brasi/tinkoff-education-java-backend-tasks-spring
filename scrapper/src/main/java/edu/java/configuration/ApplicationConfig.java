@@ -1,7 +1,7 @@
 package edu.java.configuration;
 
-import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.validation.annotation.Validated;
@@ -19,11 +19,19 @@ public record ApplicationConfig(
 
     @NotNull
     @Bean("stackoverflowClientSettings")
-    ClientSettings stackoverflowClientSettings
+    ClientSettings stackoverflowClientSettings,
+
+    @NotNull
+    AccessType databaseAccessType
 ) {
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
     }
 
-    public record ClientSettings(int timeInMilliseconds){
+    public record ClientSettings(int timeoutInMilliseconds){
+    }
+
+    public enum AccessType {
+        JDBC,
+        JPA,
     }
 }

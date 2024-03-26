@@ -2,8 +2,8 @@ package edu.java.scrapper.clientstest;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import edu.java.clients.GitHubClient;
-import edu.java.exceptions.EmptyResponseBodyException;
-import edu.java.exceptions.FieldNotFoundException;
+import edu.java.clients.exceptions.EmptyResponseBodyException;
+import edu.java.clients.exceptions.FieldNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +40,7 @@ public class GitHubClientTest {
         stubFor(get("/" + testURI + "/" + testOwner + "/" + testRepoName)
             .willReturn(
                 aResponse()
-                    .withBody("\"updated_at\": \"2024-02-12T12:45:18Z\"")
+                    .withBody("\"pushed_at\": \"2024-02-12T12:45:18Z\"")
                     .withStatus(200)
             )
         );

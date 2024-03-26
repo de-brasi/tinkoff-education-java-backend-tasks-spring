@@ -13,8 +13,8 @@ import edu.java.bot.configuration.ScrapperClientConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import java.net.URI;
 import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @WireMockTest(httpPort = 8080)
 public class ScrapperClientTest {
     @Autowired
+    @Qualifier("scrapperTestClient")
     ScrapperClient scrapperClient;
 
     final String TEST_URI = "scrapperMock";
@@ -51,18 +52,14 @@ public class ScrapperClientTest {
         2
     );
 
-    final edu.java.bot.client.dtos.LinkResponse linkResponseStub = new edu.java.bot.client.dtos.LinkResponse(
-        1,
-        URI.create("https://www.wikipedia.org/")
-    );
-
     @Test
     @DisplayName("test /tg-chat/{id} registry")
     public void registry_chat_success() {
         final long chatIdToRegistry = 1;
+        final String postUrl = "/" + TEST_URI + "/tg-chat/" + chatIdToRegistry;
 
         stubFor(
-            post("/" + TEST_URI + "/tg-chat/" + chatIdToRegistry)
+            post(postUrl)
                 .willReturn(
                     aResponse()
                         .withStatus(200)

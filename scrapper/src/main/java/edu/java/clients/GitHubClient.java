@@ -6,6 +6,7 @@ import edu.java.clients.exceptions.FieldNotFoundException;
 import java.time.OffsetDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
@@ -79,6 +80,10 @@ public class GitHubClient implements ExternalServiceClient {
             .get()
             .uri("/{owner}/{repo}", owner, repo)
             .retrieve()
+            .onStatus(HttpStatusCode::is1xxInformational, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, notOkResponseHandler)
             .body(String.class);
 
         String updTimeString = retrievePushedAtField(responseBody);

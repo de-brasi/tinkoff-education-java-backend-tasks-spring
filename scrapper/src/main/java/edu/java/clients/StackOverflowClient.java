@@ -9,6 +9,7 @@ import java.time.ZoneOffset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ReactorNettyClientRequestFactory;
 import org.springframework.web.client.RestClient;
 
@@ -90,6 +91,10 @@ public class StackOverflowClient implements ExternalServiceClient {
             .uri("/%s?site=stackoverflow&filter=withbody".formatted(questionId))
             .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
             .retrieve()
+            .onStatus(HttpStatusCode::is1xxInformational, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, notOkResponseHandler)
             .body(String.class);
 
         String updateTimeString = retrieveLastActivityDateField(responseBody);

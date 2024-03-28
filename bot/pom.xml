@@ -138,6 +138,13 @@
             <version>0.1</version>
         </dependency>
 
+        <!-- Custom retry -->
+        <dependency>
+            <groupId>edu.java</groupId>
+            <artifactId>custom-retry</artifactId>
+            <version>0.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>

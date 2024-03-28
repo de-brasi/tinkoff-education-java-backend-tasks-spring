@@ -1,10 +1,12 @@
 package edu.java.bot.client;
 
+import edu.common.Retry;
 import edu.common.dtos.AddLinkRequest;
 import edu.common.dtos.RemoveLinkRequest;
 import edu.java.bot.client.dtos.LinkResponse;
 import edu.java.bot.client.dtos.ListLinksResponse;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -40,6 +42,9 @@ public class ScrapperClient {
             .build();
     }
 
+    @Retry(initialDelay = 100,
+           attempts = 3,
+           handled = {HttpStatus.BAD_GATEWAY, HttpStatus.GATEWAY_TIMEOUT, HttpStatus.INTERNAL_SERVER_ERROR})
     public void registerChat(Long chatId) {
         this.restClient
             .post()
@@ -53,6 +58,9 @@ public class ScrapperClient {
             .toBodilessEntity();
     }
 
+    @Retry(initialDelay = 100,
+           attempts = 3,
+           handled = {HttpStatus.BAD_GATEWAY, HttpStatus.GATEWAY_TIMEOUT, HttpStatus.INTERNAL_SERVER_ERROR})
     public void deleteChat(Long chatId) {
         this.restClient
             .delete()
@@ -65,6 +73,9 @@ public class ScrapperClient {
             .toBodilessEntity();
     }
 
+    @Retry(initialDelay = 100,
+           attempts = 3,
+           handled = {HttpStatus.BAD_GATEWAY, HttpStatus.GATEWAY_TIMEOUT, HttpStatus.INTERNAL_SERVER_ERROR})
     public ListLinksResponse getAllTrackedLinks(Long chatId) {
         return this.restClient
             .get()
@@ -78,6 +89,9 @@ public class ScrapperClient {
             .body(ListLinksResponse.class);
     }
 
+    @Retry(initialDelay = 100,
+           attempts = 3,
+           handled = {HttpStatus.BAD_GATEWAY, HttpStatus.GATEWAY_TIMEOUT, HttpStatus.INTERNAL_SERVER_ERROR})
     public LinkResponse trackLink(Long chatId, String link) {
         AddLinkRequest requestBody = new AddLinkRequest(link);
         return this.restClient
@@ -93,6 +107,9 @@ public class ScrapperClient {
             .body(LinkResponse.class);
     }
 
+    @Retry(initialDelay = 100,
+           attempts = 3,
+           handled = {HttpStatus.BAD_GATEWAY, HttpStatus.GATEWAY_TIMEOUT, HttpStatus.INTERNAL_SERVER_ERROR})
     public LinkResponse untrackLink(Long chatId, String link) {
         RemoveLinkRequest requestBody = new RemoveLinkRequest(link);
         return this.restClient

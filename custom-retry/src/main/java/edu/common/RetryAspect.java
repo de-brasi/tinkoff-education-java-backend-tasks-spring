@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class RetryAspect {
-    @Around("@annotation(edu.java.bot.retryutils.Retry)")
+    @Around("@annotation(Retry)")
     public Object retry(ProceedingJoinPoint joinPoint) throws Throwable {
         Retry retry = retrieveAnnotation(joinPoint);
         long delay = retry.initialDelay();

@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import edu.common.exceptions.httpresponse.BadHttpResponseException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -30,9 +32,15 @@ public class RetryAspect {
                 Thread.sleep(time);
                 return joinPoint.proceed();
             } catch (BadHttpResponseException e) {
+                LOGGER.info("Error BadHttpResponseException caught in aspect. Status: " + e.getHttpCode());
+
                 HttpStatus responseStatus = e.getHttpCode();
                 if (!handledStatusCodes.contains(responseStatus)) {
                     throw e;
+                } else {
+                    var time = delayTimeGenerator.next();
+                    LOGGER.info("In aspect retry delay " + time + "ms");
+                    Thread.sleep(time);
                 }
             }
         }
@@ -72,4 +80,6 @@ public class RetryAspect {
     private interface DelayFunction<I, D, R> {
         R apply(I iter, D delay);
     }
+
+    private final static Logger LOGGER = LogManager.getLogger();
 }

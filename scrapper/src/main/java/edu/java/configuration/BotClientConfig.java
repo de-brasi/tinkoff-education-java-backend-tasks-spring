@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.common.dtos.ApiErrorResponse;
 import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.UnexpectedResponse;
+import edu.common.exceptions.httpresponse.BadHttpResponseException;
 import edu.java.clients.BotClient;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -75,33 +76,26 @@ public class BotClientConfig {
         };
     }
 
+    @Bean("notOkResponseHandler")
+    RestClient.ResponseSpec.ErrorHandler notOkResponseHandler(@Autowired ObjectMapper objectMapper) {
+        return (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
+                ApiErrorResponse.class
+            );
+
+            HttpStatus status = HttpStatus.valueOf(resp.getStatusCode().value());
+
+            throw new BadHttpResponseException(status, errorResponse);
+        };
+    }
+
     @Bean("botClient")
     BotClient botClient(
         @Autowired
-        ObjectMapper objectMapper,
-
-        @Autowired
-        @Qualifier("endpointUpdatesStatus1xxHandler")
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler,
-
-        @Autowired
-        @Qualifier("endpointUpdatesStatus3xxHandler")
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus3xxHandler,
-
-        @Autowired
-        @Qualifier("endpointUpdatesStatus4xxHandler")
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus4xxHandler,
-
-        @Autowired
-        @Qualifier("endpointUpdatesStatus5xxHandler")
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus5xxHandler
+        @Qualifier("notOkResponseHandler")
+        RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
     ) {
-        return new BotClient(
-            objectMapper,
-            endpointUpdatesStatus1xxHandler,
-            endpointUpdatesStatus3xxHandler,
-            endpointUpdatesStatus4xxHandler,
-            endpointUpdatesStatus5xxHandler
-        );
+        return new BotClient(notOkResponseHandler);
     }
 }

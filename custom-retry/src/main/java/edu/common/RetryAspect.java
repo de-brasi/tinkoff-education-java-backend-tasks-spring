@@ -28,7 +28,6 @@ public class RetryAspect {
         for (int i = 0; i < attempts; i++) {
             try {
                 var time = delayTimeGenerator.next();
-                System.out.println(time);
                 Thread.sleep(time);
                 return joinPoint.proceed();
             } catch (BadHttpResponseException e) {

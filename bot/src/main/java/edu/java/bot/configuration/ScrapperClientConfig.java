@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.common.dtos.ApiErrorResponse;
 import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.UnexpectedResponse;
+import edu.common.exceptions.httpresponse.BadHttpResponseException;
 import edu.java.bot.client.ScrapperClient;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -46,6 +47,20 @@ public class ScrapperClientConfig {
                 throw new UnexpectedResponse(resp.getStatusCode().value(), errorResponse.getExceptionMessage());
             }
 
+        };
+    }
+
+    @Bean("notOkResponseHandler")
+    RestClient.ResponseSpec.ErrorHandler notOkResponseHandler(@Autowired ObjectMapper objectMapper) {
+        return (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
+                ApiErrorResponse.class
+            );
+
+            HttpStatus status = HttpStatus.valueOf(resp.getStatusCode().value());
+
+            throw new BadHttpResponseException(status, errorResponse);
         };
     }
 

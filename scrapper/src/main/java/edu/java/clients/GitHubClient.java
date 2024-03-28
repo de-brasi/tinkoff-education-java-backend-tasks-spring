@@ -13,6 +13,7 @@ import org.springframework.web.client.RestClient;
 public class GitHubClient implements ExternalServiceClient {
 
     private final RestClient restClient;
+    private final RestClient.ResponseSpec.ErrorHandler notOkResponseHandler;
     private static final String DEFAULT_BASE_URL = "https://api.github.com/repos/";
     private static final String SUPPOERTED_PREFIX = "https://github";
     private static final String DB_SERVICE_NAME = "github";
@@ -24,23 +25,25 @@ public class GitHubClient implements ExternalServiceClient {
     );
 
 
-    public GitHubClient() {
+    public GitHubClient(RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         this.restClient = restClientBuilder
             .baseUrl(GitHubClient.DEFAULT_BASE_URL)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public GitHubClient(String baseUrl) {
+    public GitHubClient(String baseUrl, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         this.restClient = restClientBuilder
             .baseUrl(baseUrl)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public GitHubClient(int timeoutInMilliseconds) {
+    public GitHubClient(int timeoutInMilliseconds, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new JdkClientHttpRequestFactory();
@@ -50,9 +53,14 @@ public class GitHubClient implements ExternalServiceClient {
             .baseUrl(GitHubClient.DEFAULT_BASE_URL)
             .requestFactory(requestFactory)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public GitHubClient(String baseUrl, int timeoutInMilliseconds) {
+    public GitHubClient(
+        String baseUrl,
+        int timeoutInMilliseconds,
+        RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
+    ) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new JdkClientHttpRequestFactory();
@@ -62,6 +70,7 @@ public class GitHubClient implements ExternalServiceClient {
             .baseUrl(baseUrl)
             .requestFactory(requestFactory)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
     public UpdateResponse fetchUpdate(String owner, String repo)

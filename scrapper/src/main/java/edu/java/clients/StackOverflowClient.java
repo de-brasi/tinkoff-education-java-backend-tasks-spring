@@ -15,6 +15,7 @@ import org.springframework.web.client.RestClient;
 @SuppressWarnings("MultipleStringLiterals")
 public class StackOverflowClient implements ExternalServiceClient {
     private final RestClient restClient;
+    private final RestClient.ResponseSpec.ErrorHandler notOkResponseHandler;
     private static final String DEFAULT_BASE_URL =
         "https://api.stackexchange.com/2.3/questions/";
     private static final String SUPPOERTED_PREFIX = "https://stackoverflow";
@@ -29,7 +30,7 @@ public class StackOverflowClient implements ExternalServiceClient {
     private static final Pattern IS_ANSWERED_PATTERN = Pattern.compile(".*\\\"is_answered\\\":\\s*(true|false),.*");
     private static final Pattern ANSWER_COUNT_PATTERN = Pattern.compile(".*\\\"answer_count\\\":\\s*(\\d+),.*");
 
-    public StackOverflowClient() {
+    public StackOverflowClient(RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new ReactorNettyClientRequestFactory();
@@ -38,9 +39,10 @@ public class StackOverflowClient implements ExternalServiceClient {
             .requestFactory(requestFactory)
             .baseUrl(StackOverflowClient.DEFAULT_BASE_URL)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public StackOverflowClient(String baseUrl) {
+    public StackOverflowClient(String baseUrl, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new ReactorNettyClientRequestFactory();
@@ -49,9 +51,10 @@ public class StackOverflowClient implements ExternalServiceClient {
             .requestFactory(requestFactory)
             .baseUrl(baseUrl)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public StackOverflowClient(int timeoutInMilliseconds) {
+    public StackOverflowClient(int timeoutInMilliseconds, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new ReactorNettyClientRequestFactory();
@@ -61,9 +64,14 @@ public class StackOverflowClient implements ExternalServiceClient {
             .requestFactory(requestFactory)
             .baseUrl(StackOverflowClient.DEFAULT_BASE_URL)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public StackOverflowClient(String baseUrl, int timeoutInMilliseconds) {
+    public StackOverflowClient(
+        String baseUrl,
+        int timeoutInMilliseconds,
+        RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
+    ) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new ReactorNettyClientRequestFactory();
@@ -73,6 +81,7 @@ public class StackOverflowClient implements ExternalServiceClient {
             .requestFactory(requestFactory)
             .baseUrl(baseUrl)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
     public UpdateResponse fetchUpdate(Integer questionId) throws EmptyResponseBodyException, FieldNotFoundException {

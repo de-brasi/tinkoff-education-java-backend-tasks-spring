@@ -3,10 +3,12 @@ package edu.common;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import edu.common.exceptions.httpresponse.BadHttpResponseException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Aspect
@@ -17,7 +19,7 @@ public class RetryAspect {
         Retry retry = retrieveAnnotation(joinPoint);
         long delay = retry.initialDelay();
         int attempts = retry.attempts();
-        Collection<Class<? extends Exception>> handledExceptions = Arrays.stream(retry.handled()).toList();
+        Collection<HttpStatus> handledStatusCodes = Arrays.stream(retry.handled()).toList();
         BackoffPolicy backoff = retry.backoffPolicy();
         var delayTimeGenerator = new DelayTimeGenerator(backoff, delay);
 
@@ -27,10 +29,9 @@ public class RetryAspect {
                 System.out.println(time);
                 Thread.sleep(time);
                 return joinPoint.proceed();
-            } catch (Exception e) {
-                Class<? extends Exception> caughtExceptionClass = e.getClass();
-
-                if (!handledExceptions.contains(caughtExceptionClass)) {
+            } catch (BadHttpResponseException e) {
+                HttpStatus responseStatus = e.getHttpCode();
+                if (!handledStatusCodes.contains(responseStatus)) {
                     throw e;
                 }
             }
@@ -68,7 +69,7 @@ public class RetryAspect {
     }
 
     @FunctionalInterface
-    private static interface DelayFunction<I, D, R> {
-        public R apply(I iter, D delay);
+    private interface DelayFunction<I, D, R> {
+        R apply(I iter, D delay);
     }
 }

@@ -23,7 +23,9 @@ public class RetryAspect {
 
         for (int i = 0; i < attempts; i++) {
             try {
-                Thread.sleep(delayTimeGenerator.next());
+                var time = delayTimeGenerator.next();
+                System.out.println(time);
+                Thread.sleep(time);
                 return joinPoint.proceed();
             } catch (Exception e) {
                 Class<? extends Exception> caughtExceptionClass = e.getClass();
@@ -54,7 +56,7 @@ public class RetryAspect {
             };
         }
 
-        private static final float GROWTH_RATE = 1;
+        private static final float GROWTH_RATE = 100;
 
         private final long delay;
         private final DelayFunction<Integer, Long, Long> delayFunction;

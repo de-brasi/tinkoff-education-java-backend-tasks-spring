@@ -13,46 +13,24 @@ public class BotClient {
     private final RestClient restClient;
     private final static String DEFAULT_BASE_URL = "http://localhost:8090/bot/api";
     private final static String ENDPOINT_UPDATES = "/updates";
-    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler;
-    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus3xxHandler;
-    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus4xxHandler;
-    private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus5xxHandler;
+    private final RestClient.ResponseSpec.ErrorHandler notOkResponseHandler;
 
-    public BotClient(
-        ObjectMapper objectMapper,
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler,
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus3xxHandler,
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus4xxHandler,
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus5xxHandler
-    ) {
+    public BotClient(RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         this.restClient = RestClient
             .builder()
             .baseUrl(BotClient.DEFAULT_BASE_URL)
             .build();
 
-        this.endpointUpdatesStatus1xxHandler = endpointUpdatesStatus1xxHandler;
-        this.endpointUpdatesStatus3xxHandler = endpointUpdatesStatus3xxHandler;
-        this.endpointUpdatesStatus4xxHandler = endpointUpdatesStatus4xxHandler;
-        this.endpointUpdatesStatus5xxHandler = endpointUpdatesStatus5xxHandler;
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public BotClient(
-        String baseUrl,
-        ObjectMapper objectMapper,
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler,
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus3xxHandler,
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus4xxHandler,
-        RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus5xxHandler
-    ) {
+    public BotClient(String baseUrl, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         this.restClient = RestClient
             .builder()
             .baseUrl(baseUrl)
             .build();
 
-        this.endpointUpdatesStatus1xxHandler = endpointUpdatesStatus1xxHandler;
-        this.endpointUpdatesStatus3xxHandler = endpointUpdatesStatus3xxHandler;
-        this.endpointUpdatesStatus4xxHandler = endpointUpdatesStatus4xxHandler;
-        this.endpointUpdatesStatus5xxHandler = endpointUpdatesStatus5xxHandler;
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
     public void sendUpdates(
@@ -65,10 +43,10 @@ public class BotClient {
             .contentType(APPLICATION_JSON)
             .body(updates)
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, endpointUpdatesStatus1xxHandler)
-            .onStatus(HttpStatusCode::is3xxRedirection, endpointUpdatesStatus3xxHandler)
-            .onStatus(HttpStatusCode::is4xxClientError, endpointUpdatesStatus4xxHandler)
-            .onStatus(HttpStatusCode::is5xxServerError, endpointUpdatesStatus5xxHandler)
+            .onStatus(HttpStatusCode::is1xxInformational, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, notOkResponseHandler)
             .toBodilessEntity();
     }
 

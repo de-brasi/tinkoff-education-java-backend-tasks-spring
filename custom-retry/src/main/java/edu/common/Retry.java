@@ -1,5 +1,6 @@
 package edu.common;
 
+import org.springframework.http.HttpStatus;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,6 +11,6 @@ import java.lang.annotation.Target;
 public @interface Retry {
     long initialDelay() default 0;
     int attempts() default 0;
-    Class<? extends Exception>[] handled();
+    HttpStatus[] handled();
     BackoffPolicy backoffPolicy() default BackoffPolicy.LINEAR;
 }

@@ -76,20 +76,6 @@ public class BotClientConfig {
         };
     }
 
-    @Bean("notOkResponseHandler")
-    RestClient.ResponseSpec.ErrorHandler notOkResponseHandler(@Autowired ObjectMapper objectMapper) {
-        return (req, resp) -> {
-            ApiErrorResponse errorResponse = objectMapper.readValue(
-                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
-                ApiErrorResponse.class
-            );
-
-            HttpStatus status = HttpStatus.valueOf(resp.getStatusCode().value());
-
-            throw new BadHttpResponseException(status, errorResponse);
-        };
-    }
-
     @Bean("botClient")
     BotClient botClient(
         @Autowired

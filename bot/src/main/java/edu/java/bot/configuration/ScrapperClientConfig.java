@@ -67,20 +67,11 @@ public class ScrapperClientConfig {
     @Bean("scrapperClient")
     public ScrapperClient scrapperClient(
         @Autowired
-        ObjectMapper mapper,
-
-        @Autowired
-        @Qualifier("defaultUnexpectedStatusHandler")
-        RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler,
-
-        @Autowired
-        @Qualifier("linkManagementStatus4xxHandler")
-        RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler
+        @Qualifier("notOkResponseHandler")
+        RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
     ) {
         return new ScrapperClient(
-            mapper,
-            defaultUnexpectedStatusHandler,
-            linkManagementStatus4xxHandler
+            notOkResponseHandler
         );
     }
 }

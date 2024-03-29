@@ -1,6 +1,6 @@
-package edu.common.exceptions.httpresponse;
+package edu.common.datatypes.exceptions.httpresponse;
 
-import edu.common.dtos.ApiErrorResponse;
+import edu.common.datatypes.dtos.ApiErrorResponse;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;

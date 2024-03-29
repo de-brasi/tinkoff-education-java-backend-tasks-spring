@@ -3,7 +3,7 @@ package edu.common;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import edu.common.exceptions.httpresponse.BadHttpResponseException;
+import edu.common.datatypes.exceptions.httpresponse.BadHttpResponseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;

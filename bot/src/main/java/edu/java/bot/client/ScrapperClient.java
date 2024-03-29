@@ -1,8 +1,8 @@
 package edu.java.bot.client;
 
 import edu.common.Retry;
-import edu.common.dtos.AddLinkRequest;
-import edu.common.dtos.RemoveLinkRequest;
+import edu.common.datatypes.dtos.AddLinkRequest;
+import edu.common.datatypes.dtos.RemoveLinkRequest;
 import edu.java.bot.client.dtos.LinkResponse;
 import edu.java.bot.client.dtos.ListLinksResponse;
 import org.springframework.http.HttpMethod;

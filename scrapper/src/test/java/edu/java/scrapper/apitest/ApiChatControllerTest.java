@@ -1,7 +1,7 @@
 package edu.java.scrapper.apitest;
 
-import edu.common.exceptions.ChatIdNotExistsException;
-import edu.common.exceptions.ReRegistrationException;
+import edu.common.datatypes.exceptions.ChatIdNotExistsException;
+import edu.common.datatypes.exceptions.ReRegistrationException;
 import edu.java.api.ChatController;
 import edu.java.api.LinksController;
 import org.junit.jupiter.api.DisplayName;

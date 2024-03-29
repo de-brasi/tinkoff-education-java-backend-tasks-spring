@@ -1,6 +1,6 @@
 package edu.java.api;
 
-import edu.common.dtos.ApiErrorResponse;
+import edu.common.datatypes.dtos.ApiErrorResponse;
 import edu.java.services.interfaces.TgChatService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

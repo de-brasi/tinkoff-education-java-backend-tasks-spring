@@ -1,8 +1,8 @@
 package edu.java.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.common.dtos.ApiErrorResponse;
-import edu.common.exceptions.httpresponse.BadHttpResponseException;
+import edu.common.datatypes.dtos.ApiErrorResponse;
+import edu.common.datatypes.exceptions.httpresponse.BadHttpResponseException;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
 import org.springframework.beans.factory.annotation.Autowired;

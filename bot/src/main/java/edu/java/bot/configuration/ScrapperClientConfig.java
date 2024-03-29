@@ -1,10 +1,10 @@
 package edu.java.bot.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.common.dtos.ApiErrorResponse;
-import edu.common.exceptions.IncorrectRequestException;
-import edu.common.exceptions.UnexpectedResponse;
-import edu.common.exceptions.httpresponse.BadHttpResponseException;
+import edu.common.datatypes.dtos.ApiErrorResponse;
+import edu.common.datatypes.exceptions.IncorrectRequestException;
+import edu.common.datatypes.exceptions.UnexpectedResponse;
+import edu.common.datatypes.exceptions.httpresponse.BadHttpResponseException;
 import edu.java.bot.client.ScrapperClient;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

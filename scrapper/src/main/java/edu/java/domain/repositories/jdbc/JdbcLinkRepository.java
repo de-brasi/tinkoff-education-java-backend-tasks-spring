@@ -1,6 +1,6 @@
 package edu.java.domain.repositories.jdbc;
 
-import edu.common.exceptions.IncorrectRequestException;
+import edu.common.datatypes.exceptions.IncorrectRequestException;
 import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;

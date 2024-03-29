@@ -1,9 +1,9 @@
 package edu.java.api;
 
-import edu.common.dtos.AddLinkRequest;
-import edu.common.dtos.LinkResponse;
-import edu.common.dtos.ListLinksResponse;
-import edu.common.dtos.RemoveLinkRequest;
+import edu.common.datatypes.dtos.AddLinkRequest;
+import edu.common.datatypes.dtos.LinkResponse;
+import edu.common.datatypes.dtos.ListLinksResponse;
+import edu.common.datatypes.dtos.RemoveLinkRequest;
 import edu.java.domain.entities.Link;
 import edu.java.services.interfaces.LinkService;
 import java.net.MalformedURLException;

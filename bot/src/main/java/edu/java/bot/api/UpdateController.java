@@ -1,7 +1,7 @@
 package edu.java.bot.api;
 
-import edu.common.dtos.ApiErrorResponse;
-import edu.common.dtos.LinkUpdateRequest;
+import edu.common.datatypes.dtos.ApiErrorResponse;
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.java.bot.services.TelegramBotWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

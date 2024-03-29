@@ -1,8 +1,8 @@
 package edu.java.services.jdbc;
 
-import edu.common.exceptions.ChatIdNotExistsException;
-import edu.common.exceptions.IncorrectRequestException;
-import edu.common.exceptions.ReAddingLinkException;
+import edu.common.datatypes.exceptions.ChatIdNotExistsException;
+import edu.common.datatypes.exceptions.IncorrectRequestException;
+import edu.common.datatypes.exceptions.ReAddingLinkException;
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;

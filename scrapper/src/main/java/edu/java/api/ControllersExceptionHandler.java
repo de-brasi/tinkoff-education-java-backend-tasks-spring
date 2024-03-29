@@ -1,10 +1,10 @@
 package edu.java.api;
 
-import edu.common.dtos.ApiErrorResponse;
-import edu.common.exceptions.ChatIdNotExistsException;
-import edu.common.exceptions.LinksNotAddedException;
-import edu.common.exceptions.ReAddingLinkException;
-import edu.common.exceptions.ReRegistrationException;
+import edu.common.datatypes.dtos.ApiErrorResponse;
+import edu.common.datatypes.exceptions.ChatIdNotExistsException;
+import edu.common.datatypes.exceptions.LinksNotAddedException;
+import edu.common.datatypes.exceptions.ReAddingLinkException;
+import edu.common.datatypes.exceptions.ReRegistrationException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;

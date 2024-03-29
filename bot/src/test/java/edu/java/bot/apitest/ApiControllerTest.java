@@ -1,7 +1,7 @@
 package edu.java.bot.apitest;
 
-import edu.common.dtos.LinkUpdateRequest;
-import edu.common.exceptions.ChatIdNotExistsException;
+import edu.common.datatypes.dtos.LinkUpdateRequest;
+import edu.common.datatypes.exceptions.ChatIdNotExistsException;
 import edu.java.bot.api.UpdateController;
 import edu.java.bot.services.TelegramBotService;
 import edu.java.bot.services.TelegramBotWrapper;

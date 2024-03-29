@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings({"MultipleStringLiterals"})
 public class LinksController {
     private final LinkService linkService;
-    private final RequestRateSupervisor requestRateSupervisor = new RequestRateSupervisor();
+    private final RequestRateSupervisor requestRateSupervisor;
     private static final ResponseEntity<?> REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE = new ResponseEntity<>(
         new ApiErrorResponse(
             "rate limit", "429", null, null, null
@@ -41,8 +41,9 @@ public class LinksController {
         HttpStatus.TOO_MANY_REQUESTS
     );
 
-    public LinksController(@Autowired LinkService linkService) {
+    public LinksController(@Autowired LinkService linkService, @Autowired RequestRateSupervisor supervisor) {
         this.linkService = linkService;
+        this.requestRateSupervisor = supervisor;
     }
 
     @GetMapping()

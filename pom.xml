@@ -49,7 +49,6 @@
         <module>bot</module>
         <module>scrapper</module>
         <module>common</module>
-        <module>custom-retry</module>
     </modules>
 
     <dependencyManagement>

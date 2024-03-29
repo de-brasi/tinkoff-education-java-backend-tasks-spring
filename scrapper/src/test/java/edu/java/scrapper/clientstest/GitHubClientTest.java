@@ -1,16 +1,19 @@
 package edu.java.scrapper.clientstest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import edu.java.clients.GitHubClient;
+import edu.java.clients.StackOverflowClient;
 import edu.java.clients.exceptions.EmptyResponseBodyException;
 import edu.java.clients.exceptions.FieldNotFoundException;
+import edu.java.configuration.ClientConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.OffsetDateTime;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,10 +25,15 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ClientTestConfig.class)
+@SpringBootTest(classes = {ClientTestConfig.class, ClientConfiguration.class, ObjectMapper.class})
 @WireMockTest(httpPort = 8080)
-@Import(ClientTestConfig.class)
 public class GitHubClientTest {
+    @MockBean(name = "gitHubClient")
+    private GitHubClient gitHubClientMock;
+
+    @MockBean(name = "stackOverflowClient")
+    private StackOverflowClient stackOverflowClientMock;
+
     @Autowired
     @Qualifier("testGitHubClient")
     GitHubClient gitHubClient;

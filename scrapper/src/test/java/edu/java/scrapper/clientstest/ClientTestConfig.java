@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient;
 
 public class ClientTestConfig {
     @Bean("testGitHubClient")
-    public GitHubClient gitHubClient(
+    public GitHubClient testGitHubClient(
         @Autowired
         @Qualifier("notOkResponseHandler")
         RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
@@ -18,7 +18,7 @@ public class ClientTestConfig {
     }
 
     @Bean("testStackOverflowClient")
-    public StackOverflowClient stackoverflowClient(
+    public StackOverflowClient testStackOverflowClient(
         @Autowired
         @Qualifier("notOkResponseHandler")
         RestClient.ResponseSpec.ErrorHandler notOkResponseHandler

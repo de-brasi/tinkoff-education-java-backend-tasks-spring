@@ -1,4 +1,4 @@
-package edu.common;
+package edu.common.customretry;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class RetryAspect {
-    @Around("@annotation(Retry)")
+    @Around("@annotation(edu.common.customretry.Retry)")
     public Object retry(ProceedingJoinPoint joinPoint) throws Throwable {
         Retry retry = retrieveAnnotation(joinPoint);
         long delay = retry.initialDelay();

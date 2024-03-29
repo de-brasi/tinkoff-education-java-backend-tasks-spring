@@ -1,4 +1,4 @@
-package edu.common;
+package edu.common.customretry;
 
 import org.springframework.http.HttpStatus;
 import java.lang.annotation.ElementType;

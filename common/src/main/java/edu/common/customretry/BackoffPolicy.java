@@ -1,4 +1,4 @@
-package edu.common;
+package edu.common.customretry;
 
 public enum BackoffPolicy {
     CONSTANT,

@@ -1,6 +1,6 @@
 package edu.java.bot.client;
 
-import edu.common.Retry;
+import edu.common.customretry.Retry;
 import edu.common.datatypes.dtos.AddLinkRequest;
 import edu.common.datatypes.dtos.RemoveLinkRequest;
 import edu.java.bot.client.dtos.LinkResponse;

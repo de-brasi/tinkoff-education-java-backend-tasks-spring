@@ -1,6 +1,6 @@
 package edu.java;
 
-import edu.common.RetryAspect;
+import edu.common.customretry.RetryAspect;
 import edu.java.configuration.ApplicationConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
-public class ClientConfiguration {
+public class ClientConfig {
     private static final Charset DEFAULT_BODY_ENCODING = StandardCharsets.UTF_8;
 
     @Bean("notOkResponseHandler")

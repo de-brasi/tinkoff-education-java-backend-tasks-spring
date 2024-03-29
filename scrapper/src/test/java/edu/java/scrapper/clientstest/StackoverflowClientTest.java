@@ -5,7 +5,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
 import edu.java.clients.exceptions.FieldNotFoundException;
-import edu.java.configuration.ClientConfiguration;
+import edu.java.configuration.ClientConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {ClientTestConfig.class, ClientConfiguration.class, ObjectMapper.class})
+@SpringBootTest(classes = {ClientTestConfig.class, ClientConfig.class, ObjectMapper.class})
 @WireMockTest(httpPort = 8080)
 public class StackoverflowClientTest {
     @MockBean(name = "gitHubClient")

@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jpa")
-public class JpaAccessConfiguration {
+public class JpaAccessConfig {
     @Bean
     public LinkService linkService(
         JpaLinkRepository jpaLinkRepository,

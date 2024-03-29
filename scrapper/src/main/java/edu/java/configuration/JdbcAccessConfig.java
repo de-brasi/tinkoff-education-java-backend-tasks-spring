@@ -18,7 +18,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 @ConditionalOnProperty(prefix = "app", name = "database-access-type", havingValue = "jdbc", matchIfMissing = true)
-public class JdbcAccessConfiguration {
+public class JdbcAccessConfig {
     @Bean
     public LinkService linkService(JdbcChatLinkBoundRepository linkBoundRepository) {
         return new JdbcLinkService(linkBoundRepository);

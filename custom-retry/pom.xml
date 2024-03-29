@@ -33,7 +33,7 @@
         <!-- Common data types -->
         <dependency>
             <groupId>edu.java</groupId>
-            <artifactId>common-datatypes</artifactId>
+            <artifactId>common</artifactId>
             <version>0.1</version>
         </dependency>
     </dependencies>

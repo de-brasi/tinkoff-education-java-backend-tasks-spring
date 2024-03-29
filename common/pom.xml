@@ -9,7 +9,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>common-datatypes</artifactId>
+    <artifactId>common</artifactId>
     <version>${revision}</version>
 
     <name>common-datatypes</name>

@@ -1,9 +1,11 @@
 package edu.java.api;
 
 import edu.common.datatypes.dtos.AddLinkRequest;
+import edu.common.datatypes.dtos.ApiErrorResponse;
 import edu.common.datatypes.dtos.LinkResponse;
 import edu.common.datatypes.dtos.ListLinksResponse;
 import edu.common.datatypes.dtos.RemoveLinkRequest;
+import edu.common.ratelimiting.RequestRateSupervisor;
 import edu.java.domain.entities.Link;
 import edu.java.services.interfaces.LinkService;
 import java.net.MalformedURLException;
@@ -11,6 +13,9 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.ConsumptionProbe;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +35,13 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings({"MultipleStringLiterals"})
 public class LinksController {
     private final LinkService linkService;
+    private final RequestRateSupervisor requestRateSupervisor = new RequestRateSupervisor();
+    private static final ResponseEntity<?> REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE = new ResponseEntity<>(
+        new ApiErrorResponse(
+            "rate limit", "429", null, null, null
+        ),
+        HttpStatus.TOO_MANY_REQUESTS
+    );
 
     public LinksController(
         @Autowired
@@ -39,7 +51,14 @@ public class LinksController {
     }
 
     @GetMapping()
-    public ResponseEntity<ListLinksResponse> getAllTrackedLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
+    public ResponseEntity<?> getAllTrackedLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId, HttpServletRequest request) {
+        Bucket bucket = requestRateSupervisor.resolveBucket(request.getRemoteAddr());
+        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+
+        if (!probe.isConsumed()) {
+            return REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE;
+        }
+
         // todo проверять на:
         //  - некорректные параметры 400
 

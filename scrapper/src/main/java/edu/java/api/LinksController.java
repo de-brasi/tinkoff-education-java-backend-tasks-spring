@@ -43,24 +43,21 @@ public class LinksController {
         HttpStatus.TOO_MANY_REQUESTS
     );
 
-    public LinksController(
-        @Autowired
-        LinkService linkService
-    ) {
+    public LinksController(@Autowired LinkService linkService) {
         this.linkService = linkService;
     }
 
     @GetMapping()
-    public ResponseEntity<?> getAllTrackedLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId, HttpServletRequest request) {
+    public ResponseEntity<?> getAllTrackedLinkForChat(
+        @RequestHeader("Tg-Chat-Id") Long tgChatId,
+        HttpServletRequest request
+    ) {
         Bucket bucket = requestRateSupervisor.resolveBucket(request.getRemoteAddr());
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
         if (!probe.isConsumed()) {
             return REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE;
         }
-
-        // todo проверять на:
-        //  - некорректные параметры 400
 
         Collection<Link> allLinks = linkService.listAll(tgChatId);
         // todo: добавить id в сущность Link, брать id оттуда
@@ -87,10 +84,6 @@ public class LinksController {
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody AddLinkRequest request
     ) throws MalformedURLException {
-        // todo проверять на:
-        //  - некорректные параметры 400
-
-        LOGGER.info(tgChatId);
         Link added = linkService.add(tgChatId, URI.create(request.getLink()));
         // todo: добавить id в сущность Link, брать id оттуда
         LinkResponse response = new LinkResponse(1, added.uri().toURL().toString());
@@ -103,9 +96,6 @@ public class LinksController {
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody RemoveLinkRequest request
     ) throws MalformedURLException {
-        // todo проверять на:
-        //  - некорректные параметры 400
-        //  - чат не существует 404
         LOGGER.info(tgChatId);
         Link removed = linkService.remove(tgChatId, URI.create(request.getLink()));
         // todo: добавить id в сущность Link, брать id оттуда

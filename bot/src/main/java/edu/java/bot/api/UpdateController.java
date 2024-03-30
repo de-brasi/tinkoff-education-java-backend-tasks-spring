@@ -38,7 +38,10 @@ public class UpdateController {
 
     @PostMapping(value = "/updates", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @SuppressWarnings("RegexpSinglelineJava")
-    public ResponseEntity<?> handleUpdateRequest(@RequestBody LinkUpdateRequest requestBody, HttpServletRequest request) {
+    public ResponseEntity<?> handleUpdateRequest(
+        @RequestBody LinkUpdateRequest requestBody,
+        HttpServletRequest request
+    ) {
         Bucket bucket = requestRateSupervisor.resolveBucket(request.getRemoteAddr());
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 

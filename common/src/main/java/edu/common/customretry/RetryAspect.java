@@ -1,9 +1,9 @@
 package edu.common.customretry;
 
+import edu.common.datatypes.exceptions.httpresponse.BadHttpResponseException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import edu.common.datatypes.exceptions.httpresponse.BadHttpResponseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -53,6 +53,8 @@ public class RetryAspect {
         return method.getAnnotation(Retry.class);
     }
 
+    private final static Logger LOGGER = LogManager.getLogger();
+
     private static class DelayTimeGenerator {
         DelayTimeGenerator(BackoffPolicy policy, long delay) {
             this.delay = delay;
@@ -79,6 +81,4 @@ public class RetryAspect {
     private interface DelayFunction<I, D, R> {
         R apply(I iter, D delay);
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

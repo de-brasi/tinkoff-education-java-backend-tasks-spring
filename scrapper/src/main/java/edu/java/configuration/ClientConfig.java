@@ -5,6 +5,8 @@ import edu.common.datatypes.dtos.ApiErrorResponse;
 import edu.common.datatypes.exceptions.httpresponse.BadHttpResponseException;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,8 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClient;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 @Configuration
 public class ClientConfig {

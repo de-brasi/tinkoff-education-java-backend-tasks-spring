@@ -12,7 +12,7 @@ public class RequestRateSupervisor {
 
     // todo: настроить и сделать так чтобы можно было задать это в конструкторе или через properties
     // 20 tokens per minute
-    private final Bandwidth DEFAULT_BANDWIDTH = Bandwidth.classic(
+    private static final Bandwidth DEFAULT_BANDWIDTH = Bandwidth.classic(
         20,
         Refill.intervally(
             20, Duration.ofMinutes(1)

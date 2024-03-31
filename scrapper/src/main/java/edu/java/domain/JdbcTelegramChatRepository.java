@@ -6,8 +6,6 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -55,7 +53,6 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Telegram
                 return false;
             }
         } catch (DataAccessException e) {
-            LOGGER.info("hi");
             return false;
         }
     }
@@ -82,8 +79,6 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Telegram
             .filter(condition)
             .collect(Collectors.toList());
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 
     private static class LinkRowMapper implements RowMapper<TelegramChat> {
         @Override

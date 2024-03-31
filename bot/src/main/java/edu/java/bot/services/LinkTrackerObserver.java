@@ -14,10 +14,10 @@ import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
+@Slf4j
 public class LinkTrackerObserver implements UpdatesListener {
     private final TelegramBotWrapper bot;
 
@@ -44,7 +44,7 @@ public class LinkTrackerObserver implements UpdatesListener {
     @Override
     public int process(List<Update> list) {
         for (Update update: list) {
-            LOGGER.info("New update: " + update);
+            log.info("New update: " + update);
 
             if (!checkUpdateContainsNewMessage(update)) {
                 continue;
@@ -93,7 +93,7 @@ public class LinkTrackerObserver implements UpdatesListener {
             .toArray(BotCommand[]::new);
 
         for (var command: botCommands) {
-            LOGGER.info("Command get:" + command);
+            log.info("Command get:" + command);
         }
 
         SetMyCommands myCommands = new SetMyCommands(botCommands).scope(new BotCommandScopeAllPrivateChats());
@@ -102,7 +102,7 @@ public class LinkTrackerObserver implements UpdatesListener {
         if (!response.isOk()) {
             throw new RuntimeException("Failure when set commands for bot: " + response);
         } else {
-            LOGGER.info("Response to settings commands for bot: " + response);
+            log.info("Response to settings commands for bot: " + response);
         }
     }
 
@@ -113,6 +113,4 @@ public class LinkTrackerObserver implements UpdatesListener {
     private boolean verifyHandlersChain() {
         return this.handlersChainHead != null;
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

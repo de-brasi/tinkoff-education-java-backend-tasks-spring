@@ -37,9 +37,6 @@ public class LinksController {
 
     @GetMapping()
     public ResponseEntity<ListLinksResponse> getAllTrackedLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
-        // todo проверять на:
-        //  - некорректные параметры 400
-
         log.info("All tracked links command for chat with chat-id " + tgChatId);
 
         Collection<Link> allLinks = linkService.listAll(tgChatId);
@@ -67,9 +64,6 @@ public class LinksController {
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody AddLinkRequest request
     ) throws MalformedURLException {
-        // todo проверять на:
-        //  - некорректные параметры 400
-
         log.info("Add link command for chat with chat-id " + tgChatId + " and request " + request);
         Link added = linkService.add(tgChatId, URI.create(request.getLink()));
         // todo: добавить id в сущность Link, брать id оттуда
@@ -83,9 +77,6 @@ public class LinksController {
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody RemoveLinkRequest request
     ) throws MalformedURLException {
-        // todo проверять на:
-        //  - некорректные параметры 400
-        //  - чат не существует 404
         log.info("Delete link command for chat with chat-id " + tgChatId + " and request " + request);
         Link removed = linkService.remove(tgChatId, URI.create(request.getLink()));
         // todo: добавить id в сущность Link, брать id оттуда

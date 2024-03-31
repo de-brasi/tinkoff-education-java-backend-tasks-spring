@@ -25,9 +25,6 @@ public class ChatController {
 
     @PostMapping(value = "/{id}")
     public ResponseEntity<ApiErrorResponse> handleRegistryChat(@PathVariable Long id) {
-        // todo проверять на:
-        //  - некорректные параметры 400
-
         tgChatService.register(id);
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -35,10 +32,6 @@ public class ChatController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<ApiErrorResponse> handleDeleteChat(@PathVariable Long id) {
-        // todo проверять на:
-        //  - некорректные параметры 400
-        //  - чат не существует 404
-
         tgChatService.unregister(id);
 
         return new ResponseEntity<>(HttpStatus.OK);

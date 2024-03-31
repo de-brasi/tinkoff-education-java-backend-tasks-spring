@@ -2,8 +2,6 @@ package edu.java.api;
 
 import edu.common.dtos.ApiErrorResponse;
 import edu.java.services.interfaces.TgChatService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,6 +43,4 @@ public class ChatController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

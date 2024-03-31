@@ -5,8 +5,7 @@ import edu.java.services.jdbc.JdbcLinkUpdater;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @EnableScheduling
+@Slf4j
 public class LinkUpdaterScheduler {
     private final LinkUpdater linkUpdater;
 
@@ -24,15 +24,15 @@ public class LinkUpdaterScheduler {
     @SuppressWarnings("RegexpSinglelineJava")
     @Scheduled(fixedDelayString = "#{@scheduler.interval()}")
     public void update() {
-        LOGGER.info("Updating...");
+        log.info("Updating...");
 
         Duration checkingDeadline = Duration.ofMinutes(1);
 
         try {
             int updated = linkUpdater.update(checkingDeadline);
-            LOGGER.info("Updated %d links.".formatted(updated));
+            log.info("Updated %d links.".formatted(updated));
         } catch (Exception e) {
-            LOGGER.error(("""
+            log.error(("""
                 Exception when updating links.
                 Failed when getting links for updating with exception: %s
                 Message: %s
@@ -49,6 +49,4 @@ public class LinkUpdaterScheduler {
             );
         }
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

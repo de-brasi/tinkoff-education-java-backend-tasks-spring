@@ -19,14 +19,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @SuppressWarnings("MultipleStringLiterals")
 public class JdbcLinkUpdater implements LinkUpdater {
     private final JdbcTemplate jdbcTemplate;
@@ -63,7 +63,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
         };
 
         Collection<Link> toUpdate = getAllLinksFilteredByPredicate(outdatedLinkPredicate);
-        LOGGER.info("Links need to update: " + toUpdate);
+        log.info("Links need to update: " + toUpdate);
 
         int updatedLinks = 0;
 
@@ -97,7 +97,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
                 }
 
             } catch (Exception e) {
-                LOGGER.info(("""
+                log.info(("""
                     Exception when checking update of link %s;
                     Exception: %s
                     Message: %s
@@ -248,6 +248,4 @@ public class JdbcLinkUpdater implements LinkUpdater {
             );
         }
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

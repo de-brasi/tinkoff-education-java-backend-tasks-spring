@@ -14,8 +14,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@Slf4j
 public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLinkBound> {
     private final JdbcTemplate jdbcTemplate;
     private final JdbcLinkRepository linkRepository;
@@ -95,7 +95,7 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
 
             final String insertBoundQuery =
                 "insert into track_info(telegram_chat_id, link_id) values (?, ?)";
-            LOGGER.info(
+            log.info(
                 "Inserting into track_info: [chat_id: "
                     + telegramChatIdInDatabase + ", link_id: "
                     + linkIdInDatabase + "]"
@@ -211,8 +211,6 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
 
         return (recordsCount == 1);
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 
     private static class LinkRowMapper implements RowMapper<ChatLinkBound> {
         @Override

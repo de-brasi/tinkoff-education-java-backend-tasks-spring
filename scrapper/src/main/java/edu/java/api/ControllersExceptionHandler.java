@@ -7,8 +7,7 @@ import edu.common.exceptions.ReAddingLinkException;
 import edu.common.exceptions.ReRegistrationException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
+@Slf4j
 @SuppressWarnings("MultipleStringLiterals")
 public class ControllersExceptionHandler {
 
@@ -122,7 +122,7 @@ public class ControllersExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> internalErrorHandler(Exception e) {
-        LOGGER.info(
+        log.info(
             "Exception caught in ExceptionHandler with name: " + e.getClass().getCanonicalName()
                 + "\nstack trace is:\n"
                 + Arrays.stream(e.getStackTrace())
@@ -143,6 +143,4 @@ public class ControllersExceptionHandler {
             HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

@@ -28,10 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/scrapper/api/links", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @SuppressWarnings({"MultipleStringLiterals"})
-public class LinksController {
+public class LinkController {
     private final LinkService linkService;
 
-    public LinksController(@Autowired LinkService linkService) {
+    public LinkController(@Autowired LinkService linkService) {
         this.linkService = linkService;
     }
 

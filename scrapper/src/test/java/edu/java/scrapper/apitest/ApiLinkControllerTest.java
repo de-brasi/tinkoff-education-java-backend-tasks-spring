@@ -1,9 +1,8 @@
 package edu.java.scrapper.apitest;
 
-import edu.common.dtos.RemoveLinkRequest;
 import edu.common.exceptions.LinksNotAddedException;
 import edu.java.api.ChatController;
-import edu.java.api.LinksController;
+import edu.java.api.LinkController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ApiLinksControllerTest {
+public class ApiLinkControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -29,7 +28,7 @@ public class ApiLinksControllerTest {
     private ChatController chatController;
 
     @MockBean
-    private LinksController linksController;
+    private LinkController linkController;
 
     // GET: /scrapper/api/links
     @Test
@@ -49,7 +48,7 @@ public class ApiLinksControllerTest {
     @Test
     @DisplayName("Test correct link get to /links with manually occurred Exception")
     public void test10() throws Exception {
-        when(linksController.getAllTrackedLinkForChat(any(Long.class)))
+        when(linkController.getAllTrackedLinkForChat(any(Long.class)))
             .thenAnswer(invocation -> {
                 throw new Exception();
             });
@@ -67,7 +66,7 @@ public class ApiLinksControllerTest {
     @Test
     @DisplayName("Test correct link get to /links with manually occurred LinkNotExistsException")
     public void test11() throws Exception {
-        when(linksController.getAllTrackedLinkForChat(any(Long.class)))
+        when(linkController.getAllTrackedLinkForChat(any(Long.class)))
             .thenAnswer(invocation -> {
                 throw new LinksNotAddedException();
             });

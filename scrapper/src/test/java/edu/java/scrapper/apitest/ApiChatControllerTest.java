@@ -3,7 +3,7 @@ package edu.java.scrapper.apitest;
 import edu.common.exceptions.ChatIdNotExistsException;
 import edu.common.exceptions.ReRegistrationException;
 import edu.java.api.ChatController;
-import edu.java.api.LinksController;
+import edu.java.api.LinkController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class ApiChatControllerTest {
     private ChatController chatController;
 
     @MockBean
-    private LinksController linksController;
+    private LinkController linkController;
 
     // POST: /scrapper/api/tg-chat/{id}
     @Test

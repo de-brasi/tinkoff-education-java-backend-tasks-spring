@@ -33,7 +33,7 @@ public class JdbcTgChatService implements TgChatService {
             // todo:
             //  решить проблему с тем что ошибка DataAccessException
             //  не перехватывается в самом методе репозитория!
-            final String message = "Проблема с необработанной ошибкой DataAccessException!";
+            final String message = "Problem with unhandled exception DataAccessException!";
             throw new RuntimeException(message);
         }
     }

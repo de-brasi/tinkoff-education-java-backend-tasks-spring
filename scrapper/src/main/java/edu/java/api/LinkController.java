@@ -58,7 +58,7 @@ public class LinkController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> addTrackingLinkForChat(
+    public ResponseEntity<LinkResponse> addTrackingLinkForChat(
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody AddLinkRequest request
     ) throws MalformedURLException {
@@ -71,7 +71,7 @@ public class LinkController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> untrackLinkForChat(
+    public ResponseEntity<LinkResponse> untrackLinkForChat(
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody RemoveLinkRequest request
     ) throws MalformedURLException {

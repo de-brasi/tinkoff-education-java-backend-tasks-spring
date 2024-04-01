@@ -14,19 +14,18 @@ import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 @Slf4j
+@RequiredArgsConstructor
 public class LinkTrackerObserver implements UpdatesListener {
+
     private final TelegramBotWrapper bot;
 
     @Nullable private TelegramBotCommand handlersChainHead;
     @Nullable private TelegramBotCommand handlersChainTail;
-
-    public LinkTrackerObserver(TelegramBotWrapper bot) {
-        this.bot = bot;
-    }
 
     public void setCommands(
         TelegramBotCommand terminationCommand,

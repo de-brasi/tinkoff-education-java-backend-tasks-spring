@@ -52,7 +52,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
     @Override
     @Transactional
     public int update(Duration updateInterval) {
-//        Collection<Link> toUpdate = getNotCheckedForAWhile(updateInterval);
+//        Collection<Link> linksToUpdate = getNotCheckedForAWhile(updateInterval);
 
         Predicate<Link> outdatedLinkPredicate = link -> {
             try {
@@ -62,12 +62,12 @@ public class JdbcLinkUpdater implements LinkUpdater {
             }
         };
 
-        Collection<Link> toUpdate = getAllLinksFilteredByPredicate(outdatedLinkPredicate);
-        log.info("Links need to update: " + toUpdate);
+        Collection<Link> linksToUpdate = getAllLinksFilteredByPredicate(outdatedLinkPredicate);
+        log.info("Links need to update: " + linksToUpdate);
 
         int updatedLinks = 0;
 
-        for (Link link : toUpdate) {
+        for (Link link : linksToUpdate) {
             try {
                 final String currentLinkUrl = link.uri().toURL().toString();
 

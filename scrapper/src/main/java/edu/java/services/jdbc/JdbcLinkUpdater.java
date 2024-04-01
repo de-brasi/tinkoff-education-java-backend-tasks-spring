@@ -3,7 +3,6 @@ package edu.java.services.jdbc;
 import edu.java.clients.BotClient;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
-import edu.java.domain.BaseEntityRepository;
 import edu.java.domain.JdbcLinkRepository;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
@@ -23,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j

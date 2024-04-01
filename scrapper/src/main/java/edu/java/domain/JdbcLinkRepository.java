@@ -2,17 +2,16 @@ package edu.java.domain;
 
 import edu.common.exceptions.IncorrectRequestException;
 import edu.java.domain.entities.Link;
+import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.dao.DataAccessException;

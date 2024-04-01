@@ -25,25 +25,6 @@ public class GitHubClient implements ExternalServiceClient {
         "https://github\\.com/([^/\\s]+)/([^/\\s]+)/?.*"
     );
 
-
-    public GitHubClient(RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
-        RestClient.Builder restClientBuilder = RestClient.builder();
-
-        this.restClient = restClientBuilder
-            .baseUrl(GitHubClient.DEFAULT_BASE_URL)
-            .build();
-        this.notOkResponseHandler = notOkResponseHandler;
-    }
-
-    public GitHubClient(String baseUrl, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
-        RestClient.Builder restClientBuilder = RestClient.builder();
-
-        this.restClient = restClientBuilder
-            .baseUrl(baseUrl)
-            .build();
-        this.notOkResponseHandler = notOkResponseHandler;
-    }
-
     public GitHubClient(int timeoutInMilliseconds, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 

@@ -31,30 +31,6 @@ public class StackOverflowClient implements ExternalServiceClient {
     private static final Pattern IS_ANSWERED_PATTERN = Pattern.compile(".*\\\"is_answered\\\":\\s*(true|false),.*");
     private static final Pattern ANSWER_COUNT_PATTERN = Pattern.compile(".*\\\"answer_count\\\":\\s*(\\d+),.*");
 
-    public StackOverflowClient(RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
-        RestClient.Builder restClientBuilder = RestClient.builder();
-
-        var requestFactory = new ReactorNettyClientRequestFactory();
-
-        this.restClient = restClientBuilder
-            .requestFactory(requestFactory)
-            .baseUrl(StackOverflowClient.DEFAULT_BASE_URL)
-            .build();
-        this.notOkResponseHandler = notOkResponseHandler;
-    }
-
-    public StackOverflowClient(String baseUrl, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
-        RestClient.Builder restClientBuilder = RestClient.builder();
-
-        var requestFactory = new ReactorNettyClientRequestFactory();
-
-        this.restClient = restClientBuilder
-            .requestFactory(requestFactory)
-            .baseUrl(baseUrl)
-            .build();
-        this.notOkResponseHandler = notOkResponseHandler;
-    }
-
     public StackOverflowClient(int timeoutInMilliseconds, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 

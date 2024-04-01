@@ -11,9 +11,15 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 @SpringBootTest
 public class JdbcLinkRepositoryTest extends IntegrationTest {
@@ -134,5 +140,47 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
             testLink3.uri().toURL().toString()
         );
         assertThat(rowCount).isEqualTo(3);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void updateLastCheckTimeTest() throws MalformedURLException {
+        // add record
+        final Link testLink = new Link(URI.create("https://example/add-uri-test"));
+        linkRepository.add(testLink);
+
+        Timestamp newCheckTimeExpected = Timestamp.from(Instant.now());
+        linkRepository.updateLastCheckTime(testLink.uri().toURL().toString(), newCheckTimeExpected);
+
+        Timestamp newCheckTimeActual = jdbcTemplate.queryForObject(
+            "select last_check_time from links where url = ?",
+            Timestamp.class,
+            testLink.uri().toURL().toString()
+        );
+
+        assert newCheckTimeActual != null;
+        assertThat(newCheckTimeExpected.toInstant()).isCloseTo(newCheckTimeActual.toInstant(), within(1, ChronoUnit.MILLIS));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void updateLastUpdateTimeTest() throws MalformedURLException {
+        // add record
+        final Link testLink = new Link(URI.create("https://example/add-uri-test"));
+        linkRepository.add(testLink);
+
+        Timestamp newCheckTimeExpected = Timestamp.from(Instant.now());
+        linkRepository.updateLastUpdateTime(testLink.uri().toURL().toString(), newCheckTimeExpected);
+
+        Timestamp newCheckTimeActual = jdbcTemplate.queryForObject(
+            "select last_update_time from links where url = ?",
+            Timestamp.class,
+            testLink.uri().toURL().toString()
+        );
+
+        assert newCheckTimeActual != null;
+        assertThat(newCheckTimeExpected.toInstant()).isCloseTo(newCheckTimeActual.toInstant(), within(1, ChronoUnit.MILLIS));
     }
 }

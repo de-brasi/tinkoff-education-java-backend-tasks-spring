@@ -6,8 +6,8 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,12 +15,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@RequiredArgsConstructor
 public class JdbcTelegramChatRepository implements BaseEntityRepository<TelegramChat> {
-    private final JdbcTemplate jdbcTemplate;
 
-    public JdbcTelegramChatRepository(@Autowired JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     @Transactional

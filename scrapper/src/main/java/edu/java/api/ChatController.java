@@ -2,6 +2,7 @@ package edu.java.api;
 
 import edu.common.dtos.ApiErrorResponse;
 import edu.java.services.interfaces.TgChatService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,14 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/scrapper/api/tg-chat", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 @SuppressWarnings({"MultipleStringLiterals"})
 public class ChatController {
+
     private final TgChatService tgChatService;
-
-    public ChatController(@Autowired TgChatService tgChatService) {
-        this.tgChatService = tgChatService;
-
-    }
 
     @PostMapping(value = "/{id}")
     public ResponseEntity<ApiErrorResponse> handleRegistryChat(@PathVariable Long id) {

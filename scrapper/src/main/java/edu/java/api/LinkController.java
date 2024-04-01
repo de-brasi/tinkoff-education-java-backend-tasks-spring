@@ -11,6 +11,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,14 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/scrapper/api/links", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 @Slf4j
 @SuppressWarnings({"MultipleStringLiterals"})
 public class LinkController {
-    private final LinkService linkService;
 
-    public LinkController(@Autowired LinkService linkService) {
-        this.linkService = linkService;
-    }
+    private final LinkService linkService;
 
     @GetMapping()
     public ResponseEntity<ListLinksResponse> getAllTrackedLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId) {

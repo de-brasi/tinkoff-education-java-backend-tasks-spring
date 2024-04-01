@@ -1,25 +1,22 @@
 package edu.java;
 
 import edu.java.services.interfaces.LinkUpdater;
-import edu.java.services.jdbc.JdbcLinkUpdater;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 @EnableScheduling
+@RequiredArgsConstructor
 @Slf4j
 public class LinkUpdaterScheduler {
-    private final LinkUpdater linkUpdater;
 
-    public LinkUpdaterScheduler(@Autowired JdbcLinkUpdater linkUpdater) {
-        this.linkUpdater = linkUpdater;
-    }
+    private final LinkUpdater linkUpdater;
 
     @SuppressWarnings("RegexpSinglelineJava")
     @Scheduled(fixedDelayString = "#{@scheduler.interval()}")

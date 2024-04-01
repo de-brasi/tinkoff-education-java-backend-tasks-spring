@@ -14,9 +14,9 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,20 +25,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@RequiredArgsConstructor
 @Slf4j
 public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLinkBound> {
+
     private final JdbcTemplate jdbcTemplate;
     private final JdbcLinkRepository linkRepository;
 
     private static final String CHAT_ENTITY_NAME = "telegram_chat";
-
-    public JdbcChatLinkBoundRepository(
-        @Autowired JdbcTemplate jdbcTemplate,
-        @Autowired JdbcLinkRepository linkRepository
-    ) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.linkRepository = linkRepository;
-    }
 
     @Override
     @Transactional

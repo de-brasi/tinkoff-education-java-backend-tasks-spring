@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,13 @@ public class LinkUpdaterScheduler {
 
     private final LinkUpdater linkUpdater;
 
+    @Value("#{@scheduler.forceCheckDelay()}")
+    private Duration checkingDeadline;
+
     @SuppressWarnings("RegexpSinglelineJava")
     @Scheduled(fixedDelayString = "#{@scheduler.interval()}")
     public void update() {
         log.info("Updating...");
-
-        Duration checkingDeadline = Duration.ofMinutes(1);
 
         try {
             int updated = linkUpdater.update(checkingDeadline);

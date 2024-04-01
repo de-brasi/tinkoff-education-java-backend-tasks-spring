@@ -8,9 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.dao.DataAccessException;
@@ -110,6 +112,30 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
             .stream()
             .filter(condition)
             .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateLastCheckTime(String url, Timestamp actualTime) {
+        final String query = "update links set last_check_time = ? where url = ?";
+        int affectedRowsCount = jdbcTemplate.update(query, actualTime, url);
+
+        if (affectedRowsCount != 1) {
+            throw new UnexpectedDataBaseStateException(
+                "Expected to update field 'last_check_time' one row with current time but no one row changed!"
+            );
+        }
+    }
+
+    @Transactional
+    public void updateLastUpdateTime(String url, Timestamp actualTime) {
+        final String query = "update links set last_update_time = ? where url = ?";
+        int affectedRowsCount = jdbcTemplate.update(query, actualTime, url);
+
+        if (affectedRowsCount != 1) {
+            throw new UnexpectedDataBaseStateException(
+                "Expected to update field 'last_update_time' one row with current time but no one row changed!"
+            );
+        }
     }
 
     private static class LinkRowMapper implements RowMapper<Link> {

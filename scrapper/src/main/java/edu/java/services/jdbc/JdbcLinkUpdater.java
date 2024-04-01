@@ -33,7 +33,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
     private final GitHubClient gitHubClient;
     private final StackOverflowClient stackOverflowClient;
     private final BotClient botClient;
-    private final BaseEntityRepository<Link> linkRepository;
+    private final JdbcLinkRepository linkRepository;
 
     public JdbcLinkUpdater(
         @Autowired JdbcTemplate jdbcTemplate,
@@ -50,7 +50,6 @@ public class JdbcLinkUpdater implements LinkUpdater {
     }
 
     @Override
-    @Transactional
     public int update(Duration updateInterval) {
 //        Collection<Link> linksToUpdate = getNotCheckedForAWhile(updateInterval);
 
@@ -208,44 +207,10 @@ public class JdbcLinkUpdater implements LinkUpdater {
                 subscribersId
             );
 
-            actualizeLastUpdateTimeForLink(currentLinkUrl, actualTime);
-            actualizeCheckingTimeForLink(currentLinkUrl);
+            linkRepository.updateLastCheckTime(currentLinkUrl, Timestamp.from(Instant.now()));
+            linkRepository.updateLastUpdateTime(currentLinkUrl, Timestamp.from(actualTime.toInstant()));
         }
 
         return timeUpdated;
-    }
-
-    private void actualizeCheckingTimeForLink(String url) {
-        final String query = "update links set last_check_time = ? where url = ?";
-        int affectedRowsCount = jdbcTemplate.update(
-            query,
-            Timestamp.from(Instant.now()),
-            url
-        );
-
-        if (affectedRowsCount != 1) {
-            throw new UnexpectedDataBaseStateException(
-                "Expected to update field 'last_check_time' one row with current time but no one row changed!"
-            );
-        }
-    }
-
-    private void actualizeLastUpdateTimeForLink(String url, OffsetDateTime actualTime) {
-        final String query =
-            "update links "
-                + "set last_update_time = ? "
-                + "where url = ?";
-
-        int affectedRowsCount = jdbcTemplate.update(
-            query,
-            Timestamp.from(actualTime.toInstant()),
-            url
-        );
-
-        if (affectedRowsCount != 1) {
-            throw new UnexpectedDataBaseStateException(
-                "Saving new 'last_update_time' not affect to database!"
-            );
-        }
     }
 }

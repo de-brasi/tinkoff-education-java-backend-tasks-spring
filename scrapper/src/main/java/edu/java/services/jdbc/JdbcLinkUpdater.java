@@ -53,7 +53,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
         Predicate<Link> outdatedLinkPredicate = link -> {
             try {
-                return Duration.between(OffsetDateTime.now(), getLinkUpdateTime(link)).compareTo(updateInterval) > 0;
+                return Duration.between(OffsetDateTime.now(), getLinkCheckTime(link)).compareTo(updateInterval) > 0;
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
@@ -132,9 +132,9 @@ public class JdbcLinkUpdater implements LinkUpdater {
         return linkRepository.search(predicate);
     }
 
-    private OffsetDateTime getLinkUpdateTime(Link link) throws MalformedURLException {
+    private OffsetDateTime getLinkCheckTime(Link link) throws MalformedURLException {
         return jdbcTemplate.queryForObject(
-            "select last_update_time from links where url = ?",
+            "select last_check_time from links where url = ?",
             OffsetDateTime.class,
             link.uri().toURL().toString()
         );

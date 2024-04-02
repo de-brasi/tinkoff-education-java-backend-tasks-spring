@@ -1,4 +1,5 @@
 app:
+  kafka-topic-name: "topic1"
   scheduler:
     enable: true
     interval: 60s

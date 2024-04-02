@@ -1,5 +1,6 @@
 app:
   telegram-token: ${TELEGRAM_TOKEN}
+  kafka-topic-name: "topic1"
 
 spring:
   application:

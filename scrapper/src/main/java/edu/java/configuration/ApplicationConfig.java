@@ -1,6 +1,7 @@
 package edu.java.configuration;
 
 import java.time.Duration;
+import jakarta.validation.constraints.NotEmpty;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,11 @@ public record ApplicationConfig(
     ClientSettings stackoverflowClientSettings,
 
     @NotNull
-    AccessType databaseAccessType
+    AccessType databaseAccessType,
+
+    @NotEmpty
+    @Bean("kafkaTopic")
+    String kafkaTopicName
 ) {
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
     }

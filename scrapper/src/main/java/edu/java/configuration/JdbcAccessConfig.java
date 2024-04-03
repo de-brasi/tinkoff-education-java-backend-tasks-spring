@@ -11,6 +11,9 @@ import edu.java.services.interfaces.TgChatService;
 import edu.java.services.jdbc.JdbcLinkService;
 import edu.java.services.jdbc.JdbcLinkUpdater;
 import edu.java.services.jdbc.JdbcTgChatService;
+import edu.java.updateproducing.ScrapperUpdateProducer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,15 +30,18 @@ public class JdbcAccessConfig {
     @Bean
     public LinkUpdater linkUpdater(
         JdbcTemplate jdbcTemplate,
-        BotClient botClient,
         JdbcLinkRepository jdbcLinkRepository,
-        ExternalServicesObserver externalServicesObserver
+        ExternalServicesObserver externalServicesObserver,
+
+        @Autowired
+        @Qualifier("scrapperKafkaProducer")
+        ScrapperUpdateProducer scrapperUpdateProducer
     ) {
         return new JdbcLinkUpdater(
             jdbcTemplate,
-            botClient,
             jdbcLinkRepository,
-            externalServicesObserver
+            externalServicesObserver,
+            scrapperUpdateProducer
         );
     }
 

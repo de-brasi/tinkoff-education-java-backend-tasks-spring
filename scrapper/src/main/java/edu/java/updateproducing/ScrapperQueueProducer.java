@@ -1,4 +1,4 @@
-package edu.java;
+package edu.java.updateproducing;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ScrapperQueueProducer {
+public class ScrapperQueueProducer implements ScrapperUpdateProducer {
 //    public void send(LinkUpdate update) {
 //        // TODO
 //    }

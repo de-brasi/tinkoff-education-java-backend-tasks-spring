@@ -2,14 +2,10 @@ package edu.java.updateproducing;
 
 import edu.java.clients.BotClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class ScrapperHttpProducer implements ScrapperUpdateProducer {
-    @Value("#{@kafkaTopic}")
-    private String topicName;
+    private final String topicName;
     private final BotClient botClient;
 
     @Override

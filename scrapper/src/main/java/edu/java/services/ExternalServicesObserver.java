@@ -4,6 +4,7 @@ import edu.java.clients.ExternalServiceClient;
 import edu.java.clients.exceptions.EmptyResponseBodyException;
 import edu.java.clients.exceptions.FieldNotFoundException;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class ExternalServicesObserver {
         final ExternalServiceClient relatedService = getSuitableServiceOrThrow(url);
 
         try {
-            return relatedService.fetchUpdate(url).updateTime();
+            return relatedService.fetchUpdate(url).updateTime().withOffsetSameInstant(ZoneOffset.UTC);
         } catch (EmptyResponseBodyException | FieldNotFoundException e) {
             throw new RuntimeException(e);
         }

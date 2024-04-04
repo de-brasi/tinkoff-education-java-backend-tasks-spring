@@ -32,10 +32,7 @@ public class BotClient {
         this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public void sendUpdates(
-        int id, String updatedUrl, String updateDescription, List<Long> subscribers
-    ) {
-        LinkUpdateRequest updates = new LinkUpdateRequest(id, updatedUrl, updateDescription, subscribers);
+    public void sendUpdates(LinkUpdateRequest updates) {
         this.restClient
             .post()
             .uri(BotClient.ENDPOINT_UPDATES)

@@ -1,5 +1,6 @@
 package edu.java.configuration;
 
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.java.clients.BotClient;
 import edu.java.updateproducing.ScrapperHttpProducer;
 import edu.java.updateproducing.ScrapperQueueProducer;
@@ -16,7 +17,7 @@ public class UpdateProducerConfig {
         @Value("#{@kafkaTopic}")
         String topicName,
 
-        KafkaTemplate<String, String> kafkaTemplate
+        KafkaTemplate<String, LinkUpdateRequest> kafkaTemplate
     ) {
         return new ScrapperQueueProducer(topicName, kafkaTemplate);
     }

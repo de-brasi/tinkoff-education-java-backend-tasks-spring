@@ -28,6 +28,11 @@ spring:
           driver_class: org.postgresql.Driver
         hbm2ddl:
           auto: validate
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 server:
   port: 8080

@@ -1,16 +1,17 @@
 package edu.java.services.jdbc;
 
-import edu.java.clients.BotClient;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import edu.java.domain.repositories.BaseEntityRepository;
 import edu.java.domain.repositories.jdbc.JdbcLinkRepository;
 import edu.java.services.ExternalServicesObserver;
+import edu.java.services.enteties.LinkUpdate;
 import edu.java.services.interfaces.LinkUpdater;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.sql.Timestamp;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -19,28 +20,29 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import edu.java.updateproducing.ScrapperUpdateProducer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @SuppressWarnings("MultipleStringLiterals")
 public class JdbcLinkUpdater implements LinkUpdater {
     private final JdbcTemplate jdbcTemplate;
-    private final BotClient botClient;
     private final BaseEntityRepository<Link> linkRepository;
     private final ExternalServicesObserver servicesObserver;
+    private final ScrapperUpdateProducer scrapperUpdateProducer;
 
     public JdbcLinkUpdater(
         JdbcTemplate jdbcTemplate,
-        BotClient botClient,
         JdbcLinkRepository jdbcLinkRepository,
-        ExternalServicesObserver externalServicesObserver
+        ExternalServicesObserver externalServicesObserver,
+        ScrapperUpdateProducer scrapperUpdateProducer
     ) {
         this.jdbcTemplate = jdbcTemplate;
-        this.botClient = botClient;
         this.linkRepository = jdbcLinkRepository;
         this.servicesObserver = externalServicesObserver;
+        this.scrapperUpdateProducer = scrapperUpdateProducer;
     }
 
     @Override
@@ -51,14 +53,17 @@ public class JdbcLinkUpdater implements LinkUpdater {
         Predicate<Link> needToBeCheckedLinkPredicate = link -> {
             try {
                 // todo: нужно сравнивать на > 0; почему же это работает?
-                return Duration.between(OffsetDateTime.now(), getLinkCheckTime(link)).compareTo(updateInterval) < 0;
+                return Duration.between(
+                    OffsetDateTime.now(Clock.systemUTC()),
+                    getLinkCheckTime(link)
+                ).compareTo(updateInterval) < 0;
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
         };
         Collection<Link> toUpdate = getAllLinksFilteredByPredicate(needToBeCheckedLinkPredicate);
 
-        LOGGER.info("Links need to update: " + toUpdate);
+        log.info("Links need to be checked: " + toUpdate);
 
         int updatedLinks = 0;
 
@@ -81,7 +86,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
                 }
 
             } catch (Exception e) {
-                LOGGER.info(("""
+                log.info(("""
                     Exception when checking update of link %s;
                     Exception: %s
                     Message: %s
@@ -200,12 +205,11 @@ public class JdbcLinkUpdater implements LinkUpdater {
                     .toList();
 
             // todo: использовать id ссылки, пока заглушка
-            botClient.sendUpdates(
-                -1,
-                link.uri().toURL().toString(),
-                changesDescription,
-                subscribers
+            LinkUpdate linkUpdate = new LinkUpdate(
+                -1, link.uri().toURL().toString(),
+                changesDescription, subscribers
             );
+            scrapperUpdateProducer.send(linkUpdate);
 
             actualizeSnapshot(currentLinkUrl, actualSnapshot);
             actualizeLastUpdateTimeForLink(currentLinkUrl, actualUpdateTime);
@@ -272,6 +276,4 @@ public class JdbcLinkUpdater implements LinkUpdater {
             );
         }
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

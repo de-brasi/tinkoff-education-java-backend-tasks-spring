@@ -22,11 +22,7 @@ public class UpdateProducerConfig {
     }
 
     @Bean("scrapperHttpProducer")
-    ScrapperUpdateProducer scrapperHttpProducer(
-        @Value("#{@kafkaTopic}") String topicName,
-
-        BotClient botClient
-    ) {
-        return new ScrapperHttpProducer(topicName, botClient);
+    ScrapperUpdateProducer scrapperHttpProducer(BotClient botClient) {
+        return new ScrapperHttpProducer(botClient);
     }
 }

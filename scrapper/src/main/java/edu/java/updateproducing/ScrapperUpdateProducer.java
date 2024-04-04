@@ -1,7 +1,7 @@
 package edu.java.updateproducing;
 
-import edu.java.services.enteties.LinkUpdate;
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 
 public interface ScrapperUpdateProducer {
-    void send(LinkUpdate linkUpdate);
+    void send(LinkUpdateRequest linkUpdate);
 }

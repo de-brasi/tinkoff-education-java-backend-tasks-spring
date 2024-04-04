@@ -1,7 +1,7 @@
 package edu.java.updateproducing;
 
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.java.clients.BotClient;
-import edu.java.services.enteties.LinkUpdate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,14 +11,9 @@ public class ScrapperHttpProducer implements ScrapperUpdateProducer {
     private final BotClient botClient;
 
     @Override
-    public void send(LinkUpdate linkUpdate) {
-        log.warn("Link update got: " + linkUpdate);
+    public void send(LinkUpdateRequest linkUpdateRequest) {
+        log.warn("Link update got: " + linkUpdateRequest);
 
-        botClient.sendUpdates(
-            linkUpdate.linkId(),
-            linkUpdate.url(),
-            linkUpdate.updateDescription(),
-            linkUpdate.subscribers()
-        );
+        botClient.sendUpdates(linkUpdateRequest);
     }
 }

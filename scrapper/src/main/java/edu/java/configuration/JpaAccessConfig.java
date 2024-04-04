@@ -27,6 +27,7 @@ public class JpaAccessConfig {
         return new JpaLinkService(jpaLinkRepository, jpaTelegramChatRepository, jpaSupportedServicesRepository);
     }
 
+    // TODO: принимать параметр с ScrapperUpdateProducer
     @Bean
     public LinkUpdater linkUpdater(
         JpaLinkRepository linkRepository,

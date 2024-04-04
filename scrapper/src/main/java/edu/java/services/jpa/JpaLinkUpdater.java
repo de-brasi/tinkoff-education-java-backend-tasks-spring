@@ -1,12 +1,12 @@
 package edu.java.services.jpa;
 
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import edu.java.domain.repositories.jpa.entities.TrackInfo;
 import edu.java.domain.repositories.jpa.implementations.JpaLinkRepository;
 import edu.java.services.ExternalServicesObserver;
-import edu.java.services.enteties.LinkUpdate;
 import edu.java.services.interfaces.LinkUpdater;
 import edu.java.updateproducing.ScrapperUpdateProducer;
 import jakarta.persistence.EntityManager;
@@ -118,7 +118,7 @@ public class JpaLinkUpdater implements LinkUpdater {
                     .toList();
 
             // todo: использовать id ссылки, пока заглушка
-            LinkUpdate linkUpdate = new LinkUpdate(
+            LinkUpdateRequest linkUpdate = new LinkUpdateRequest(
                 -1, link.uri().toURL().toString(),
                 changesDescription, subscribers
             );

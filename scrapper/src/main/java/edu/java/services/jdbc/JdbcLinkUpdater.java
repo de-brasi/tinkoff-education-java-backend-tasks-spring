@@ -1,11 +1,11 @@
 package edu.java.services.jdbc;
 
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import edu.java.domain.repositories.BaseEntityRepository;
 import edu.java.services.ExternalServicesObserver;
-import edu.java.services.enteties.LinkUpdate;
 import edu.java.services.interfaces.LinkUpdater;
 import edu.java.updateproducing.ScrapperUpdateProducer;
 import java.net.MalformedURLException;
@@ -194,7 +194,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
                     .toList();
 
             // todo: использовать id ссылки, пока заглушка
-            LinkUpdate linkUpdate = new LinkUpdate(
+            LinkUpdateRequest linkUpdate = new LinkUpdateRequest(
                 -1, link.uri().toURL().toString(),
                 changesDescription, subscribers
             );

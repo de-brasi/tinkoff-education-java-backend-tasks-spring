@@ -21,10 +21,12 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import edu.java.updateproducing.ScrapperUpdateProducer;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
+@RequiredArgsConstructor
 @Slf4j
 @SuppressWarnings("MultipleStringLiterals")
 public class JdbcLinkUpdater implements LinkUpdater {
@@ -32,18 +34,6 @@ public class JdbcLinkUpdater implements LinkUpdater {
     private final BaseEntityRepository<Link> linkRepository;
     private final ExternalServicesObserver servicesObserver;
     private final ScrapperUpdateProducer scrapperUpdateProducer;
-
-    public JdbcLinkUpdater(
-        JdbcTemplate jdbcTemplate,
-        JdbcLinkRepository jdbcLinkRepository,
-        ExternalServicesObserver externalServicesObserver,
-        ScrapperUpdateProducer scrapperUpdateProducer
-    ) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.linkRepository = jdbcLinkRepository;
-        this.servicesObserver = externalServicesObserver;
-        this.scrapperUpdateProducer = scrapperUpdateProducer;
-    }
 
     @Override
     @Transactional

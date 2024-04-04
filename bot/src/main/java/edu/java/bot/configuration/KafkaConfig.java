@@ -1,5 +1,6 @@
 package edu.java.bot.configuration;
 
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +21,7 @@ public class KafkaConfig {
     }
 
     @KafkaListener(id = "myId", topics = "topic1")
-    public void listen(String in) {
-        log.warn(in);
+    public void listen(LinkUpdateRequest in) {
+        log.warn(in.toString());
     }
 }

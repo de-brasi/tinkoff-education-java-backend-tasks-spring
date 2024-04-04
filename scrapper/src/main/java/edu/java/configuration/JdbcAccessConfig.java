@@ -1,6 +1,5 @@
 package edu.java.configuration;
 
-import edu.java.clients.BotClient;
 import edu.java.domain.repositories.jdbc.JdbcChatLinkBoundRepository;
 import edu.java.domain.repositories.jdbc.JdbcLinkRepository;
 import edu.java.domain.repositories.jdbc.JdbcTelegramChatRepository;

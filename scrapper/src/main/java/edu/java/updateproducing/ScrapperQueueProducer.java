@@ -1,6 +1,6 @@
 package edu.java.updateproducing;
 
-import edu.java.services.enteties.LinkUpdate;
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -10,12 +10,11 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class ScrapperQueueProducer implements ScrapperUpdateProducer {
 
     private final String topicName;
-    private final KafkaTemplate<String, String> template;
+    private final KafkaTemplate<String, LinkUpdateRequest> template;
 
-    public void send(LinkUpdate linkUpdate) {
-        log.warn("Link update got: " + linkUpdate);
-        // todo: данные нормально передавать
-        template.send(topicName, "someMessage");
+    public void send(LinkUpdateRequest linkUpdateRequest) {
+        log.warn("Link update got: " + linkUpdateRequest);
+        template.send(topicName, linkUpdateRequest);
     }
 
 }

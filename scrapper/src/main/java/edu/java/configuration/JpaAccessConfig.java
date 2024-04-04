@@ -1,6 +1,5 @@
 package edu.java.configuration;
 
-import edu.java.clients.BotClient;
 import edu.java.domain.repositories.jpa.implementations.JpaLinkRepository;
 import edu.java.domain.repositories.jpa.implementations.JpaSupportedServicesRepository;
 import edu.java.domain.repositories.jpa.implementations.JpaTelegramChatRepository;
@@ -11,6 +10,9 @@ import edu.java.services.interfaces.TgChatService;
 import edu.java.services.jpa.JpaLinkService;
 import edu.java.services.jpa.JpaLinkUpdater;
 import edu.java.services.jpa.JpaTgChatService;
+import edu.java.updateproducing.ScrapperUpdateProducer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,14 +29,16 @@ public class JpaAccessConfig {
         return new JpaLinkService(jpaLinkRepository, jpaTelegramChatRepository, jpaSupportedServicesRepository);
     }
 
-    // TODO: принимать параметр с ScrapperUpdateProducer
     @Bean
     public LinkUpdater linkUpdater(
         JpaLinkRepository linkRepository,
         ExternalServicesObserver externalServicesObserver,
-        BotClient botClient
+
+        @Autowired
+        @Qualifier("scrapperKafkaProducer")
+        ScrapperUpdateProducer scrapperUpdateProducer
     ) {
-        return new JpaLinkUpdater(linkRepository, externalServicesObserver, botClient);
+        return new JpaLinkUpdater(linkRepository, externalServicesObserver, scrapperUpdateProducer);
     }
 
     @Bean

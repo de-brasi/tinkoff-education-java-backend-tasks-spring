@@ -12,7 +12,6 @@ import edu.java.services.jpa.JpaLinkUpdater;
 import edu.java.services.jpa.JpaTgChatService;
 import edu.java.updateproducing.ScrapperUpdateProducer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +34,6 @@ public class JpaAccessConfig {
         ExternalServicesObserver externalServicesObserver,
 
         @Autowired
-        @Qualifier("scrapperKafkaProducer")
         ScrapperUpdateProducer scrapperUpdateProducer
     ) {
         return new JpaLinkUpdater(linkRepository, externalServicesObserver, scrapperUpdateProducer);

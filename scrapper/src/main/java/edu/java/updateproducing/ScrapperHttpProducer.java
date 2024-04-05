@@ -12,8 +12,7 @@ public class ScrapperHttpProducer implements ScrapperUpdateProducer {
 
     @Override
     public void send(LinkUpdateRequest linkUpdateRequest) {
-        log.warn("Link update got: " + linkUpdateRequest);
-
+        log.info("Http producer got linkUpdateRequest object: " + linkUpdateRequest);
         botClient.sendUpdates(linkUpdateRequest);
     }
 }

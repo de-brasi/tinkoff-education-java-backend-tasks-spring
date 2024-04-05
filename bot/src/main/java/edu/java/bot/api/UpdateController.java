@@ -9,6 +9,7 @@ import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping("/bot/api")
 @RequiredArgsConstructor
+@Slf4j
 public class UpdateController {
     private final UpdateHandler updateHandler;
     private final RequestRateSupervisor requestRateSupervisor;
@@ -43,7 +45,7 @@ public class UpdateController {
         if (!probe.isConsumed()) {
             return REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE;
         }
-
+        log.info("Got request by http:" + requestBody.toString());
         updateHandler.handleUpdate(requestBody);
 
         return new ResponseEntity<>(HttpStatus.OK);

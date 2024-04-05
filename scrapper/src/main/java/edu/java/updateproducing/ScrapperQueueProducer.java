@@ -13,7 +13,7 @@ public class ScrapperQueueProducer implements ScrapperUpdateProducer {
     private final KafkaTemplate<String, LinkUpdateRequest> template;
 
     public void send(LinkUpdateRequest linkUpdateRequest) {
-        log.warn("Link update got: " + linkUpdateRequest);
+        log.info("Kafka producer got linkUpdateRequest object: " + linkUpdateRequest);
         template.send(topicName, linkUpdateRequest);
     }
 

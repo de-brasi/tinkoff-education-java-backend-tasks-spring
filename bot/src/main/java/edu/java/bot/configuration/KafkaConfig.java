@@ -27,9 +27,7 @@ public class KafkaConfig {
 
     @KafkaListener(id = "consumer-group-1", topics = "${app.scrapper-topic.name}")
     public void listen(LinkUpdateRequest in) {
-        log.warn("Начало обработки");
-        log.warn(in.toString());
+        log.info("Got message from kafka:" + in.toString());
         updateHandler.handleUpdate(in);
-        log.warn("Конец обработки");
     }
 }

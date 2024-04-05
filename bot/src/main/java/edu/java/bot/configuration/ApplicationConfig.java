@@ -14,5 +14,5 @@ public record ApplicationConfig(
     @Bean("scrapperTopic")
     ScrapperTopic scrapperTopic
 ) {
-    record ScrapperTopic(String name) {}
+    record ScrapperTopic(String name, int partitionsCount, int replicasCount) {}
 }

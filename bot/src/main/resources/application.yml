@@ -2,6 +2,8 @@ app:
   telegram-token: ${TELEGRAM_TOKEN}
   scrapper-topic:
     name: "topic1"
+    partitions-count: 1
+    replicas-count: 2
 
 spring:
   application:

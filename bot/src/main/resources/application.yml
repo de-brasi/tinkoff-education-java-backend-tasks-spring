@@ -4,6 +4,10 @@ app:
     name: "topic1"
     partitions-count: 1
     replicas-count: 2
+  dead-letter-queue-topic:
+    name: "faulty_dlq"
+    partitions-count: 1
+    replicas-count: 2
 
 spring:
   application:
@@ -23,6 +27,10 @@ spring:
             trusted:
               packages: '*'
       enable-auto-commit: false
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 server:
   port: 8090

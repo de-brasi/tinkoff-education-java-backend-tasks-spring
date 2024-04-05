@@ -11,8 +11,8 @@ public record ApplicationConfig(
     @NotEmpty
     String telegramToken,
 
-    @NotEmpty
-    @Bean("kafkaTopic")
-    String kafkaTopicName
+    @Bean("scrapperTopic")
+    ScrapperTopic scrapperTopic
 ) {
+    record ScrapperTopic(String name) {}
 }

@@ -12,7 +12,10 @@ public record ApplicationConfig(
     String telegramToken,
 
     @Bean("scrapperTopic")
-    ScrapperTopic scrapperTopic
+    ScrapperTopic scrapperTopic,
+
+    @Bean("deadLetterQueueTopic")
+    ScrapperTopic deadLetterQueueTopic
 ) {
     record ScrapperTopic(String name, int partitionsCount, int replicasCount) {}
 }

@@ -1,5 +1,8 @@
 app:
-  kafka-topic-name: "topic1"
+  topic:
+    name: "topic1"
+    partitions-count: 1
+    replicas-count: 2
   scheduler:
     enable: true
     interval: 60s

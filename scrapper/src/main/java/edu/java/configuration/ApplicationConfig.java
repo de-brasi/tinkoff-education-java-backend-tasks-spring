@@ -27,7 +27,7 @@ public record ApplicationConfig(
 
     @NotEmpty
     @Bean("kafkaTopic")
-    String kafkaTopicName,
+    ScrapperTopic topic,
 
     boolean useQueue
 ) {
@@ -35,6 +35,9 @@ public record ApplicationConfig(
     }
 
     public record ClientSettings(int timeoutInMilliseconds){
+    }
+
+    record ScrapperTopic(String name, int partitionsCount, int replicasCount) {
     }
 
     public enum AccessType {

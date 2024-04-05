@@ -12,10 +12,19 @@ import org.springframework.kafka.config.TopicBuilder;
 @Slf4j
 public class KafkaConfig {
     @Bean
-    public NewTopic topic(@Value("#{@kafkaTopic}") String topicName) {
+    public NewTopic topic(
+        @Value("${app.topic.name}")
+        String topicName,
+
+        @Value("${app.topic.partitions-count}")
+        int partitionsCount,
+
+        @Value("${app.topic.replicas-count}")
+        int replicasCount
+    ) {
         return TopicBuilder.name(topicName)
-            .partitions(10)
-            .replicas(1)
+            .partitions(partitionsCount)
+            .replicas(replicasCount)
             .build();
     }
 }

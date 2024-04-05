@@ -19,7 +19,6 @@ public class CommunicationByKafkaConfig {
 
         KafkaTemplate<String, LinkUpdateRequest> kafkaTemplate
     ) {
-        System.out.println("Use queue");
         return new ScrapperQueueProducer(topicName, kafkaTemplate);
     }
 }

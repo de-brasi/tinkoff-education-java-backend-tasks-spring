@@ -1,7 +1,6 @@
 package edu.java.clients;
 
 import edu.common.datatypes.dtos.LinkUpdateRequest;
-import java.util.List;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
 import static org.springframework.http.MediaType.APPLICATION_JSON;

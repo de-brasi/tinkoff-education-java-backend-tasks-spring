@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 public class CommunicationByHttpConfig {
     @Bean
     ScrapperUpdateProducer scrapperHttpProducer(BotClient botClient) {
-        System.out.println("Use http");
         return new ScrapperHttpProducer(botClient);
     }
 }

@@ -37,7 +37,7 @@ public record ApplicationConfig(
     public record ClientSettings(int timeoutInMilliseconds){
     }
 
-    record ScrapperTopic(String name, int partitionsCount, int replicasCount) {
+    public record ScrapperTopic(String name, int partitionsCount, int replicasCount) {
     }
 
     public enum AccessType {

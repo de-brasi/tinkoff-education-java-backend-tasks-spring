@@ -27,7 +27,9 @@ public record ApplicationConfig(
 
     @NotEmpty
     @Bean("kafkaTopic")
-    String kafkaTopicName
+    String kafkaTopicName,
+
+    boolean useQueue
 ) {
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
     }

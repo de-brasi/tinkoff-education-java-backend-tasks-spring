@@ -25,7 +25,7 @@ public record ApplicationConfig(
     @NotNull
     AccessType databaseAccessType,
 
-    @NotEmpty
+    @NotNull
     @Bean("kafkaTopic")
     ScrapperTopic topic,
 

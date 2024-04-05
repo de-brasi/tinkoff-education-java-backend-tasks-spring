@@ -3,10 +3,12 @@ package edu.java.bot.api;
 import edu.common.datatypes.dtos.ApiErrorResponse;
 import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.common.ratelimiting.RequestRateSupervisor;
+import edu.java.bot.api.util.UpdateHandler;
 import edu.java.bot.services.TelegramBotWrapper;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +20,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping("/bot/api")
+@RequiredArgsConstructor
 public class UpdateController {
-    private final TelegramBotWrapper telegramBot;
+    private final UpdateHandler updateHandler;
     private final RequestRateSupervisor requestRateSupervisor;
     private static final ResponseEntity<?> REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE = new ResponseEntity<>(
         new ApiErrorResponse(
@@ -27,14 +30,6 @@ public class UpdateController {
         ),
         HttpStatus.TOO_MANY_REQUESTS
     );
-
-    public UpdateController(
-        @Autowired TelegramBotWrapper telegramBotWrapper,
-        @Autowired RequestRateSupervisor supervisor
-    ) {
-        this.telegramBot = telegramBotWrapper;
-        this.requestRateSupervisor = supervisor;
-    }
 
     @PostMapping(value = "/updates", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @SuppressWarnings("RegexpSinglelineJava")
@@ -49,12 +44,7 @@ public class UpdateController {
             return REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE;
         }
 
-        final String messageToClient = "Update in link %s with description: '%s'"
-            .formatted(requestBody.getUrl(), requestBody.getDescription());
-
-        for (Long chatId : requestBody.getTgChatIds()) {
-            telegramBot.sendPlainTextMessage(chatId, messageToClient);
-        }
+        updateHandler.handleUpdate(requestBody);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -13,14 +13,14 @@ import org.springframework.kafka.config.TopicBuilder;
 @Slf4j
 public class KafkaConfig {
     @Bean
-    public NewTopic topic(@Value("#{@kafkaTopic}") String topicName) {
+    public NewTopic topic(@Value("${app.scrapper-topic.name}") String topicName) {
         return TopicBuilder.name(topicName)
             .partitions(10)
             .replicas(1)
             .build();
     }
 
-    @KafkaListener(id = "myId", topics = "topic1")
+    @KafkaListener(id = "consumer-group-1", topics = "${app.scrapper-topic.name}")
     public void listen(LinkUpdateRequest in) {
         log.warn(in.toString());
     }

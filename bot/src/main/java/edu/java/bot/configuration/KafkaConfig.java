@@ -18,10 +18,19 @@ public class KafkaConfig {
     private final UpdateHandler updateHandler;
 
     @Bean
-    public NewTopic topic(@Value("${app.scrapper-topic.name}") String topicName) {
+    public NewTopic topic(
+        @Value("${app.scrapper-topic.name}")
+        String topicName,
+
+        @Value("${app.scrapper-topic.partitions-count}")
+        int partitionsCount,
+
+        @Value("${app.scrapper-topic.replicas-count}")
+        int replicasCount
+    ) {
         return TopicBuilder.name(topicName)
-            .partitions(10)
-            .replicas(1)
+            .partitions(partitionsCount)
+            .replicas(replicasCount)
             .build();
     }
 

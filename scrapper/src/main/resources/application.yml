@@ -9,6 +9,7 @@ app:
   stackoverflow-client-settings:
     timeout-in-milliseconds: 1000
   database-access-type: jdbc
+  use-queue: false
 
 spring:
   application:

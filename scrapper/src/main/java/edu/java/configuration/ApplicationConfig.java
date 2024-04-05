@@ -1,6 +1,5 @@
 package edu.java.configuration;
 
-import jakarta.validation.constraints.NotEmpty;
 import java.time.Duration;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;

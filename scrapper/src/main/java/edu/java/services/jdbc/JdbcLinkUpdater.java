@@ -53,7 +53,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
         Predicate<Link> outdatedLinkPredicate = link -> {
             try {
-                return Duration.between(OffsetDateTime.now(), getLinkCheckTime(link)).compareTo(updateInterval) > 0;
+                return Duration.between(OffsetDateTime.now(), getLinkCheckTime(link)).compareTo(updateInterval) < 0;
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }

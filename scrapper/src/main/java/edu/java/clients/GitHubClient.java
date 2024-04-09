@@ -1,11 +1,9 @@
 package edu.java.clients;
 
+import edu.java.api.util.Parser;
 import edu.java.clients.entities.UpdateResponse;
-import edu.java.clients.exceptions.EmptyResponseBodyException;
 import edu.java.clients.exceptions.FieldNotFoundException;
 import java.time.OffsetDateTime;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
@@ -14,12 +12,21 @@ public class GitHubClient {
     private final RestClient restClient;
     private static final String DEFAULT_BASE_URL = "https://api.github.com/repos/";
     private static final String SUPPOERTED_PREFIX = "https://github";
-    private static final Pattern UPDATED_AT_SEARCH_PATTERN = Pattern.compile(
-        "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
-    );
-    private static final Pattern RETRIEVE_GH_NAME_AND_REPO_NAME_FROM_URL = Pattern.compile(
-        "https://github\\.com/([^/\\s]+)/([^/\\s]+)/.*"
-    );
+
+    private final Parser parser = Parser.builder()
+        .field(
+            "update",
+            "\"pushed_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
+        )
+        .field(
+            "owner",
+            "https://github\\.com/([^/\\s]+)/[^/\\s]+/?.*"
+        )
+        .field(
+            "repo",
+            "https://github\\.com/[^/\\s]+/([^/\\s]+)/?.*"
+        )
+        .build();
 
 
     public GitHubClient() {
@@ -62,51 +69,36 @@ public class GitHubClient {
             .build();
     }
 
-    public UpdateResponse fetchUpdate(String owner, String repo)
-        throws EmptyResponseBodyException, FieldNotFoundException {
-        String responseBody = this.restClient
-            .get()
-            .uri("/{owner}/{repo}", owner, repo)
-            .retrieve()
-            .body(String.class);
+    public UpdateResponse fetchUpdate(String url) throws FieldNotFoundException {
+        String ownerName = parser.retrieveValueOfField("owner", url);
+        String repoName = parser.retrieveValueOfField("repo", url);
 
-        String updTimeString = retrieveUpdatedAtField(responseBody);
-        return new UpdateResponse(OffsetDateTime.parse(updTimeString));
-    }
-
-    public UpdateResponse fetchUpdate(String url)
-        throws EmptyResponseBodyException, FieldNotFoundException {
-
-        Matcher matcher = RETRIEVE_GH_NAME_AND_REPO_NAME_FROM_URL.matcher(url);
-
-        if (matcher.find()) {
-            String username = matcher.group(1);
-            String repoName = matcher.group(2);
-
-            return fetchUpdate(username, repoName);
+        if (ownerName != null && repoName != null) {
+            return fetchUpdate(ownerName, repoName);
         } else {
             throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"
                 .formatted(url));
         }
     }
 
-    public boolean checkURLSupportedByService(String url) {
-        return url.startsWith(SUPPOERTED_PREFIX);
+    public UpdateResponse fetchUpdate(String owner, String repo) throws FieldNotFoundException {
+        String responseBody = this.restClient
+            .get()
+            .uri("/{owner}/{repo}", owner, repo)
+            .retrieve()
+            .body(String.class);
+
+        String updTimeString = parser.retrieveValueOfField("update", responseBody);
+
+        if (updTimeString == null) {
+            throw new FieldNotFoundException("No match found for 'updated_at' field in response body '%s'".formatted(
+                responseBody));
+        }
+
+        return new UpdateResponse(OffsetDateTime.parse(updTimeString));
     }
 
-
-    private static String retrieveUpdatedAtField(String source)
-        throws FieldNotFoundException, EmptyResponseBodyException {
-        if (source == null) {
-            throw new EmptyResponseBodyException("Body has no content.");
-        }
-
-        Matcher matcher = UPDATED_AT_SEARCH_PATTERN.matcher(source);
-
-        if (!matcher.find()) {
-            throw new FieldNotFoundException("No match found for 'updated_at' field.");
-        }
-
-        return matcher.group(1);
+    public boolean checkURLSupportedByService(String url) {
+        return url.startsWith(SUPPOERTED_PREFIX);
     }
 }

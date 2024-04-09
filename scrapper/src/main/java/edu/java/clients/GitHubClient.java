@@ -2,6 +2,7 @@ package edu.java.clients;
 
 import edu.java.api.util.Parser;
 import edu.java.clients.entities.UpdateResponse;
+import edu.java.clients.exceptions.EmptyResponseBodyException;
 import edu.java.clients.exceptions.FieldNotFoundException;
 import java.time.OffsetDateTime;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
@@ -71,7 +72,7 @@ public class GitHubClient {
             .build();
     }
 
-    public UpdateResponse fetchUpdate(String url) throws FieldNotFoundException {
+    public UpdateResponse fetchUpdate(String url) throws FieldNotFoundException, EmptyResponseBodyException {
         String ownerName = parser.retrieveValueOfField("owner", url);
         String repoName = parser.retrieveValueOfField("repo", url);
 
@@ -83,12 +84,17 @@ public class GitHubClient {
         }
     }
 
-    public UpdateResponse fetchUpdate(String owner, String repo) throws FieldNotFoundException {
+    public UpdateResponse fetchUpdate(String owner, String repo)
+        throws FieldNotFoundException, EmptyResponseBodyException {
         String responseBody = this.restClient
             .get()
             .uri("/{owner}/{repo}", owner, repo)
             .retrieve()
             .body(String.class);
+
+        if (responseBody == null) {
+            throw new EmptyResponseBodyException("Body is null");
+        }
 
         String updTimeString = parser.retrieveValueOfField("update", responseBody);
 

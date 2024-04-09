@@ -7,6 +7,7 @@ import java.time.OffsetDateTime;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
+@SuppressWarnings("MultipleStringLiterals")
 public class GitHubClient {
 
     private final RestClient restClient;
@@ -15,6 +16,7 @@ public class GitHubClient {
 
     private final Parser parser = Parser.builder()
         .field(
+
             "update",
             "\"pushed_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
         )

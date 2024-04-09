@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ReactorNettyClientRequestFactory;
 import org.springframework.web.client.RestClient;
 
+@SuppressWarnings("MultipleStringLiterals")
 public class StackOverflowClient {
     private final RestClient restClient;
     private static final String DEFAULT_BASE_URL =

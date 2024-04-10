@@ -2,23 +2,32 @@ package edu.java.configuration;
 
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ClientConfiguration {
-    @Bean("gitHubClient")
-    public GitHubClient gitHubClient(
-        @Value("#{@githubClientSettings.timeoutInMilliseconds()}") int timeoutInMilliseconds
+    private final GitHubClientSettings gitHubClientSettings;
+    private final StackOverflowClientSettings stackOverflowClientSettings;
+
+    public ClientConfiguration(
+        GitHubClientSettings gitHubClientSettings,
+        StackOverflowClientSettings stackOverflowClientSettings
     ) {
-        return new GitHubClient("https://api.github.com/repos/", timeoutInMilliseconds);
+        this.gitHubClientSettings = gitHubClientSettings;
+        this.stackOverflowClientSettings = stackOverflowClientSettings;
+    }
+
+    @Bean("gitHubClient")
+    public GitHubClient gitHubClient() {
+        return new GitHubClient(
+            "https://api.github.com/repos/",
+            gitHubClientSettings.getTimeoutInMilliseconds()
+        );
     }
 
     @Bean("stackOverflowClient")
-    public StackOverflowClient stackoverflowClient(
-        @Value("#{@stackoverflowClientSettings.timeoutInMilliseconds()}") int timeoutInMilliseconds
-    ) {
-        return new StackOverflowClient(timeoutInMilliseconds);
+    public StackOverflowClient stackoverflowClient() {
+        return new StackOverflowClient(stackOverflowClientSettings.getTimeoutInMilliseconds());
     }
 }

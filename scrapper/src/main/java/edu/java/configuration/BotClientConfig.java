@@ -78,9 +78,6 @@ public class BotClientConfig {
     @Bean("botClient")
     BotClient botClient(
         @Autowired
-        ObjectMapper objectMapper,
-
-        @Autowired
         @Qualifier("endpointUpdatesStatus1xxHandler")
         RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler,
 
@@ -97,7 +94,6 @@ public class BotClientConfig {
         RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus5xxHandler
     ) {
         return new BotClient(
-            objectMapper,
             endpointUpdatesStatus1xxHandler,
             endpointUpdatesStatus3xxHandler,
             endpointUpdatesStatus4xxHandler,

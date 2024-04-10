@@ -19,7 +19,6 @@ public class BotClient {
     private final RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus5xxHandler;
 
     public BotClient(
-        ObjectMapper objectMapper,
         RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler,
         RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus3xxHandler,
         RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus4xxHandler,
@@ -38,7 +37,6 @@ public class BotClient {
 
     public BotClient(
         String baseUrl,
-        ObjectMapper objectMapper,
         RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus1xxHandler,
         RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus3xxHandler,
         RestClient.ResponseSpec.ErrorHandler endpointUpdatesStatus4xxHandler,

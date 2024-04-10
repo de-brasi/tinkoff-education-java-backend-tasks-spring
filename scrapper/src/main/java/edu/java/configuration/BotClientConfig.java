@@ -73,7 +73,10 @@ public class BotClientConfig {
                     if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
                         throw new IncorrectRequestException(errorResponse.getExceptionMessage());
                     } else {
-                        throw new UnexpectedResponse(response.getStatusCode().value(), errorResponse.getExceptionMessage());
+                        throw new UnexpectedResponse(
+                            response.getStatusCode().value(),
+                            errorResponse.getExceptionMessage()
+                        );
                     }
 
                 } else if (statusCode.is5xxServerError()) {

@@ -163,12 +163,14 @@ public class JdbcLinkUpdater implements LinkUpdater {
             .toList();
     }
 
+    /**
+     * Check if database stores last_update_time value different with time in parameter;
+     * @param target with {@link edu.java.domain.entities.Link} to check time
+     * @param actualTime that will be compared with last saved time
+     * @return true if stored time before actual
+     * @throws MalformedURLException if {@link  edu.java.domain.entities.Link} stores incorrect URI
+     */
     public boolean checkLastUpdateTimeChanged(Link target, OffsetDateTime actualTime) throws MalformedURLException {
-        /*
-        Return:
-        - true: time updated
-        - false: time not updated
-        */
         final String url = target.uri().toURL().toString();
 
         OffsetDateTime storedLastUpdateTime = jdbcTemplate.queryForObject(
@@ -186,13 +188,16 @@ public class JdbcLinkUpdater implements LinkUpdater {
         return storedLastUpdateTime.isBefore(actualTime);
     }
 
+    /**
+     *
+     * @param actualTime actual last update time
+     * @param link {@link edu.java.domain.entities.Link} for checking update time
+     * @param subscribersId link subscribers
+     * @return true if time updated, otherwise false
+     * @throws MalformedURLException if {@link edu.java.domain.entities.Link} stores incorrect URI
+     */
     private boolean notifyClientsIfUpdatedTimeChanged(OffsetDateTime actualTime, Link link, List<Long> subscribersId)
         throws MalformedURLException {
-        /*
-        Return:
-        - true: time updated
-        - false: time not updated
-        */
         final boolean timeUpdated = checkLastUpdateTimeChanged(link, actualTime);
         final String currentLinkUrl = link.uri().toURL().toString();
 

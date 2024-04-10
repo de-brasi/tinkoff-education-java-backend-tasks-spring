@@ -24,6 +24,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Repository for working with entities from database representing bound between chat and tracked link.
+ */
 @Repository
 @RequiredArgsConstructor
 @Slf4j
@@ -34,23 +37,18 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
 
     private static final String CHAT_ENTITY_NAME = "telegram_chat";
 
+    /**
+     * Add bound between chat and link in table 'track_info'. If link with passed url not saved in table 'links' creates record in 'links' table and try to store pair <chat_id, link_id> in table 'track_info'.
+     *
+     * @param chatLinkBound object via info about chat and tracked link
+     * @throws InvalidArgumentForTypeInDataBase In case of invalid url value passed {@link edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase} will be thrown
+     * @throws NoExpectedEntityInDataBaseException In case of telegram chat not saved yet in table 'telegram_chat' {@link edu.java.domain.exceptions.NoExpectedEntityInDataBaseException} will be thrown
+     * @throws DataBaseInteractingException In case of some error occurs when working with JdbcTemplate {@link edu.java.domain.exceptions.DataBaseInteractingException} will be thrown
+     * @return adding result: false in case such bound already exists returns false, otherwise - true.
+     */
     @Override
     @Transactional
     public boolean add(ChatLinkBound chatLinkBound) {
-        /*
-        Add bound between chat and link in table 'track_info'.
-        If link with passed url not saved in table 'links' creates record in 'links' table and
-            try to store pair <chat_id, link_id> in table 'track_info'.
-
-        In case such bound already exists returns false,
-        otherwise - true.
-
-        Throws:
-        - InvalidArgumentForTypeInDataBase: in case of invalid url value passed;
-        - NoExpectedEntityInDataBaseException: if telegram chat not saved yet in table 'telegram_chat';
-        - DataBaseInteractingException: if some error occurs when working with JdbcTemplate;
-        */
-
         try {
             if (!checkChatExists(chatLinkBound.chat())) {
                 throw new NoExpectedEntityInDataBaseException(CHAT_ENTITY_NAME);
@@ -108,22 +106,18 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
         }
     }
 
+    /**
+     * Remove bound between chat and link in table 'track_info'.
+     *
+     * @param chatLinkBound object via info about chat and tracked link
+     * @throws InvalidArgumentForTypeInDataBase In case of invalid url value passed {@link edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase} will be thrown
+     * @throws NoExpectedEntityInDataBaseException In case of telegram chat not saved yet in table 'telegram_chat' {@link edu.java.domain.exceptions.NoExpectedEntityInDataBaseException} will be thrown
+     * @throws DataBaseInteractingException In case of some error occurs when working with JdbcTemplate {@link edu.java.domain.exceptions.DataBaseInteractingException} will be thrown
+     * @return argument of type {@link edu.java.domain.entities.ChatLinkBound} if removed, null otherwise
+     */
     @Override
     @Transactional
     public @Nullable ChatLinkBound remove(ChatLinkBound chatLinkBound) {
-        /*
-        Remove bound between chat and link in table 'track_info'.
-
-        Returns:
-        - chatLinkBound: if removed,
-        - null: otherwise.
-
-        Throws:
-        - InvalidArgumentForTypeInDataBase: in case of invalid url value passed;
-        - NoExpectedEntityInDataBaseException: if telegram chat not saved yet in table 'telegram_chat';
-        - DataBaseInteractingException: if some error occurs when working with JdbcTemplate;
-        */
-
         try {
             if (!checkChatExists(chatLinkBound.chat())) {
                 throw new NoExpectedEntityInDataBaseException(CHAT_ENTITY_NAME);
@@ -152,6 +146,11 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
         }
     }
 
+    /**
+     * Get all information about chats and their tracked links.
+     *
+     * @return collection of {@link edu.java.domain.entities.ChatLinkBound} represented existing bounds
+     */
     @Override
     @Transactional
     public Collection<ChatLinkBound> findAll() {
@@ -163,6 +162,11 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
         return jdbcTemplate.query(sql, new JdbcChatLinkBoundRepository.LinkRowMapper());
     }
 
+    /**
+     * Get all information about chats and their tracked links filtered with {@link java.util.function.Predicate}.
+     *
+     * @return collection of {@link edu.java.domain.entities.ChatLinkBound} represented existing bounds
+     */
     @Override
     @Transactional
     public Collection<ChatLinkBound> search(Predicate<ChatLinkBound> condition) {

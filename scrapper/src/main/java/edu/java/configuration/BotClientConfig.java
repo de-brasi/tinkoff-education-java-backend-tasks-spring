@@ -21,8 +21,17 @@ public class BotClientConfig {
 
     @Bean("responseErrorHandler")
     ResponseErrorHandler responseErrorHandler(ObjectMapper objectMapper) {
-        return new ResponseErrorHandler() {
-            @Override
+        return new BotClientResponseErrorHandler(objectMapper);
+    }
+
+    @Bean("botClient")
+    BotClient botClient(ResponseErrorHandler errorHandler) {
+        return new BotClient(errorHandler);
+    }
+
+    private record BotClientResponseErrorHandler(ObjectMapper objectMapper) implements ResponseErrorHandler {
+
+        @Override
             public boolean hasError(@NotNull ClientHttpResponse response) throws IOException {
                 return !response.getStatusCode().is2xxSuccessful();
             }
@@ -77,11 +86,5 @@ public class BotClientConfig {
                 }
 
             }
-        };
-    }
-
-    @Bean("botClient")
-    BotClient botClient(ResponseErrorHandler errorHandler) {
-        return new BotClient(errorHandler);
-    }
+        }
 }

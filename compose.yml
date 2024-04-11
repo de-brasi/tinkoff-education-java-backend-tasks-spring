@@ -69,11 +69,26 @@ services:
     volumes:
       - kafka-data:/var/lib/kafka/data
 
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    network_mode: "host"
+
+  grafana:
+    image: grafana/grafana-oss:10.4.1
+    network_mode: "host"
+    volumes:
+      - grafana_storage:/var/lib/grafana
+
 volumes:
   postgresql: { }
   kafka-data: { }
   zookeeper-logs: { }
   zookeeper-data: { }
+  prometheus_data: { }
+  grafana_storage: { }
 
 networks:
   backend: { }

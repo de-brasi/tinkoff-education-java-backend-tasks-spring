@@ -37,6 +37,19 @@ spring:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoints:
+    web:
+      base-path: "/"
+      exposure:
+        include: "health,info,prometheus"
+      path-mapping:
+        prometheus: "metrics"
+  server:
+    port: 8081
 
 server:
   port: 8080

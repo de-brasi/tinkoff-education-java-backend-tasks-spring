@@ -11,6 +11,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -33,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLinkBound> {
 
     private final JdbcTemplate jdbcTemplate;
-    private final JdbcLinkRepository linkRepository;
 
     private static final String CHAT_ENTITY_NAME = "telegram_chat";
 
@@ -50,45 +52,44 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
     @Transactional
     public boolean add(ChatLinkBound chatLinkBound) {
         try {
-            if (!checkChatExists(chatLinkBound.chat())) {
+            int linkIdInDatabase;
+            int telegramChatIdInDatabase;
+
+            // get chat id
+            try {
+                final String getTgChatIdQuery = "select id from telegram_chat where chat_id = ? limit 1";
+                telegramChatIdInDatabase = jdbcTemplate.queryForObject(
+                    getTgChatIdQuery,
+                    Integer.class,
+                    chatLinkBound.chat().id()
+                );
+            } catch (EmptyResultDataAccessException e) {
                 throw new NoExpectedEntityInDataBaseException(CHAT_ENTITY_NAME);
             }
-            if (!checkLinkExists(chatLinkBound.link())) {
-                linkRepository.add(chatLinkBound.link());
-            }
 
-            final String getTgChatIdQuery = "select id from telegram_chat where chat_id = ? limit 1";
-            int telegramChatIdInDatabase = jdbcTemplate.queryForObject(
-                getTgChatIdQuery,
-                Integer.class,
-                chatLinkBound.chat().id()
-            );
-
-            final String getLinkIdQuery = "select id from links where url = ? limit 1";
-            int linkIdInDatabase = jdbcTemplate.queryForObject(
-                getLinkIdQuery,
-                Integer.class,
-                chatLinkBound.link().uri().toURL().toString()
-            );
-
-            final String countSuchPairQuery =
-                "select count(*) from track_info where link_id = ? and telegram_chat_id = ?";
-            int pairsCount = jdbcTemplate.queryForObject(
-                countSuchPairQuery,
-                Integer.class,
-                linkIdInDatabase, telegramChatIdInDatabase
-            );
-
-            if (pairsCount == 1) {
-                return false;
-            } else if (pairsCount > 1) {
-                throw new UnexpectedDataBaseStateException("There are unique pairs in 'track_info' tables!");
+            // get link id
+            try {
+                final String getLinkIdQuery = "select id from links where url = ? limit 1";
+                linkIdInDatabase = jdbcTemplate.queryForObject(
+                    getLinkIdQuery,
+                    Integer.class,
+                    chatLinkBound.link().uri().toURL().toString()
+                );
+            } catch(EmptyResultDataAccessException e) {
+                // create if not exists
+                linkIdInDatabase = jdbcTemplate.queryForObject(
+                    "insert into links(url, last_check_time, last_update_time) values (?, ?, ?) returning id",
+                    Integer.class,
+                    chatLinkBound.link().uri().toURL().toString(),
+                    Timestamp.from(Instant.now()),
+                    Timestamp.from(Instant.ofEpochSecond(0))
+                );
             }
 
             final String insertBoundQuery =
-                "insert into track_info(telegram_chat_id, link_id) values (?, ?)";
+                "insert into track_info(telegram_chat_id, link_id) values (?, ?) on conflict do nothing";
             log.info(
-                "Inserting into track_info: [chat_id: "
+                "Try to insert into track_info: [chat_id: "
                     + telegramChatIdInDatabase + ", link_id: "
                     + linkIdInDatabase + "]"
             );
@@ -96,9 +97,14 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
                 insertBoundQuery,
                 telegramChatIdInDatabase, linkIdInDatabase
             );
+            if (affectedRowsCount == 1) {
+                log.info(
+                    "Success inserting into track_info: [chat_id: "
+                        + telegramChatIdInDatabase + ", link_id: "
+                        + linkIdInDatabase + "]"
+                );
+            }
             return (affectedRowsCount == 1);
-        } catch (DuplicateKeyException e) {
-            return false;
         } catch (MalformedURLException e) {
             throw new InvalidArgumentForTypeInDataBase(e);
         } catch (DataAccessException | NullPointerException e) {

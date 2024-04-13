@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
+@SuppressWarnings("ParameterNumber")
 public class TelegramBotService {
 
     public TelegramBotService(

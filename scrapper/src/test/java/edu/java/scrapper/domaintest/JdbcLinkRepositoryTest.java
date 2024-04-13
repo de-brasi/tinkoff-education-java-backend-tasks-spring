@@ -32,22 +32,22 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addURLTest() throws MalformedURLException {
-        final Link testLink = new Link(URI.create("https://example/add-uri-test"));
+    void addURLTest() {
+        final String testLink = "https://example/add-uri-test";
 
         final boolean res = linkRepository.add(testLink);
         assertThat(res).isTrue();
 
         String query = "SELECT COUNT(*) FROM links WHERE url = ?";
-        int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testLink.uri().toURL().toString());
+        int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testLink);
         assertThat(rowCount).isEqualTo(1);
     }
 
     @Test
     @Transactional
     @Rollback
-    void addEqualURLsTest() throws MalformedURLException {
-        final Link testLink = new Link(URI.create("https://example/add-equal-urls-test"));
+    void addEqualURLsTest() {
+        final String testLink = "https://example/add-equal-urls-test";
 
         final boolean res = linkRepository.add(testLink);
         assertThat(res).isTrue();
@@ -57,29 +57,29 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         assertThat(resOneMore).isFalse();
 
         String query = "SELECT COUNT(*) FROM links WHERE url = ?";
-        int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testLink.uri().toURL().toString());
+        int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testLink);
         assertThat(rowCount).isEqualTo(1);
     }
 
     @Test
     @Transactional
     @Rollback
-    void removeTest() throws MalformedURLException {
-        final Link testLink = new Link(URI.create("https://example/remove-test"));
+    void removeTest() {
+        final String testLink = "https://example/remove-test";
 
         // add record
         final boolean addResult = linkRepository.add(testLink);
         assertThat(addResult).isTrue();
 
         // clear record
-        final Link removeResult = linkRepository.remove(testLink);
+        final String removeResult = linkRepository.remove(testLink);
         assertThat(removeResult).isEqualTo(testLink);
 
         // check link actually was removed
         int rowCount = jdbcTemplate.queryForObject(
             "SELECT COUNT(*) FROM links WHERE url = ?",
             Integer.class,
-            testLink.uri().toURL().toString()
+            testLink
         );
         assertThat(rowCount).isEqualTo(0);
     }
@@ -87,26 +87,26 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void removeTwiceTest() throws MalformedURLException {
-        final Link testLink = new Link(URI.create("https://example/remove-twice-test"));
+    void removeTwiceTest() {
+        final String testLink = "https://example/remove-twice-test";
 
         // add record
         final boolean addResult = linkRepository.add(testLink);
         assertThat(addResult).isTrue();
 
         // clear record once
-        final Link firstRemoveResult = linkRepository.remove(testLink);
+        final String firstRemoveResult = linkRepository.remove(testLink);
         assertThat(firstRemoveResult).isEqualTo(testLink);
 
         // clear record twice
-        final Link secondRemoveResult = linkRepository.remove(testLink);
+        final String secondRemoveResult = linkRepository.remove(testLink);
         assertThat(secondRemoveResult).isNull();
 
         // check link actually was removed
         int rowCount = jdbcTemplate.queryForObject(
             "SELECT COUNT(*) FROM links WHERE url = ?",
             Integer.class,
-            testLink.uri().toURL().toString()
+            testLink
         );
         assertThat(rowCount).isEqualTo(0);
     }
@@ -114,10 +114,10 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void getAllTest() throws MalformedURLException {
-        final Link testLink1 = new Link(URI.create("https://en.wikipedia.org/wiki/Main_Page1"));
-        final Link testLink2 = new Link(URI.create("https://en.wikipedia.org/wiki/Main_Page2"));
-        final Link testLink3 = new Link(URI.create("https://en.wikipedia.org/wiki/Main_Page3"));
+    void getAllTest() {
+        final String testLink1 = "https://en.wikipedia.org/wiki/Main_Page1";
+        final String testLink2 = "https://en.wikipedia.org/wiki/Main_Page2";
+        final String testLink3 = "https://en.wikipedia.org/wiki/Main_Page3";
 
         // add records
         final boolean addResult1 = linkRepository.add(testLink1);
@@ -128,16 +128,14 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         assertThat(addResult3).isTrue();
 
         // check result contains all
-        Collection<Link> gettingAll = linkRepository.findAll();
+        Collection<String> gettingAll = linkRepository.findAll();
         assertThat(gettingAll).containsExactlyInAnyOrder(testLink1, testLink2, testLink3);
 
         // check link actually was removed
         int rowCount = jdbcTemplate.queryForObject(
             "SELECT COUNT(*) FROM links WHERE url IN (?, ?, ?)",
             Integer.class,
-            testLink1.uri().toURL().toString(),
-            testLink2.uri().toURL().toString(),
-            testLink3.uri().toURL().toString()
+            testLink1, testLink2, testLink3
         );
         assertThat(rowCount).isEqualTo(3);
     }
@@ -145,42 +143,48 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void updateLastCheckTimeTest() throws MalformedURLException {
+    void updateLastCheckTimeTest() {
         // add record
-        final Link testLink = new Link(URI.create("https://example/add-uri-test"));
+        final String testLink = "https://example/add-uri-test";
         linkRepository.add(testLink);
 
         Timestamp newCheckTimeExpected = Timestamp.from(Instant.now());
-        linkRepository.updateLastCheckTime(testLink.uri().toURL().toString(), newCheckTimeExpected);
+        linkRepository.updateLastCheckTime(testLink, newCheckTimeExpected);
 
         Timestamp newCheckTimeActual = jdbcTemplate.queryForObject(
             "select last_check_time from links where url = ?",
             Timestamp.class,
-            testLink.uri().toURL().toString()
+            testLink
         );
 
         assert newCheckTimeActual != null;
-        assertThat(newCheckTimeExpected.toInstant()).isCloseTo(newCheckTimeActual.toInstant(), within(1, ChronoUnit.MILLIS));
+        assertThat(newCheckTimeExpected.toInstant()).isCloseTo(
+            newCheckTimeActual.toInstant(),
+            within(1, ChronoUnit.MILLIS)
+        );
     }
 
     @Test
     @Transactional
     @Rollback
-    void updateLastUpdateTimeTest() throws MalformedURLException {
+    void updateLastUpdateTimeTest() {
         // add record
-        final Link testLink = new Link(URI.create("https://example/add-uri-test"));
+        final String testLink = "https://example/add-uri-test";
         linkRepository.add(testLink);
 
         Timestamp newCheckTimeExpected = Timestamp.from(Instant.now());
-        linkRepository.updateLastUpdateTime(testLink.uri().toURL().toString(), newCheckTimeExpected);
+        linkRepository.updateLastUpdateTime(testLink, newCheckTimeExpected);
 
         Timestamp newCheckTimeActual = jdbcTemplate.queryForObject(
             "select last_update_time from links where url = ?",
             Timestamp.class,
-            testLink.uri().toURL().toString()
+            testLink
         );
 
         assert newCheckTimeActual != null;
-        assertThat(newCheckTimeExpected.toInstant()).isCloseTo(newCheckTimeActual.toInstant(), within(1, ChronoUnit.MILLIS));
+        assertThat(newCheckTimeExpected.toInstant()).isCloseTo(
+            newCheckTimeActual.toInstant(),
+            within(1, ChronoUnit.MILLIS)
+        );
     }
 }

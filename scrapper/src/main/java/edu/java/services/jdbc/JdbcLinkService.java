@@ -8,12 +8,15 @@ import edu.java.domain.JdbcChatLinkBoundRepository;
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
+import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
 import edu.java.services.interfaces.LinkService;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +31,13 @@ public class JdbcLinkService implements LinkService {
     @Override
     @Transactional
     public Link add(long tgChatId, URI url) {
-        TelegramChat chat = new TelegramChat(tgChatId);
-        Link link = new Link(url);
-        ChatLinkBound bound = new ChatLinkBound(chat, link);
+        ChatLinkBound bound;
+
+        try {
+            bound = new ChatLinkBound(tgChatId, url.toURL().toString());
+        } catch (MalformedURLException e) {
+            throw new InvalidArgumentForTypeInDataBase(e);
+        }
 
         try {
             boolean res = linkBoundRepository.add(bound);
@@ -39,24 +46,34 @@ public class JdbcLinkService implements LinkService {
                 throw new ReAddingLinkException();
             }
 
-            return link;
+            return new Link(url);
         } catch (InvalidArgumentForTypeInDataBase e) {
             throw new IncorrectRequestException(e);
         } catch (NoExpectedEntityInDataBaseException e) {
             throw new ChatIdNotExistsException(e);
+        } catch (DataAccessException | NullPointerException e) {
+            throw new DataBaseInteractingException(e);
         }
     }
 
     @Override
     @Transactional
     public Link remove(long tgChatId, URI url) {
-        TelegramChat chat = new TelegramChat(tgChatId);
-        Link link = new Link(url);
-        ChatLinkBound bound = new ChatLinkBound(chat, link);
+
+        ChatLinkBound bound;
+        try {
+            bound = new ChatLinkBound(tgChatId, url.toURL().toString());
+        } catch (MalformedURLException e) {
+            throw new InvalidArgumentForTypeInDataBase(e);
+        }
 
         try {
             ChatLinkBound removed = linkBoundRepository.remove(bound);
-            return (removed == null) ? null : removed.link();
+            return (removed == null)
+                ? null
+                : new Link(URI.create(
+                    removed.linkURL()
+            ));
         } catch (InvalidArgumentForTypeInDataBase e) {
             throw new IncorrectRequestException(e);
         } catch (NoExpectedEntityInDataBaseException e) {
@@ -72,7 +89,7 @@ public class JdbcLinkService implements LinkService {
         Collection<ChatLinkBound> allBounds = linkBoundRepository.findAll();
         return allBounds
             .stream()
-            .map(ChatLinkBound::link)
+            .map(e -> new Link(URI.create(e.linkURL())))
             .toList();
     }
 }

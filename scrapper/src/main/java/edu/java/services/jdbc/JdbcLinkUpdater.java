@@ -51,7 +51,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
     public int update(Duration updateInterval) {
 //        Collection<Link> linksToUpdate = getNotCheckedForAWhile(updateInterval);
 
-        Predicate<Link> outdatedLinkPredicate = link -> {
+        Predicate<String> outdatedLinkPredicate = link -> {
             try {
                 return Duration.between(OffsetDateTime.now(), getLinkCheckTime(link)).compareTo(updateInterval) < 0;
             } catch (MalformedURLException e) {
@@ -59,14 +59,14 @@ public class JdbcLinkUpdater implements LinkUpdater {
             }
         };
 
-        Collection<Link> linksToUpdate = getAllLinksFilteredByPredicate(outdatedLinkPredicate);
+        Collection<String> linksToUpdate = getAllLinksFilteredByPredicate(outdatedLinkPredicate);
         log.info("Links need to update: " + linksToUpdate);
 
         int updatedLinks = 0;
 
-        for (Link link : linksToUpdate) {
+        for (String link : linksToUpdate) {
             try {
-                final String currentLinkUrl = link.uri().toURL().toString();
+                final String currentLinkUrl = link;
 
                 List<Long> subscribers =
                     getSubscribers(link)
@@ -128,19 +128,19 @@ public class JdbcLinkUpdater implements LinkUpdater {
             .toList();
     }
 
-    public Collection<Link> getAllLinksFilteredByPredicate(Predicate<Link> predicate) {
+    public Collection<String> getAllLinksFilteredByPredicate(Predicate<String> predicate) {
         return linkRepository.search(predicate);
     }
 
-    private OffsetDateTime getLinkCheckTime(Link link) throws MalformedURLException {
+    private OffsetDateTime getLinkCheckTime(String link) throws MalformedURLException {
         return jdbcTemplate.queryForObject(
             "select last_check_time from links where url = ?",
             OffsetDateTime.class,
-            link.uri().toURL().toString()
+            link
         );
     }
 
-    private Collection<TelegramChat> getSubscribers(Link link) {
+    private Collection<TelegramChat> getSubscribers(String link) {
         String getSubsQuery =
             "select chat_id "
                 + "from track_info "
@@ -148,13 +148,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
                 + "join public.telegram_chat tc on tc.id = track_info.telegram_chat_id";
         Collection<TelegramChat> result = jdbcTemplate.query(
             getSubsQuery,
-            ps -> {
-                try {
-                    ps.setString(1, link.uri().toURL().toString());
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
-                }
-            },
+            ps -> ps.setString(1, link),
             (rs, rowNum) -> new TelegramChat(rs.getLong("chat_id"))
         );
 
@@ -165,18 +159,15 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     /**
      * Check if database stores last_update_time value different with time in parameter;
-     * @param target with {@link edu.java.domain.entities.Link} to check time
+     * @param targetLink with {@link edu.java.domain.entities.Link} to check time
      * @param actualTime that will be compared with last saved time
      * @return true if stored time before actual
-     * @throws MalformedURLException if {@link  edu.java.domain.entities.Link} stores incorrect URI
      */
-    public boolean checkLastUpdateTimeChanged(Link target, OffsetDateTime actualTime) throws MalformedURLException {
-        final String url = target.uri().toURL().toString();
-
+    public boolean checkLastUpdateTimeChanged(String targetLink, OffsetDateTime actualTime) {
         OffsetDateTime storedLastUpdateTime = jdbcTemplate.queryForObject(
             "select last_update_time from links where url = ?",
             OffsetDateTime.class,
-            url
+            targetLink
         );
 
         if (storedLastUpdateTime == null) {
@@ -194,24 +185,15 @@ public class JdbcLinkUpdater implements LinkUpdater {
      * @param link {@link edu.java.domain.entities.Link} for checking update time
      * @param subscribersId link subscribers
      * @return true if time updated, otherwise false
-     * @throws MalformedURLException if {@link edu.java.domain.entities.Link} stores incorrect URI
      */
-    private boolean notifyClientsIfUpdatedTimeChanged(OffsetDateTime actualTime, Link link, List<Long> subscribersId)
-        throws MalformedURLException {
+    private boolean notifyClientsIfUpdatedTimeChanged(OffsetDateTime actualTime, String link, List<Long> subscribersId) {
         final boolean timeUpdated = checkLastUpdateTimeChanged(link, actualTime);
-        final String currentLinkUrl = link.uri().toURL().toString();
-
         if (timeUpdated) {
             // todo: использовать id ссылки, пока заглушка
-            botClient.sendUpdates(
-                -1,
-                link.uri().toURL().toString(),
-                "updated",
-                subscribersId
-            );
+            botClient.sendUpdates(-1, link, "updated", subscribersId);
 
-            linkRepository.updateLastCheckTime(currentLinkUrl, Timestamp.from(Instant.now()));
-            linkRepository.updateLastUpdateTime(currentLinkUrl, Timestamp.from(actualTime.toInstant()));
+            linkRepository.updateLastCheckTime(link, Timestamp.from(Instant.now()));
+            linkRepository.updateLastUpdateTime(link, Timestamp.from(actualTime.toInstant()));
         }
 
         return timeUpdated;

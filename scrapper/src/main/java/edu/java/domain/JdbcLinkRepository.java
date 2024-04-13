@@ -1,10 +1,7 @@
 package edu.java.domain;
 
-import edu.common.exceptions.IncorrectRequestException;
-import edu.java.domain.entities.Link;
+import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -22,73 +19,44 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
-public class JdbcLinkRepository implements BaseEntityRepository<Link> {
+public class JdbcLinkRepository implements BaseEntityRepository<String> {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     @Transactional
-    public boolean add(Link link) {
-
-        // TODO:
-        //  Почему-то если пытаться вставлять новую запись и ловить
-        //  исключение DataAccessException
-        //  (когда добавляется повторная запись; возникает из-за ограничение на уникальность ссылок)
-        //  исключение обрабатывается (проверяется логирующим принтом),
-        //  однако потом возникает снова в вызывающем коде (в тестах например).
-        //  Как будто бы прокси объект обрабатывает исключение но пробрасывает его дальше.
-        //  Для решения проблемы пришлось сначала проверять число записей с таким url.
-
-        try {
-            int equalLinksCount = jdbcTemplate.queryForObject(
-                "select count(*) from links where url = ?",
-                Integer.class,
-                link.uri().toURL().toString()
-            );
-
-            if (equalLinksCount == 0) {
-                int affectedRowCount = jdbcTemplate.update(
-                    "insert into links(url, last_check_time, last_update_time) values (?, ?, ?)",
-                    link.uri().toURL().toString(),
-                    Timestamp.from(Instant.now()),
-                    Timestamp.from(Instant.ofEpochSecond(0))
-                );
-
-                return (affectedRowCount == 1);
-            } else {
-                return false;
-            }
-        } catch (DataAccessException e) {
-            return false;
-        } catch (MalformedURLException e) {
-            throw new IncorrectRequestException(e.getMessage());
-        }
-    }
-
-    @Override
-    @Transactional
-    public @Nullable Link remove(Link link) {
+    public boolean add(String link) {
         try {
             int affectedRowCount = jdbcTemplate.update(
-                "delete from links where url = (?)",
-                link.uri().toURL().toString()
+                "insert into links(url, last_check_time, last_update_time) values (?, ?, ?) on conflict do nothing",
+                link,
+                Timestamp.from(Instant.now()),
+                Timestamp.from(Instant.ofEpochSecond(0))
             );
-            return (affectedRowCount == 1) ? link : null;
-        } catch (MalformedURLException e) {
-            throw new IncorrectRequestException(e.getMessage());
+
+            return (affectedRowCount == 1);
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
         }
     }
 
     @Override
     @Transactional
-    public Collection<Link> findAll() {
+    public @Nullable String remove(String link) {
+        int affectedRowCount = jdbcTemplate.update("delete from links where url = (?)", link);
+        return (affectedRowCount == 1) ? link : null;
+    }
+
+    @Override
+    @Transactional
+    public Collection<String> findAll() {
         String sql = "select * from links";
         return jdbcTemplate.query(sql, new LinkRowMapper());
     }
 
     @Override
     @Transactional
-    public Collection<Link> search(Predicate<Link> condition) {
+    public Collection<String> search(Predicate<String> condition) {
 
         // TODO: (для задания4)
         //  У меня есть стойкое ощущение что я не понял задачу:
@@ -137,11 +105,10 @@ public class JdbcLinkRepository implements BaseEntityRepository<Link> {
         }
     }
 
-    private static class LinkRowMapper implements RowMapper<Link> {
+    private static class LinkRowMapper implements RowMapper<String> {
         @Override
-        public Link mapRow(ResultSet rs, int rowNum) throws SQLException {
-            String url = rs.getString("url");
-            return new Link(URI.create(url));
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return rs.getString("url");
         }
     }
 }

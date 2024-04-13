@@ -69,7 +69,6 @@ public class LinkTrackerObserver implements UpdatesListener {
                 FromPengradTelegramBotModelsToEntitiesMapper.updateToCommandCallContext(update);
             this.handlersChainHead.handle(bot, callContext);
 
-            // todo: вставка сообщений сюда
             counter.increment();
         }
 

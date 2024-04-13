@@ -2,6 +2,7 @@ package edu.java.bot.services;
 
 import com.pengrad.telegrambot.ExceptionHandler;
 import edu.java.bot.core.commands.TelegramBotCommand;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -35,10 +36,12 @@ public class TelegramBotService {
 
         @Autowired
         @Qualifier("commandList")
-        TelegramBotCommand list
+        TelegramBotCommand list,
+
+        MeterRegistry registry
     ) {
 
-        LinkTrackerObserver listener = new LinkTrackerObserver(bot);
+        LinkTrackerObserver listener = new LinkTrackerObserver(bot, registry);
         listener.setCommands(
             unexpected, start,
             help, track,

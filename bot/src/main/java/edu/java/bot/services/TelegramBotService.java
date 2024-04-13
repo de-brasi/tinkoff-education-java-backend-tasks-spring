@@ -3,7 +3,6 @@ package edu.java.bot.services;
 import com.pengrad.telegrambot.ExceptionHandler;
 import edu.java.bot.core.commands.TelegramBotCommand;
 import io.micrometer.core.instrument.MeterRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -11,30 +10,23 @@ import org.springframework.stereotype.Service;
 public class TelegramBotService {
 
     public TelegramBotService(
-        @Autowired
         TelegramBotWrapper bot,
 
-        @Autowired
         @Qualifier("unexpectedCommand")
         TelegramBotCommand unexpected,
 
-        @Autowired
         @Qualifier("commandStart")
         TelegramBotCommand start,
 
-        @Autowired
         @Qualifier("commandHelp")
         TelegramBotCommand help,
 
-        @Autowired
         @Qualifier("commandTrack")
         TelegramBotCommand track,
 
-        @Autowired
         @Qualifier("commandUntrack")
         TelegramBotCommand untrack,
 
-        @Autowired
         @Qualifier("commandList")
         TelegramBotCommand list,
 

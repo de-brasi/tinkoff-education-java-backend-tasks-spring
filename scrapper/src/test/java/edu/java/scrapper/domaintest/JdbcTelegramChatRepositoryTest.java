@@ -70,7 +70,7 @@ public class JdbcTelegramChatRepositoryTest extends IntegrationTest {
         assertThat(addResult).isTrue();
 
         // clear record
-        final Long removeResult = telegramChatRepository.remove(testChat);
+        final Long removeResult = telegramChatRepository.remove(testChat).orElseThrow();
         assertThat(removeResult).isEqualTo(testChat);
 
         // check link actually was removed
@@ -93,12 +93,12 @@ public class JdbcTelegramChatRepositoryTest extends IntegrationTest {
         assertThat(addResult).isTrue();
 
         // clear record once
-        final Long firstRemoveResult = telegramChatRepository.remove(testChat);
+        final Long firstRemoveResult = telegramChatRepository.remove(testChat).orElseThrow();
         assertThat(firstRemoveResult).isEqualTo(testChat);
 
         // clear record twice
-        final Long secondRemoveResult = telegramChatRepository.remove(testChat);
-        assertThat(secondRemoveResult).isNull();
+        var secondRemoveResult = telegramChatRepository.remove(testChat);
+        assertThat(secondRemoveResult.isPresent()).isFalse();
 
         // check link actually was removed
         int rowCount = jdbcTemplate.queryForObject(

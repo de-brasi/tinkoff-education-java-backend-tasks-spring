@@ -209,7 +209,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
 
         // remove
         final ChatLinkBound removedExpected = new ChatLinkBound(testChat, testLink);
-        final ChatLinkBound removedActual = chatLinkBoundRepository.remove(removedExpected);
+        final ChatLinkBound removedActual = chatLinkBoundRepository.remove(removedExpected).orElseThrow();
 
         // checkout equivalency
         assertThat(removedExpected).isEqualTo(removedActual);
@@ -237,7 +237,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
             testChat, testLink
         ));
 
-        assertThat(res).isEqualTo(null);
+        assertThat(res.isPresent()).isFalse();
     }
 
     @Test
@@ -248,7 +248,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
         final Link testLink = new Link(URI.create("https://example/link9"));
         final Long testChat = 9L;
         var res = chatLinkBoundRepository.remove(new ChatLinkBound(testChat, testLink.uri().toURL().toString()));
-        assertThat(res).isEqualTo(null);
+        assertThat(res.isPresent()).isFalse();
     }
 
     @Test
@@ -264,6 +264,6 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
             testLink.uri().toURL().toString()
         ));
 
-        assertThat(res).isEqualTo(null);
+        assertThat(res.isPresent()).isFalse();
     }
 }

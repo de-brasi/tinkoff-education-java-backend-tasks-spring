@@ -72,7 +72,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         assertThat(addResult).isTrue();
 
         // clear record
-        final String removeResult = linkRepository.remove(testLink);
+        final String removeResult = linkRepository.remove(testLink).orElseThrow();
         assertThat(removeResult).isEqualTo(testLink);
 
         // check link actually was removed
@@ -95,12 +95,12 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         assertThat(addResult).isTrue();
 
         // clear record once
-        final String firstRemoveResult = linkRepository.remove(testLink);
+        final String firstRemoveResult = linkRepository.remove(testLink).orElseThrow();
         assertThat(firstRemoveResult).isEqualTo(testLink);
 
         // clear record twice
-        final String secondRemoveResult = linkRepository.remove(testLink);
-        assertThat(secondRemoveResult).isNull();
+        var secondRemoveResult = linkRepository.remove(testLink);
+        assertThat(secondRemoveResult.isPresent()).isFalse();
 
         // check link actually was removed
         int rowCount = jdbcTemplate.queryForObject(

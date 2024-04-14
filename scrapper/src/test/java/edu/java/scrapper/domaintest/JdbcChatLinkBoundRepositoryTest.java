@@ -68,8 +68,8 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
         linkRepository.add(testLink);
 
         // bound
-        boolean res = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
-        assertThat(res).isTrue();
+        int resCount = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
+        assertThat(resCount).isEqualTo(1);
 
         // checkout records count
         String query =
@@ -97,11 +97,11 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
         linkRepository.add(testLink);
 
         // bound
-        boolean res = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
-        assertThat(res).isTrue();
+        int res = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
+        assertThat(res).isEqualTo(1);
 
-        boolean secondRes = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
-        assertThat(secondRes).isFalse();
+        int secondRes = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
+        assertThat(secondRes).isEqualTo(0);
 
         // checkout records count
         String query =
@@ -164,8 +164,8 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
         telegramChatRepository.add(testChat);
 
         // bound
-        boolean res = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink.uri().toURL().toString()));
-        assertThat(res).isTrue();
+        int res = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink.uri().toURL().toString()));
+        assertThat(res).isEqualTo(1);
 
         // check link actually added
         String queryToCheckBoundingInfo =
@@ -209,10 +209,10 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
 
         // remove
         final ChatLinkBound removedExpected = new ChatLinkBound(testChat, testLink);
-        final ChatLinkBound removedActual = chatLinkBoundRepository.remove(removedExpected).orElseThrow();
+        final int removedRowsCount = chatLinkBoundRepository.remove(removedExpected);
 
         // checkout equivalency
-        assertThat(removedExpected).isEqualTo(removedActual);
+        assertThat(removedRowsCount).isEqualTo(1);
 
         // checkout records count
         String query =
@@ -237,7 +237,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
             testChat, testLink
         ));
 
-        assertThat(res.isPresent()).isFalse();
+        assertThat(res).isEqualTo(0);
     }
 
     @Test
@@ -248,7 +248,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
         final Link testLink = new Link(URI.create("https://example/link9"));
         final Long testChat = 9L;
         var res = chatLinkBoundRepository.remove(new ChatLinkBound(testChat, testLink.uri().toURL().toString()));
-        assertThat(res.isPresent()).isFalse();
+        assertThat(res).isEqualTo(0);
     }
 
     @Test
@@ -264,6 +264,6 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
             testLink.uri().toURL().toString()
         ));
 
-        assertThat(res.isPresent()).isFalse();
+        assertThat(res).isEqualTo(0);
     }
 }

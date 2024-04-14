@@ -35,8 +35,8 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     void addURLTest() {
         final String testLink = "https://example/add-uri-test";
 
-        final boolean res = linkRepository.add(testLink);
-        assertThat(res).isTrue();
+        final int res = linkRepository.add(testLink);
+        assertThat(res).isEqualTo(1);
 
         String query = "SELECT COUNT(*) FROM links WHERE url = ?";
         int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testLink);
@@ -49,12 +49,12 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     void addEqualURLsTest() {
         final String testLink = "https://example/add-equal-urls-test";
 
-        final boolean res = linkRepository.add(testLink);
-        assertThat(res).isTrue();
+        final int res = linkRepository.add(testLink);
+        assertThat(res).isEqualTo(1);
 
         // TODO: какого черта не отлавливается ошибка в "catch" внутри метода JdbcLinkRepository::add?
-        final boolean resOneMore = linkRepository.add(testLink);
-        assertThat(resOneMore).isFalse();
+        final int resOneMore = linkRepository.add(testLink);
+        assertThat(resOneMore).isEqualTo(0);
 
         String query = "SELECT COUNT(*) FROM links WHERE url = ?";
         int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testLink);
@@ -68,12 +68,12 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         final String testLink = "https://example/remove-test";
 
         // add record
-        final boolean addResult = linkRepository.add(testLink);
-        assertThat(addResult).isTrue();
+        final int addResult = linkRepository.add(testLink);
+        assertThat(addResult).isEqualTo(1);
 
         // clear record
-        final String removeResult = linkRepository.remove(testLink).orElseThrow();
-        assertThat(removeResult).isEqualTo(testLink);
+        final int removeResult = linkRepository.remove(testLink);
+        assertThat(removeResult).isEqualTo(1);
 
         // check link actually was removed
         int rowCount = jdbcTemplate.queryForObject(
@@ -91,16 +91,16 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         final String testLink = "https://example/remove-twice-test";
 
         // add record
-        final boolean addResult = linkRepository.add(testLink);
-        assertThat(addResult).isTrue();
+        final int addResult = linkRepository.add(testLink);
+        assertThat(addResult).isEqualTo(1);;
 
         // clear record once
-        final String firstRemoveResult = linkRepository.remove(testLink).orElseThrow();
-        assertThat(firstRemoveResult).isEqualTo(testLink);
+        final int firstRemoveResult = linkRepository.remove(testLink);
+        assertThat(firstRemoveResult).isEqualTo(1);
 
         // clear record twice
-        var secondRemoveResult = linkRepository.remove(testLink);
-        assertThat(secondRemoveResult.isPresent()).isFalse();
+        int secondRemoveResult = linkRepository.remove(testLink);
+        assertThat(secondRemoveResult).isEqualTo(0);
 
         // check link actually was removed
         int rowCount = jdbcTemplate.queryForObject(
@@ -120,12 +120,12 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         final String testLink3 = "https://en.wikipedia.org/wiki/Main_Page3";
 
         // add records
-        final boolean addResult1 = linkRepository.add(testLink1);
-        assertThat(addResult1).isTrue();
-        final boolean addResult2 = linkRepository.add(testLink2);
-        assertThat(addResult2).isTrue();
-        final boolean addResult3 = linkRepository.add(testLink3);
-        assertThat(addResult3).isTrue();
+        final int addResult1 = linkRepository.add(testLink1);
+        assertThat(addResult1).isEqualTo(1);
+        final int addResult2 = linkRepository.add(testLink2);
+        assertThat(addResult2).isEqualTo(1);
+        final int addResult3 = linkRepository.add(testLink3);
+        assertThat(addResult3).isEqualTo(1);
 
         // check result contains all
         Collection<String> gettingAll = linkRepository.findAll();

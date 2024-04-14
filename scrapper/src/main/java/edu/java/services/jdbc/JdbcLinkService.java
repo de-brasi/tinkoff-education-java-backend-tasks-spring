@@ -14,7 +14,6 @@ import edu.java.services.interfaces.LinkService;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -40,9 +39,10 @@ public class JdbcLinkService implements LinkService {
         }
 
         try {
-            boolean res = linkBoundRepository.add(bound);
+            final int createdRecordsCount = linkBoundRepository.add(bound);
+            final int expectedCreatedRecordsCount = 1;
 
-            if (!res) {
+            if (createdRecordsCount != expectedCreatedRecordsCount) {
                 throw new ReAddingLinkException();
             }
 
@@ -68,12 +68,13 @@ public class JdbcLinkService implements LinkService {
         }
 
         try {
-            Optional<ChatLinkBound> removed = linkBoundRepository.remove(bound);
-            return removed
-                .map(chatLinkBound -> new Link(
-                    URI.create(chatLinkBound.linkURL())
-                ))
-                .orElse(null);
+            final int removedRecordsCount = linkBoundRepository.remove(bound);
+            final int expectedRemovedRecordsCount = 1;
+
+            return
+                (removedRecordsCount == expectedRemovedRecordsCount)
+                    ? new Link(url)
+                    : null;
         } catch (InvalidArgumentForTypeInDataBase e) {
             throw new IncorrectRequestException(e);
         } catch (NoExpectedEntityInDataBaseException e) {

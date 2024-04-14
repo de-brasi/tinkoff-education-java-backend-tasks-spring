@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -38,13 +37,13 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
      * Add bound between chat and link in table 'track_info'. If link with passed url not saved in table 'links' creates record in 'links' table and try to store pair <chat_id, link_id> in table 'track_info'.
      *
      * @param chatLinkBound object via info about chat and tracked link
-     * @return adding result: false in case such bound already exists returns false, otherwise - true.
+     * @return affected rows count
      * @throws NoExpectedEntityInDataBaseException In case of telegram chat not saved yet in table 'telegram_chat' {@link edu.java.domain.exceptions.NoExpectedEntityInDataBaseException} will be thrown
      * @throws DataBaseInteractingException        In case of some error occurs when working with JdbcTemplate {@link edu.java.domain.exceptions.DataBaseInteractingException} will be thrown
      */
     @Override
     @Transactional
-    public boolean add(ChatLinkBound chatLinkBound) {
+    public int add(ChatLinkBound chatLinkBound) {
         int linkIdInDatabase;
         int telegramChatIdInDatabase;
 
@@ -98,7 +97,7 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
                         + linkIdInDatabase + "]"
                 );
             }
-            return (affectedRowsCount == 1);
+            return affectedRowsCount;
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }
@@ -108,21 +107,24 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
      * Remove bound between chat and link in table 'track_info'.
      *
      * @param chatLinkBound object via info about chat and tracked link
+     * @return affected rows count
      */
     @Override
     @Transactional
-    public Optional<ChatLinkBound> remove(ChatLinkBound chatLinkBound) {
-        final String deleteBoundaryRecordQuery =
-            "delete from track_info "
-                + "where telegram_chat_id = (select id from telegram_chat where chat_id = ?) "
-                + "and link_id = (select id from links where url = ?)";
+    public int remove(ChatLinkBound chatLinkBound) {
+        try {
+            final String deleteBoundaryRecordQuery =
+                "delete from track_info "
+                    + "where telegram_chat_id = (select id from telegram_chat where chat_id = ?) "
+                    + "and link_id = (select id from links where url = ?)";
 
-        int affectedRowsCount = jdbcTemplate.update(
-            deleteBoundaryRecordQuery,
-            chatLinkBound.chatId(), chatLinkBound.linkURL()
-        );
-
-        return (affectedRowsCount == 1) ? Optional.of(chatLinkBound) : Optional.empty();
+            return jdbcTemplate.update(
+                deleteBoundaryRecordQuery,
+                chatLinkBound.chatId(), chatLinkBound.linkURL()
+            );
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
     /**
@@ -133,12 +135,16 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
     @Override
     @Transactional
     public Collection<ChatLinkBound> findAll() {
-        String sql =
-            "select tg_chats.id, chat_id, link_id, url "
-                + "from track_info "
-                + "join telegram_chat tg_chats on track_info.telegram_chat_id = tg_chats.id "
-                + "join links links_table on links_table.id = track_info.link_id;";
-        return jdbcTemplate.query(sql, new JdbcChatLinkBoundRepository.LinkRowMapper());
+        try {
+            String sql =
+                "select tg_chats.id, chat_id, link_id, url "
+                    + "from track_info "
+                    + "join telegram_chat tg_chats on track_info.telegram_chat_id = tg_chats.id "
+                    + "join links links_table on links_table.id = track_info.link_id;";
+            return jdbcTemplate.query(sql, new JdbcChatLinkBoundRepository.LinkRowMapper());
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
     /**

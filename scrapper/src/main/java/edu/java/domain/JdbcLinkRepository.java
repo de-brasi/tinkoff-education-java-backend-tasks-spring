@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -25,16 +24,14 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
 
     @Override
     @Transactional
-    public boolean add(String link) {
+    public int add(String link) {
         try {
-            int affectedRowCount = jdbcTemplate.update(
+            return jdbcTemplate.update(
                 "insert into links(url, last_check_time, last_update_time) values (?, ?, ?) on conflict do nothing",
                 link,
                 Timestamp.from(Instant.now()),
                 Timestamp.from(Instant.ofEpochSecond(0))
             );
-
-            return (affectedRowCount == 1);
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }
@@ -42,16 +39,22 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
 
     @Override
     @Transactional
-    public Optional<String> remove(String link) {
-        int affectedRowCount = jdbcTemplate.update("delete from links where url = (?)", link);
-        return (affectedRowCount == 1) ? Optional.of(link) : Optional.empty();
+    public int remove(String link) {
+        try {
+            return jdbcTemplate.update("delete from links where url = (?)", link);
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
     @Override
     @Transactional
     public Collection<String> findAll() {
-        String sql = "select * from links";
-        return jdbcTemplate.query(sql, new LinkRowMapper());
+        try {
+            return jdbcTemplate.query("select * from links", new LinkRowMapper());
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
     @Override

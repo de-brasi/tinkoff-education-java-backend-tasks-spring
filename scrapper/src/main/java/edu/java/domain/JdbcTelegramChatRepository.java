@@ -3,7 +3,6 @@ package edu.java.domain;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import edu.java.domain.exceptions.DataBaseInteractingException;
@@ -22,24 +21,12 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Long> {
 
     @Override
     @Transactional
-    public boolean add(Long telegramChat) {
+    public int add(Long telegramChat) {
         try {
-            int equalLinksCount = jdbcTemplate.queryForObject(
-                "select count(*) from telegram_chat where chat_id = ?",
-                Integer.class,
+            return jdbcTemplate.update(
+                "insert into telegram_chat(chat_id) values (?) on conflict do nothing ",
                 telegramChat
             );
-
-            if (equalLinksCount == 0) {
-                int affectedRowCount = jdbcTemplate.update(
-                    "insert into telegram_chat(chat_id) values (?)",
-                    telegramChat
-                );
-
-                return (affectedRowCount == 1);
-            } else {
-                return false;
-            }
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }
@@ -47,16 +34,22 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Long> {
 
     @Override
     @Transactional
-    public Optional<Long> remove(Long telegramChat) {
-        int affectedRowCount = jdbcTemplate.update("delete from telegram_chat where chat_id = (?)", telegramChat);
-        return (affectedRowCount == 1) ? Optional.of(telegramChat) : Optional.empty();
+    public int remove(Long telegramChat) {
+        try {
+            return jdbcTemplate.update("delete from telegram_chat where chat_id = (?)", telegramChat);
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
     @Override
     @Transactional
     public Collection<Long> findAll() {
-        String sql = "select * from telegram_chat";
-        return jdbcTemplate.query(sql, new JdbcTelegramChatRepository.LinkRowMapper());
+        try {
+            return jdbcTemplate.query("select * from telegram_chat", new JdbcTelegramChatRepository.LinkRowMapper());
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
     @Override
@@ -71,8 +64,7 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Long> {
     private static class LinkRowMapper implements RowMapper<Long> {
         @Override
         public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Long tgChatId = rs.getLong("chat_id");
-            return tgChatId;
+            return rs.getLong("chat_id");
         }
     }
 }

@@ -69,11 +69,11 @@ public class JdbcLinkService implements LinkService {
 
         try {
             Optional<ChatLinkBound> removed = linkBoundRepository.remove(bound);
-            return (removed.isEmpty())
-                ? null
-                : new Link(URI.create(
-                    removed.get().linkURL()
-            ));
+            return removed
+                .map(chatLinkBound -> new Link(
+                    URI.create(chatLinkBound.linkURL())
+                ))
+                .orElse(null);
         } catch (InvalidArgumentForTypeInDataBase e) {
             throw new IncorrectRequestException(e);
         } catch (NoExpectedEntityInDataBaseException e) {

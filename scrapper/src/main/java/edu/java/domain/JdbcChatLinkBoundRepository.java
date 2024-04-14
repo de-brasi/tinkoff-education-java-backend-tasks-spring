@@ -1,14 +1,10 @@
 package edu.java.domain;
 
 import edu.java.domain.entities.ChatLinkBound;
-import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.DataBaseInteractingException;
-import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -19,7 +15,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -116,7 +111,7 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
      */
     @Override
     @Transactional
-    public @Nullable ChatLinkBound remove(ChatLinkBound chatLinkBound) {
+    public Optional<ChatLinkBound> remove(ChatLinkBound chatLinkBound) {
         final String deleteBoundaryRecordQuery =
             "delete from track_info "
                 + "where telegram_chat_id = (select id from telegram_chat where chat_id = ?) "
@@ -127,7 +122,7 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
             chatLinkBound.chatId(), chatLinkBound.linkURL()
         );
 
-        return (affectedRowsCount == 1) ? chatLinkBound : null;
+        return (affectedRowsCount == 1) ? Optional.of(chatLinkBound) : Optional.empty();
     }
 
     /**

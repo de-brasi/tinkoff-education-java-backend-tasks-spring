@@ -3,11 +3,11 @@ package edu.java.domain;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -47,9 +47,9 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Long> {
 
     @Override
     @Transactional
-    public @Nullable Long remove(Long telegramChat) {
+    public Optional<Long> remove(Long telegramChat) {
         int affectedRowCount = jdbcTemplate.update("delete from telegram_chat where chat_id = (?)", telegramChat);
-        return (affectedRowCount == 1) ? telegramChat : null;
+        return (affectedRowCount == 1) ? Optional.of(telegramChat) : Optional.empty();
     }
 
     @Override

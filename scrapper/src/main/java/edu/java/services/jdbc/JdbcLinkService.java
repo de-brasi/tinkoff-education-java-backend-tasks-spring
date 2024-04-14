@@ -7,7 +7,6 @@ import edu.java.domain.BaseEntityRepository;
 import edu.java.domain.JdbcChatLinkBoundRepository;
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
-import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
@@ -15,6 +14,7 @@ import edu.java.services.interfaces.LinkService;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -68,11 +68,11 @@ public class JdbcLinkService implements LinkService {
         }
 
         try {
-            ChatLinkBound removed = linkBoundRepository.remove(bound);
-            return (removed == null)
+            Optional<ChatLinkBound> removed = linkBoundRepository.remove(bound);
+            return (removed.isEmpty())
                 ? null
                 : new Link(URI.create(
-                    removed.linkURL()
+                    removed.get().linkURL()
             ));
         } catch (InvalidArgumentForTypeInDataBase e) {
             throw new IncorrectRequestException(e);

@@ -66,8 +66,6 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
         for (String link : linksToUpdate) {
             try {
-                final String currentLinkUrl = link;
-
                 List<Long> subscribers =
                     getSubscribers(link)
                         .stream()
@@ -75,17 +73,17 @@ public class JdbcLinkUpdater implements LinkUpdater {
                         .toList();
 
                 boolean linkUpdated;
-                if (gitHubClient.checkURLSupportedByService(currentLinkUrl)) {
+                if (gitHubClient.checkURLSupportedByService(link)) {
                     final OffsetDateTime actualUpdateTime =
-                        gitHubClient.fetchUpdate(currentLinkUrl).updateTime();
+                        gitHubClient.fetchUpdate(link).updateTime();
                     linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link, subscribers);
-                } else if (stackOverflowClient.checkURLSupportedByService(currentLinkUrl)) {
+                } else if (stackOverflowClient.checkURLSupportedByService(link)) {
                     final OffsetDateTime actualUpdateTime =
-                        stackOverflowClient.fetchUpdate(currentLinkUrl).updateTime();
+                        stackOverflowClient.fetchUpdate(link).updateTime();
                     linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link, subscribers);
                 } else {
                     throw new RuntimeException(
-                        "Unexpected API for fetching update for URL %s".formatted(currentLinkUrl)
+                        "Unexpected API for fetching update for URL %s".formatted(link)
                     );
                 }
 

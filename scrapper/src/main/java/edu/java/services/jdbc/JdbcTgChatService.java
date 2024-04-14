@@ -7,6 +7,7 @@ import edu.java.domain.JdbcTelegramChatRepository;
 import edu.java.services.interfaces.TgChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 @Service
 public class JdbcTgChatService implements TgChatService {
@@ -26,8 +27,8 @@ public class JdbcTgChatService implements TgChatService {
 
     @Override
     public void unregister(long tgChatId) {
-        Long actuallyDeleted = chatRepository.remove(tgChatId);
-        if (actuallyDeleted == null) {
+        Optional<Long> actuallyDeleted = chatRepository.remove(tgChatId);
+        if (actuallyDeleted.isEmpty()) {
             throw new ChatIdNotExistsException();
         }
     }

@@ -7,10 +7,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -42,9 +42,9 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
 
     @Override
     @Transactional
-    public @Nullable String remove(String link) {
+    public Optional<String> remove(String link) {
         int affectedRowCount = jdbcTemplate.update("delete from links where url = (?)", link);
-        return (affectedRowCount == 1) ? link : null;
+        return (affectedRowCount == 1) ? Optional.of(link) : Optional.empty();
     }
 
     @Override

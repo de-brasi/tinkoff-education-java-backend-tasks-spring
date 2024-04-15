@@ -33,7 +33,7 @@ public class JdbcRowMappersConfig {
     public RowMapper<Link> linkRowMapper() {
         return (rs, rowNum) -> {
             final String url = rs.getString("url");
-            final Long urlId = rs.getLong("link_id");
+            final Integer urlId = rs.getInt("link_id");
             return new Link(urlId, URI.create(url));
         };
     }

@@ -3,8 +3,8 @@ package edu.java.services.jdbc;
 import edu.common.exceptions.ChatIdNotExistsException;
 import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.ReAddingLinkException;
-import edu.java.domain.BaseEntityRepository;
 import edu.java.domain.JdbcChatLinkBoundRepository;
+import edu.java.domain.JdbcLinkRepository;
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
@@ -14,31 +14,27 @@ import edu.java.services.interfaces.LinkService;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class JdbcLinkService implements LinkService {
-    private final BaseEntityRepository<ChatLinkBound> linkBoundRepository;
 
-    public JdbcLinkService(@Autowired JdbcChatLinkBoundRepository linkBoundRepository) {
-        this.linkBoundRepository = linkBoundRepository;
-    }
+    private final JdbcChatLinkBoundRepository linkBoundRepository;
+    private final JdbcLinkRepository linkRepository;
 
     @Override
     @Transactional
     public Link add(long tgChatId, URI url) {
-        ChatLinkBound bound;
-
         try {
-            bound = new ChatLinkBound(tgChatId, url.toURL().toString());
-        } catch (MalformedURLException e) {
-            throw new InvalidArgumentForTypeInDataBase(e);
-        }
+            ChatLinkBound bound;
+            final String urlString = url.toURL().toString();
+            bound = new ChatLinkBound(tgChatId, urlString);
 
-        try {
+            // add
             final int createdRecordsCount = linkBoundRepository.add(bound);
             final int expectedCreatedRecordsCount = 1;
 
@@ -46,51 +42,63 @@ public class JdbcLinkService implements LinkService {
                 throw new ReAddingLinkException();
             }
 
-            return new Link(url);
+            // get id of link that mau be just created
+            final Long addedRecordId = linkRepository.getEntityId(urlString);
+
+            if (addedRecordId < 0) {
+                // unexpected state
+                throw new NoExpectedEntityInDataBaseException("Expected record for url %s not found".formatted(urlString));
+            }
+
+            return new Link(addedRecordId, url);
         } catch (InvalidArgumentForTypeInDataBase e) {
             throw new IncorrectRequestException(e);
         } catch (NoExpectedEntityInDataBaseException e) {
             throw new ChatIdNotExistsException(e);
         } catch (DataAccessException | NullPointerException e) {
             throw new DataBaseInteractingException(e);
+        } catch (MalformedURLException e) {
+            throw new InvalidArgumentForTypeInDataBase(e);
         }
     }
 
     @Override
     @Transactional
     public Link remove(long tgChatId, URI url) {
-
-        ChatLinkBound bound;
         try {
-            bound = new ChatLinkBound(tgChatId, url.toURL().toString());
-        } catch (MalformedURLException e) {
-            throw new InvalidArgumentForTypeInDataBase(e);
-        }
+            final String urlString = url.toURL().toString();
 
-        try {
+            ChatLinkBound bound = new ChatLinkBound(tgChatId, urlString);
+
+            // get id of link
+            final Long addedRecordId = linkRepository.getEntityId(urlString);
+
+            if (addedRecordId < 0) {
+                // unexpected state
+                throw new NoExpectedEntityInDataBaseException("Expected record for url %s not found".formatted(urlString));
+            }
+
+            // remove
             final int removedRecordsCount = linkBoundRepository.remove(bound);
             final int expectedRemovedRecordsCount = 1;
 
-            return
-                (removedRecordsCount == expectedRemovedRecordsCount)
-                    ? new Link(url)
-                    : null;
+            if (removedRecordsCount != expectedRemovedRecordsCount) {
+                return null;
+            }
+
+            return new Link(addedRecordId, url);
         } catch (InvalidArgumentForTypeInDataBase e) {
             throw new IncorrectRequestException(e);
         } catch (NoExpectedEntityInDataBaseException e) {
             throw new ChatIdNotExistsException(e);
+        } catch (MalformedURLException e) {
+            throw new InvalidArgumentForTypeInDataBase(e);
         }
     }
 
     @Override
     @Transactional
     public Collection<Link> listAll(long tgChatId) {
-        // todo: изменить интерфейс BaseEntityRepository,
-        //  чтобы он как-то поддерживал выбор значений по предикату(?)
-        Collection<ChatLinkBound> allBounds = linkBoundRepository.findAll();
-        return allBounds
-            .stream()
-            .map(e -> new Link(URI.create(e.linkURL())))
-            .toList();
+        return linkBoundRepository.getLinksTrackedBy(tgChatId);
     }
 }

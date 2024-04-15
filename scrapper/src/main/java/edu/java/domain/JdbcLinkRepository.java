@@ -1,10 +1,13 @@
 package edu.java.domain;
 
+import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
+import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.function.Predicate;
@@ -60,28 +63,25 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
     @Override
     @Transactional
     public Collection<String> search(Predicate<String> condition) {
-
-        // TODO: (для задания4)
-        //  У меня есть стойкое ощущение что я не понял задачу:
-        //      "
-        //      ...на самом деле мы могли бы сделать фильтрацию
-        //      (поиск ссылок, которые давно не проверялись) на стороне БД
-        //      "
-        //  "На стороне БД" - будто бы имеется в виду что фильтрация
-        //  должна быть осуществлена самим постгресом, а для этого (при использовании jdbc, насколько я смог узнать)
-        //  нужно просто менять строку запроса; то есть как "предикат" - строка типа "where <some conditions>".
-        //  Кажется это не очень разумно, потому что при написании условий просто в строке
-        //  IDE не дает хинтов по типам, именам таблиц и тд. - легко ошибиться и словить какую нибудь ошибку синтаксиса,
-        //  а что еще хуже - ошибку логики запроса, когда он что то будет возвращать.
-        //  В любом случае сейчас для работы ссылок, требующих удаления,
-        //  я не использую репозитории, а пишу запросы в классе JdbcLinkUpdater.
-        //  А так как написано сейчас не кажется удобным.
-        //  В любом случае - https://ru.wikipedia.org/wiki/%D0%AD%D1%82%D0%BE_%D0%BD%D0%B5%D0%BC%D0%BD%D0%BE%D0%B3%D0%BE,_%D0%BD%D0%BE_%D1%8D%D1%82%D0%BE_%D1%87%D0%B5%D1%81%D1%82%D0%BD%D0%B0%D1%8F_%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0
-
         return findAll()
             .stream()
             .filter(condition)
             .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Collection<String> getOutdated(Duration thresholdDuration) {
+        try {
+            Instant thresholdTime = Instant.now().minus(thresholdDuration);
+
+            return jdbcTemplate.query(
+                "select id, url from links where links.last_check_time < ?",
+                ps -> ps.setTimestamp(1, Timestamp.from(thresholdTime)),
+                (rs, rowNum) -> rs.getString("url")
+            );
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
     @Transactional

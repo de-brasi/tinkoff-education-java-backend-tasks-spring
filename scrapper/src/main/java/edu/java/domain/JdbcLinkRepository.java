@@ -85,26 +85,26 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
     }
 
     @Transactional
-    public void updateLastCheckTime(String url, Timestamp actualTime) {
-        final String query = "update links set last_check_time = ? where url = ?";
-        int affectedRowsCount = jdbcTemplate.update(query, actualTime, url);
-
-        if (affectedRowsCount != 1) {
-            throw new UnexpectedDataBaseStateException(
-                "Expected to update field 'last_check_time' one row with current time but no one row changed!"
+    public int updateLastCheckTime(String url, Timestamp actualTime) {
+        try {
+            return jdbcTemplate.update(
+                "update links set last_check_time = ? where url = ?",
+                actualTime, url
             );
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
         }
     }
 
     @Transactional
-    public void updateLastUpdateTime(String url, Timestamp actualTime) {
-        final String query = "update links set last_update_time = ? where url = ?";
-        int affectedRowsCount = jdbcTemplate.update(query, actualTime, url);
-
-        if (affectedRowsCount != 1) {
-            throw new UnexpectedDataBaseStateException(
-                "Expected to update field 'last_update_time' one row with current time but no one row changed!"
+    public int updateLastUpdateTime(String url, Timestamp actualTime) {
+        try {
+            return jdbcTemplate.update(
+                "update links set last_update_time = ? where url = ?",
+                actualTime, url
             );
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
         }
     }
 

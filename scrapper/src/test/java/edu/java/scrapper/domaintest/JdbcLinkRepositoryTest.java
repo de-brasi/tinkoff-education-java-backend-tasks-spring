@@ -52,7 +52,6 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         final int res = linkRepository.add(testLink);
         assertThat(res).isEqualTo(1);
 
-        // TODO: какого черта не отлавливается ошибка в "catch" внутри метода JdbcLinkRepository::add?
         final int resOneMore = linkRepository.add(testLink);
         assertThat(resOneMore).isEqualTo(0);
 

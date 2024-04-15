@@ -43,7 +43,7 @@ public class JdbcLinkService implements LinkService {
                 throw new ReAddingLinkException();
             }
 
-            // get id of link that mau be just created
+            // get id of link that may be just created
             final Integer addedRecordId = linkRepository.getEntityId(urlString);
 
             if (addedRecordId < 0) {

@@ -159,6 +159,27 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
             .collect(Collectors.toList());
     }
 
+    /**
+     * Get id of entity record in table 'track_info'.
+     * @param entity ChatLinkBound for search.
+     * @return Positive Long value with id on success, negative value if record not found in database.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Long getEntityId(ChatLinkBound entity) {
+        try {
+            final String query =
+                "select id from track_info "
+                    + "where link_id = (select id from links where url = ?) "
+                    + "and telegram_chat_id = (select id from telegram_chat where chat_id = ?)";
+            return jdbcTemplate.queryForObject(query, Long.class, entity.linkURL(), entity.chatId());
+        } catch (EmptyResultDataAccessException e) {
+            return -1L;
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
+    }
+
     @Transactional
     public Collection<String> getLinksTrackedBy(Long chatId) {
         try {

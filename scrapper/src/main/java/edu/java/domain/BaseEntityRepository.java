@@ -11,4 +11,6 @@ public interface BaseEntityRepository<E> {
     Collection<E> findAll();
 
     Collection<E> search(Predicate<E> condition);
+
+    Long getEntityId(E entity);
 }

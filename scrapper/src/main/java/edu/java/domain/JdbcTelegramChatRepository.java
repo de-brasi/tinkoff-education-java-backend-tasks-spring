@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -58,5 +59,25 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Long> {
             .stream()
             .filter(condition)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Get id of chat in table 'telegram_chat'.
+     * @param entity telegram chat id for search
+     * @return Positive Long value with record id on success, negative value if record not found in database.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Long getEntityId(Long entity) {
+        try {
+            return jdbcTemplate.queryForObject(
+                "select id from telegram_chat where chat_id = ?",
+                Long.class, entity
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return -1L;
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 }

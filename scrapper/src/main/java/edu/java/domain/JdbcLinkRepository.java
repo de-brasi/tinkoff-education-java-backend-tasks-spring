@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -63,6 +64,26 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
             .stream()
             .filter(condition)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Get id of url in table 'links'.
+     * @param entity Url for search
+     * @return Positive Long value with record id on success, negative value if record not found in database.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Long getEntityId(String entity) {
+        try {
+            return jdbcTemplate.queryForObject(
+                "select id from links where url = ?",
+                Long.class, entity
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return -1L;
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
     @Transactional

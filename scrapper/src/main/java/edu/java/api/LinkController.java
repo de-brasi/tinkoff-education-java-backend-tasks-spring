@@ -38,12 +38,11 @@ public class LinkController {
         log.info("All tracked links command for chat with chat-id " + tgChatId);
 
         Collection<Link> allLinks = linkService.listAll(tgChatId);
-        // todo: добавить id в сущность Link, брать id оттуда
         List<LinkResponse> linkResponseList = allLinks
             .stream()
             .map(e -> {
                 try {
-                    return new LinkResponse(1, e.uri().toURL().toString());
+                    return new LinkResponse(e.id(), e.uri().toURL().toString());
                 } catch (MalformedURLException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -64,8 +63,7 @@ public class LinkController {
     ) throws MalformedURLException {
         log.info("Add link command for chat with chat-id " + tgChatId + " and request " + request);
         Link added = linkService.add(tgChatId, URI.create(request.getLink()));
-        // todo: добавить id в сущность Link, брать id оттуда
-        LinkResponse response = new LinkResponse(1, added.uri().toURL().toString());
+        LinkResponse response = new LinkResponse(added.id(), added.uri().toURL().toString());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -77,8 +75,7 @@ public class LinkController {
     ) throws MalformedURLException {
         log.info("Delete link command for chat with chat-id " + tgChatId + " and request " + request);
         Link removed = linkService.remove(tgChatId, URI.create(request.getLink()));
-        // todo: добавить id в сущность Link, брать id оттуда
-        LinkResponse response = new LinkResponse(1, removed.uri().toURL().toString());
+        LinkResponse response = new LinkResponse(removed.id(), removed.uri().toURL().toString());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

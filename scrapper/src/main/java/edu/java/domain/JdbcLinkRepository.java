@@ -1,5 +1,6 @@
 package edu.java.domain;
 
+import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -21,6 +22,7 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<String> linkUrlRowMapper;
+    private final RowMapper<Link> linkRowMapper;
 
     @Override
     @Transactional
@@ -73,28 +75,28 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
      */
     @Override
     @Transactional(readOnly = true)
-    public Long getEntityId(String entity) {
+    public Integer getEntityId(String entity) {
         try {
             return jdbcTemplate.queryForObject(
                 "select id from links where url = ?",
-                Long.class, entity
+                Integer.class, entity
             );
         } catch (EmptyResultDataAccessException e) {
-            return -1L;
+            return -1;
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }
     }
 
     @Transactional
-    public Collection<String> getOutdated(Duration thresholdDuration) {
+    public Collection<Link> getOutdated(Duration thresholdDuration) {
         try {
             Instant thresholdTime = Instant.now().minus(thresholdDuration);
 
             return jdbcTemplate.query(
-                "select id, url from links where links.last_check_time < ?",
+                "select id as link_id, url from links where links.last_check_time < ?",
                 ps -> ps.setTimestamp(1, Timestamp.from(thresholdTime)),
-                (rs, rowNum) -> rs.getString("url")
+                linkRowMapper
             );
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);

@@ -172,15 +172,15 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
      */
     @Override
     @Transactional(readOnly = true)
-    public Long getEntityId(ChatLinkBound entity) {
+    public Integer getEntityId(ChatLinkBound entity) {
         try {
             final String query =
                 "select id from track_info "
                     + "where link_id = (select id from links where url = ?) "
                     + "and telegram_chat_id = (select id from telegram_chat where chat_id = ?)";
-            return jdbcTemplate.queryForObject(query, Long.class, entity.linkURL(), entity.chatId());
+            return jdbcTemplate.queryForObject(query, Integer.class, entity.linkURL(), entity.chatId());
         } catch (EmptyResultDataAccessException e) {
-            return -1L;
+            return -1;
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }

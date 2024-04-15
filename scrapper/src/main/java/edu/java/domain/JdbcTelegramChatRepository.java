@@ -68,14 +68,14 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Long> {
      */
     @Override
     @Transactional(readOnly = true)
-    public Long getEntityId(Long entity) {
+    public Integer getEntityId(Long entity) {
         try {
             return jdbcTemplate.queryForObject(
                 "select id from telegram_chat where chat_id = ?",
-                Long.class, entity
+                Integer.class, entity
             );
         } catch (EmptyResultDataAccessException e) {
-            return -1L;
+            return -1;
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }

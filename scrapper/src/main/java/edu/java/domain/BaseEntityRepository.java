@@ -12,5 +12,5 @@ public interface BaseEntityRepository<E> {
 
     Collection<E> search(Predicate<E> condition);
 
-    Long getEntityId(E entity);
+    Integer getEntityId(E entity);
 }

@@ -1,12 +1,8 @@
 package edu.java.domain;
 
 import edu.java.domain.entities.ChatLinkBound;
-import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
-import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
@@ -30,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLinkBound> {
 
     private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<ChatLinkBound> chatLinkBoundRowMapper;
+    private final RowMapper<String> linkUrlRowMapper;
 
     private static final String CHAT_ENTITY_NAME = "telegram_chat";
 
@@ -141,7 +139,7 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
                     + "from track_info "
                     + "join telegram_chat tg_chats on track_info.telegram_chat_id = tg_chats.id "
                     + "join links links_table on links_table.id = track_info.link_id;";
-            return jdbcTemplate.query(sql, new JdbcChatLinkBoundRepository.LinkRowMapper());
+            return jdbcTemplate.query(sql, chatLinkBoundRowMapper);
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }
@@ -161,12 +159,24 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
             .collect(Collectors.toList());
     }
 
-    private static class LinkRowMapper implements RowMapper<ChatLinkBound> {
-        @Override
-        public ChatLinkBound mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Long tgChatId = rs.getLong("chat_id");
-            String url = rs.getString("url");
-            return new ChatLinkBound(tgChatId, url);
+    @Transactional
+    public Collection<String> getLinksTrackedBy(Long chatId) {
+        try {
+            String sql =
+                "select link_id, url "
+                    + "from track_info "
+                    + "join telegram_chat tg_chats "
+                        + "on (track_info.telegram_chat_id = tg_chats.id) "
+                        + "and (tg_chats.chat_id = %d) "
+                    + "join links links_table "
+                        + "on links_table.id = track_info.link_id;";
+            return jdbcTemplate.query(
+                sql,
+                ps -> ps.setLong(1, chatId),
+                linkUrlRowMapper
+            );
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
         }
     }
 }

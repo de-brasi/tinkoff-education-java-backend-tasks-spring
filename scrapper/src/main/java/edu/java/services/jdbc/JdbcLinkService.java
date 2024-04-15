@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("MultipleStringLiterals")
 public class JdbcLinkService implements LinkService {
 
     private final JdbcChatLinkBoundRepository linkBoundRepository;
@@ -47,7 +48,9 @@ public class JdbcLinkService implements LinkService {
 
             if (addedRecordId < 0) {
                 // unexpected state
-                throw new NoExpectedEntityInDataBaseException("Expected record for url %s not found".formatted(urlString));
+                throw new NoExpectedEntityInDataBaseException(
+                    "Expected record for url %s not found".formatted(urlString)
+                );
             }
 
             return new Link(addedRecordId, url);
@@ -75,7 +78,9 @@ public class JdbcLinkService implements LinkService {
 
             if (addedRecordId < 0) {
                 // unexpected state
-                throw new NoExpectedEntityInDataBaseException("Expected record for url %s not found".formatted(urlString));
+                throw new NoExpectedEntityInDataBaseException(
+                    "Expected record for url %s not found".formatted(urlString)
+                );
             }
 
             // remove

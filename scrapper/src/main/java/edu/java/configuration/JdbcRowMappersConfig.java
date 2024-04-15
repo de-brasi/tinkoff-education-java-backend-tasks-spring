@@ -2,12 +2,13 @@ package edu.java.configuration;
 
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
+import java.net.URI;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.RowMapper;
-import java.net.URI;
 
 @Configuration
+@SuppressWarnings("MultipleStringLiterals")
 public class JdbcRowMappersConfig {
     @Bean
     public RowMapper<ChatLinkBound> chatLinkBoundRowMapper() {

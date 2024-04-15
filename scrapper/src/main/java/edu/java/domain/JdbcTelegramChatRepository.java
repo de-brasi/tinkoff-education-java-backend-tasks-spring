@@ -1,9 +1,9 @@
 package edu.java.domain;
 
+import edu.java.domain.exceptions.DataBaseInteractingException;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import edu.java.domain.exceptions.DataBaseInteractingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;

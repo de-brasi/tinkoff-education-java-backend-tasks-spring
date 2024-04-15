@@ -150,20 +150,25 @@ public class JdbcLinkUpdater implements LinkUpdater {
     }
 
     /**
-     *
-     * @param actualTime actual last update time
-     * @param link {@link edu.java.domain.entities.Link} for checking update time
-     * @param subscribersId link subscribers
-     * @return true if time updated, otherwise false
+     * Notify clients if time of last update changed
+     * @param actualTime Actual last update time.
+     * @param link {@link edu.java.domain.entities.Link} For checking update time.
+     * @param subscribersId Link subscribers.
+     * @return true if time updated, otherwise false.
      */
-    private boolean notifyClientsIfUpdatedTimeChanged(OffsetDateTime actualTime, String link, List<Long> subscribersId) {
+    private boolean notifyClientsIfUpdatedTimeChanged(
+        OffsetDateTime actualTime,
+        String link,
+        List<Long> subscribersId
+    ) {
         final boolean timeUpdated = checkLastUpdateTimeChanged(link, actualTime);
         if (timeUpdated) {
             // todo: использовать id ссылки, пока заглушка
             botClient.sendUpdates(-1, link, "updated", subscribersId);
 
             int updatedCheckTimeRowsCount = linkRepository.updateLastCheckTime(link, Timestamp.from(Instant.now()));
-            int updatedUpdateTimeRowsCount = linkRepository.updateLastUpdateTime(link, Timestamp.from(actualTime.toInstant()));
+            int updatedUpdateTimeRowsCount =
+                linkRepository.updateLastUpdateTime(link, Timestamp.from(actualTime.toInstant()));
 
             if (updatedCheckTimeRowsCount != 1) {
                 throw new UnexpectedDataBaseStateException(

@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings("MultipleStringLiterals")
 public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLinkBound> {
 
     private final JdbcTemplate jdbcTemplate;
@@ -33,12 +34,16 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
     private static final String CHAT_ENTITY_NAME = "telegram_chat";
 
     /**
-     * Add bound between chat and link in table 'track_info'. If link with passed url not saved in table 'links' creates record in 'links' table and try to store pair <chat_id, link_id> in table 'track_info'.
+     * Add bound between chat and link in table 'track_info'.
+     * If link with passed url not saved in table 'links' create record in 'links' table
+     * and try to store pair (chat_id, link_id) in table 'track_info'.
      *
      * @param chatLinkBound object via info about chat and tracked link
      * @return affected rows count
-     * @throws NoExpectedEntityInDataBaseException In case of telegram chat not saved yet in table 'telegram_chat' {@link edu.java.domain.exceptions.NoExpectedEntityInDataBaseException} will be thrown
-     * @throws DataBaseInteractingException        In case of some error occurs when working with JdbcTemplate {@link edu.java.domain.exceptions.DataBaseInteractingException} will be thrown
+     * @throws NoExpectedEntityInDataBaseException In case of telegram chat not saved yet in table 'telegram_chat'
+     * {@link edu.java.domain.exceptions.NoExpectedEntityInDataBaseException} will be thrown
+     * @throws DataBaseInteractingException        In case of some error occurs when working with JdbcTemplate
+     * {@link edu.java.domain.exceptions.DataBaseInteractingException} will be thrown
      */
     @Override
     @Transactional

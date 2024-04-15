@@ -1,7 +1,6 @@
 package edu.java.scrapper.domaintest;
 
 import edu.java.domain.JdbcLinkRepository;
-import edu.java.domain.entities.Link;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 
@@ -91,7 +86,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
 
         // add record
         final int addResult = linkRepository.add(testLink);
-        assertThat(addResult).isEqualTo(1);;
+        assertThat(addResult).isEqualTo(1);
 
         // clear record once
         final int firstRemoveResult = linkRepository.remove(testLink);

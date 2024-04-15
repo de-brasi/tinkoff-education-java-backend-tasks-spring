@@ -4,12 +4,9 @@ import edu.java.clients.BotClient;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
 import edu.java.domain.JdbcLinkRepository;
-import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import edu.java.services.interfaces.LinkUpdater;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -165,8 +162,20 @@ public class JdbcLinkUpdater implements LinkUpdater {
             // todo: использовать id ссылки, пока заглушка
             botClient.sendUpdates(-1, link, "updated", subscribersId);
 
-            linkRepository.updateLastCheckTime(link, Timestamp.from(Instant.now()));
-            linkRepository.updateLastUpdateTime(link, Timestamp.from(actualTime.toInstant()));
+            int updatedCheckTimeRowsCount = linkRepository.updateLastCheckTime(link, Timestamp.from(Instant.now()));
+            int updatedUpdateTimeRowsCount = linkRepository.updateLastUpdateTime(link, Timestamp.from(actualTime.toInstant()));
+
+            if (updatedCheckTimeRowsCount != 1) {
+                throw new UnexpectedDataBaseStateException(
+                    "Expected to update field 'last_check_time' one row with current time but no one row changed!"
+                );
+            }
+
+            if (updatedUpdateTimeRowsCount != 1) {
+                throw new UnexpectedDataBaseStateException(
+                    "Expected to update field 'last_update_time' one row with current time but no one row changed!"
+                );
+            }
         }
 
         return timeUpdated;

@@ -44,7 +44,7 @@ public class JdbcLinkService implements LinkService {
             }
 
             // get id of link that mau be just created
-            final Long addedRecordId = linkRepository.getEntityId(urlString);
+            final Integer addedRecordId = linkRepository.getEntityId(urlString);
 
             if (addedRecordId < 0) {
                 // unexpected state
@@ -74,7 +74,7 @@ public class JdbcLinkService implements LinkService {
             ChatLinkBound bound = new ChatLinkBound(tgChatId, urlString);
 
             // get id of link
-            final Long addedRecordId = linkRepository.getEntityId(urlString);
+            final Integer addedRecordId = linkRepository.getEntityId(urlString);
 
             if (addedRecordId < 0) {
                 // unexpected state

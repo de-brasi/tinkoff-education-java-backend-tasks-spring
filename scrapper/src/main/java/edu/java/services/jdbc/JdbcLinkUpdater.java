@@ -4,9 +4,11 @@ import edu.java.clients.BotClient;
 import edu.java.clients.GitHubClient;
 import edu.java.clients.StackOverflowClient;
 import edu.java.domain.JdbcLinkRepository;
+import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import edu.java.services.interfaces.LinkUpdater;
+import java.net.MalformedURLException;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -46,27 +48,29 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     @Override
     public int update(Duration updateInterval) {
-        Collection<String> linksToUpdate = linkRepository.getOutdated(updateInterval);
+        Collection<Link> linksToUpdate = linkRepository.getOutdated(updateInterval);
         log.info("Links need to update: " + linksToUpdate);
 
         int updatedLinks = 0;
 
-        for (String link : linksToUpdate) {
+        for (Link link : linksToUpdate) {
             try {
+                final String linkUrl = link.uri().toURL().toString();
+
                 List<Long> subscribers =
-                    getSubscribers(link)
+                    getSubscribers(linkUrl)
                         .stream()
                         .map(TelegramChat::id)
                         .toList();
 
                 boolean linkUpdated;
-                if (gitHubClient.checkURLSupportedByService(link)) {
+                if (gitHubClient.checkURLSupportedByService(linkUrl)) {
                     final OffsetDateTime actualUpdateTime =
-                        gitHubClient.fetchUpdate(link).updateTime();
+                        gitHubClient.fetchUpdate(linkUrl).updateTime();
                     linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link, subscribers);
-                } else if (stackOverflowClient.checkURLSupportedByService(link)) {
+                } else if (stackOverflowClient.checkURLSupportedByService(linkUrl)) {
                     final OffsetDateTime actualUpdateTime =
-                        stackOverflowClient.fetchUpdate(link).updateTime();
+                        stackOverflowClient.fetchUpdate(linkUrl).updateTime();
                     linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link, subscribers);
                 } else {
                     throw new RuntimeException(
@@ -158,17 +162,18 @@ public class JdbcLinkUpdater implements LinkUpdater {
      */
     private boolean notifyClientsIfUpdatedTimeChanged(
         OffsetDateTime actualTime,
-        String link,
+        Link link,
         List<Long> subscribersId
-    ) {
-        final boolean timeUpdated = checkLastUpdateTimeChanged(link, actualTime);
-        if (timeUpdated) {
-            // todo: использовать id ссылки, пока заглушка
-            botClient.sendUpdates(-1, link, "updated", subscribersId);
+    ) throws MalformedURLException {
+        final String linkUrl = link.uri().toURL().toString();
+        final boolean timeUpdated = checkLastUpdateTimeChanged(linkUrl, actualTime);
 
-            int updatedCheckTimeRowsCount = linkRepository.updateLastCheckTime(link, Timestamp.from(Instant.now()));
+        if (timeUpdated) {
+            botClient.sendUpdates(link.id(), linkUrl, "updated", subscribersId);
+
+            int updatedCheckTimeRowsCount = linkRepository.updateLastCheckTime(linkUrl, Timestamp.from(Instant.now()));
             int updatedUpdateTimeRowsCount =
-                linkRepository.updateLastUpdateTime(link, Timestamp.from(actualTime.toInstant()));
+                linkRepository.updateLastUpdateTime(linkUrl, Timestamp.from(actualTime.toInstant()));
 
             if (updatedCheckTimeRowsCount != 1) {
                 throw new UnexpectedDataBaseStateException(

@@ -1,11 +1,6 @@
 package edu.java.domain;
 
-import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
-import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
-import java.net.URI;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -24,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JdbcLinkRepository implements BaseEntityRepository<String> {
 
     private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<String> linkUrlRowMapper;
 
     @Override
     @Transactional
@@ -54,7 +50,7 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
     @Transactional
     public Collection<String> findAll() {
         try {
-            return jdbcTemplate.query("select * from links", new LinkRowMapper());
+            return jdbcTemplate.query("select * from links", linkUrlRowMapper);
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }
@@ -105,13 +101,6 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
             );
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
-        }
-    }
-
-    private static class LinkRowMapper implements RowMapper<String> {
-        @Override
-        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return rs.getString("url");
         }
     }
 }

@@ -1,7 +1,5 @@
 package edu.java.domain;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -18,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JdbcTelegramChatRepository implements BaseEntityRepository<Long> {
 
     private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<Long> chatIdRowMapper;
 
     @Override
     @Transactional
@@ -46,7 +45,7 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Long> {
     @Transactional
     public Collection<Long> findAll() {
         try {
-            return jdbcTemplate.query("select * from telegram_chat", new JdbcTelegramChatRepository.LinkRowMapper());
+            return jdbcTemplate.query("select * from telegram_chat", chatIdRowMapper);
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }
@@ -59,12 +58,5 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Long> {
             .stream()
             .filter(condition)
             .collect(Collectors.toList());
-    }
-
-    private static class LinkRowMapper implements RowMapper<Long> {
-        @Override
-        public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return rs.getLong("chat_id");
-        }
     }
 }

@@ -1,6 +1,7 @@
 package edu.java.domain;
 
 import edu.java.domain.entities.ChatLinkBound;
+import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
 import java.sql.Timestamp;
@@ -27,7 +28,7 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<ChatLinkBound> chatLinkBoundRowMapper;
-    private final RowMapper<String> linkUrlRowMapper;
+    private final RowMapper<Link> linkRowMapper;
 
     private static final String CHAT_ENTITY_NAME = "telegram_chat";
 
@@ -181,20 +182,20 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
     }
 
     @Transactional
-    public Collection<String> getLinksTrackedBy(Long chatId) {
+    public Collection<Link> getLinksTrackedBy(Long chatId) {
         try {
             String sql =
                 "select link_id, url "
                     + "from track_info "
                     + "join telegram_chat tg_chats "
-                        + "on (track_info.telegram_chat_id = tg_chats.id) "
-                        + "and (tg_chats.chat_id = %d) "
+                    + "on (track_info.telegram_chat_id = tg_chats.id) "
+                    + "and (tg_chats.chat_id = ?) "
                     + "join links links_table "
-                        + "on links_table.id = track_info.link_id;";
+                    + "on links_table.id = track_info.link_id;";
             return jdbcTemplate.query(
                 sql,
                 ps -> ps.setLong(1, chatId),
-                linkUrlRowMapper
+                linkRowMapper
             );
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);

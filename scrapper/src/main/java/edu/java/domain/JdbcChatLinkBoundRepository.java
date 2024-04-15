@@ -161,23 +161,6 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
             .collect(Collectors.toList());
     }
 
-    private boolean checkChatExists(TelegramChat telegramChat) {
-        final String queryToCountChatWithId = "select count(*) from telegram_chat where chat_id = ?";
-
-        int recordsCount = jdbcTemplate.queryForObject(
-            queryToCountChatWithId, Integer.class,
-            telegramChat.id()
-        );
-
-        if (recordsCount > 1) {
-            throw new UnexpectedDataBaseStateException(
-                "Too many records in table 'telegram_chat' for unique telegram chat id value"
-            );
-        }
-
-        return (recordsCount == 1);
-    }
-
     private static class LinkRowMapper implements RowMapper<ChatLinkBound> {
         @Override
         public ChatLinkBound mapRow(ResultSet rs, int rowNum) throws SQLException {

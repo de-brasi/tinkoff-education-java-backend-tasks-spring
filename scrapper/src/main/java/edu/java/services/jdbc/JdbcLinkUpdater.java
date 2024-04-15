@@ -49,17 +49,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     @Override
     public int update(Duration updateInterval) {
-//        Collection<Link> linksToUpdate = getNotCheckedForAWhile(updateInterval);
-
-        Predicate<String> outdatedLinkPredicate = link -> {
-            try {
-                return Duration.between(OffsetDateTime.now(), getLinkCheckTime(link)).compareTo(updateInterval) < 0;
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-
-        Collection<String> linksToUpdate = getAllLinksFilteredByPredicate(outdatedLinkPredicate);
+        Collection<String> linksToUpdate = linkRepository.getOutdated(updateInterval);
         log.info("Links need to update: " + linksToUpdate);
 
         int updatedLinks = 0;
@@ -111,26 +101,11 @@ public class JdbcLinkUpdater implements LinkUpdater {
         return updatedLinks;
     }
 
-    public Collection<Link> getNotCheckedForAWhile(Duration duration) {
-        Instant threshold = Instant.now().minus(duration);
-
-        String getNotCheckedLinkQuery = "select id, url from links where links.last_check_time < ?";
-        Collection<Link> result = jdbcTemplate.query(
-            getNotCheckedLinkQuery,
-            ps -> ps.setTimestamp(1, Timestamp.from(threshold)),
-            (rs, rowNum) -> new Link(URI.create(rs.getString("url")))
-        );
-
-        return result
-            .stream()
-            .toList();
-    }
-
     public Collection<String> getAllLinksFilteredByPredicate(Predicate<String> predicate) {
         return linkRepository.search(predicate);
     }
 
-    private OffsetDateTime getLinkCheckTime(String link) throws MalformedURLException {
+    private OffsetDateTime getLinkCheckTime(String link) {
         return jdbcTemplate.queryForObject(
             "select last_check_time from links where url = ?",
             OffsetDateTime.class,

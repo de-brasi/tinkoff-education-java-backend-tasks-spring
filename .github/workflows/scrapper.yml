@@ -26,6 +26,9 @@ jobs:
       - name: maven build
         run: mvn -pl scrapper -am package
 
+      - name: docker build
+        run: docker build -t scrapper-service-image -f ${{ github.workspace }}/scrapper/scrapper.Dockerfile .
+
       - id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
         if: ( github.event_name != 'workflow_dispatch' )

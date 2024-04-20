@@ -38,7 +38,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images:
-            name = 'bot'
+            name = bot
 
       - name: Build and push
         uses: docker/build-push-action@v5

@@ -1,5 +1,5 @@
 FROM openjdk:21-jdk as base
-COPY ./bot/target/bot.jar .
+COPY target/bot.jar .
 
 #server
 EXPOSE 8090

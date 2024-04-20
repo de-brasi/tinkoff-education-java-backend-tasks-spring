@@ -29,6 +29,12 @@ jobs:
       - name: docker build
         run: docker build -t scrapper-service-image -f ${{ github.workspace }}/scrapper/scrapper.Dockerfile .
 
+      - name: Tag Docker image
+        run: docker tag scrapper-service-image ghcr.io/${{ github.repository_owner }}/scrapper-service-image:${{ github.event.number }}
+
+      - name: Push Docker image to GitHub Container Registry
+        run: docker push ghcr.io/${{ github.repository_owner }}/scrapper-service-image:${{ github.event.number }}
+
       - id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
         if: ( github.event_name != 'workflow_dispatch' )

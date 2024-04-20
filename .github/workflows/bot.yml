@@ -54,7 +54,7 @@ jobs:
 #          single-output: true
 
           context: .
-#          file: ${{ github.workspace }}/bot/bot.Dockerfile
+          file: ${{ github.workspace }}/bot/bot.Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/bot-service-image:${{ github.event.number }}
 

@@ -1,5 +1,5 @@
 FROM openjdk:21-jdk as base
-COPY target/scrapper.jar .
+COPY ./target/scrapper.jar .
 
 #server
 EXPOSE 8080

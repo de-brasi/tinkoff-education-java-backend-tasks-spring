@@ -49,22 +49,6 @@ jobs:
       - name: Push Docker image to GitHub Container Registry
         run: docker push ghcr.io/${{ github.repository_owner }}/bot-service-image:${{ github.event.number }}
 
-
-#      - name: Build and push
-#        uses: docker/build-push-action@v5
-#        with:
-##          load: true
-##          load-from: bot-service-image
-##          push: true
-##          tags: ${{ steps.meta.outputs.tags }}
-##          labels: ${{ steps.meta.outputs.labels }}
-##          single-output: true
-#
-#          context: .
-#          file: ${{ github.workspace }}/bot/bot.Dockerfile
-#          push: true
-#          tags: ghcr.io/${{ github.repository_owner }}/bot-service-image:${{ github.event.number }}
-
       - id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
         if: ( github.event_name != 'workflow_dispatch' )

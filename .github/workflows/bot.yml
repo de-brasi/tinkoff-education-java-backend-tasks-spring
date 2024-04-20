@@ -53,7 +53,7 @@ jobs:
 #          labels: ${{ steps.meta.outputs.labels }}
 #          single-output: true
 
-#          context: .
+          context: .
 #          file: ${{ github.workspace }}/bot/bot.Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/bot-service-image:${{ github.event.number }}

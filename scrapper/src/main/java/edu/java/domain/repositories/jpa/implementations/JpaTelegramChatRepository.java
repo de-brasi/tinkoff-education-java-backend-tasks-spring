@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface JpaTelegramChatRepository extends JpaRepository<TelegramChat, Long> {
     @Transactional
     @Modifying
-    @Query(value = "INSERT INTO telegram_chat (chat_id) VALUES (:chatId)", nativeQuery = true)
+    @Query(value = "INSERT INTO telegram_chat (chat_id) VALUES (:chatId) ON CONFLICT DO NOTHING ", nativeQuery = true)
     void saveByChatId(Long chatId);
 
     @Transactional(readOnly = true)

@@ -4,7 +4,6 @@ import edu.java.domain.repositories.jpa.entities.Link;
 import edu.java.domain.repositories.jpa.entities.SupportedService;
 import jakarta.persistence.PersistenceException;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,7 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 public interface JpaLinkRepository extends JpaRepository<Link, Long> {
 
     @Transactional
-    default Optional<Link> add(String url, SupportedService service, OffsetDateTime lastCheckTime, OffsetDateTime lastUpdateTime, String snapshot) {
+    default Optional<Link> add(
+        String url,
+        SupportedService service,
+        OffsetDateTime lastCheckTime,
+        OffsetDateTime lastUpdateTime,
+        String snapshot
+    ) {
         try {
             Link link = new Link();
             link.setUrl(url);
@@ -35,11 +40,4 @@ public interface JpaLinkRepository extends JpaRepository<Link, Long> {
 
     @Transactional
     void removeLinkByUrl(String url);
-
-    @Transactional
-    void removeLink(Link link);
-
-    @Transactional
-    List<Link> getAll();
-
 }

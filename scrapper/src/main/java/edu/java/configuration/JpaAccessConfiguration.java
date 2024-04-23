@@ -4,6 +4,7 @@ import edu.java.clients.BotClient;
 import edu.java.domain.repositories.jpa.implementations.JpaLinkRepository;
 import edu.java.domain.repositories.jpa.implementations.JpaSupportedServicesRepository;
 import edu.java.domain.repositories.jpa.implementations.JpaTelegramChatRepository;
+import edu.java.domain.repositories.jpa.implementations.JpaTrackInfoRepository;
 import edu.java.services.ExternalServicesObserver;
 import edu.java.services.interfaces.LinkService;
 import edu.java.services.interfaces.LinkUpdater;
@@ -22,9 +23,17 @@ public class JpaAccessConfiguration {
     public LinkService linkService(
         JpaLinkRepository jpaLinkRepository,
         JpaTelegramChatRepository jpaTelegramChatRepository,
-        JpaSupportedServicesRepository jpaSupportedServicesRepository
+        JpaSupportedServicesRepository jpaSupportedServicesRepository,
+        JpaTrackInfoRepository jpaTrackInfoRepository,
+        ExternalServicesObserver externalServicesObserver
     ) {
-        return new JpaLinkService(jpaLinkRepository, jpaTelegramChatRepository, jpaSupportedServicesRepository);
+        return new JpaLinkService(
+            jpaLinkRepository,
+            jpaTelegramChatRepository,
+            jpaSupportedServicesRepository,
+            jpaTrackInfoRepository,
+            externalServicesObserver
+        );
     }
 
     @Bean

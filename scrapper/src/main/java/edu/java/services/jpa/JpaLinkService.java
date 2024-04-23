@@ -7,52 +7,55 @@ import edu.java.domain.repositories.jpa.entities.TrackInfo;
 import edu.java.domain.repositories.jpa.implementations.JpaLinkRepository;
 import edu.java.domain.repositories.jpa.implementations.JpaSupportedServicesRepository;
 import edu.java.domain.repositories.jpa.implementations.JpaTelegramChatRepository;
+import edu.java.domain.repositories.jpa.implementations.JpaTrackInfoRepository;
+import edu.java.services.ExternalServicesObserver;
 import edu.java.services.interfaces.LinkService;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.PersistenceContext;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
-import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+@RequiredArgsConstructor
 public class JpaLinkService implements LinkService {
-    public JpaLinkService(
-        JpaLinkRepository jpaLinkRepository,
-        JpaTelegramChatRepository jpaTelegramChatRepository,
-        JpaSupportedServicesRepository servicesRepository
-    ) {
-        this.linkRepository = jpaLinkRepository;
-        this.chatRepository = jpaTelegramChatRepository;
-        this.servicesRepository = servicesRepository;
-    }
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     private final JpaLinkRepository linkRepository;
     private final JpaTelegramChatRepository chatRepository;
     private final JpaSupportedServicesRepository servicesRepository;
+    private final JpaTrackInfoRepository trackInfoRepository;
+    private final ExternalServicesObserver externalServicesObserver;
 
     @Override
     @Transactional
     public Link add(long tgChatId, URI url) {
         try {
-            TelegramChat chat = chatRepository.get(tgChatId);
-            edu.java.domain.repositories.jpa.entities.Link link = linkRepository.get(url.toURL().toString());
+            final OffsetDateTime initialTime = OffsetDateTime.ofInstant(
+                Instant.ofEpochSecond(0), ZoneOffset.UTC);
 
-            if (link == null) {
-                linkRepository.add(url.toURL().toString(), getLinksService(url));
-                link = linkRepository.get(url.toURL().toString());
+            TelegramChat chat = chatRepository.get(tgChatId);
+            final String urlString = url.toURL().toString();
+
+            Optional<edu.java.domain.repositories.jpa.entities.Link> link =
+                linkRepository.getLinkByUrl(urlString);
+
+            if (link.isEmpty()) {
+                final SupportedService service = getLinksService(urlString);
+                final String actualSnapshot = externalServicesObserver.getActualSnapshot(urlString);
+                link = linkRepository.add(urlString, service, initialTime, initialTime, actualSnapshot);
             }
 
             TrackInfo trackInfo = new TrackInfo();
-            trackInfo.setLink(link);
+            trackInfo.setLink(link.orElseThrow());
             trackInfo.setChat(chat);
-            entityManager.persist(trackInfo);
-            entityManager.flush();
+
+            trackInfoRepository.save(trackInfo);
+
             return new Link(url);
         } catch (MalformedURLException e) {
             // todo
@@ -65,12 +68,15 @@ public class JpaLinkService implements LinkService {
     public Link remove(long tgChatId, URI url) {
         try {
             TelegramChat chat = chatRepository.get(tgChatId);
-            edu.java.domain.repositories.jpa.entities.Link link = linkRepository.get(url.toURL().toString());
+            String urlString = url.toURL().toString();
+
+            Optional<edu.java.domain.repositories.jpa.entities.Link> link = linkRepository.getLinkByUrl(urlString);
             TrackInfo trackInfo = new TrackInfo();
-            trackInfo.setLink(link);
+            trackInfo.setLink(link.orElseThrow());
             trackInfo.setChat(chat);
-            entityManager.remove(trackInfo);
-            entityManager.flush();
+
+            trackInfoRepository.delete(trackInfo);
+
             return new Link(url);
         } catch (NoResultException e) {
             return null;
@@ -84,23 +90,16 @@ public class JpaLinkService implements LinkService {
     @Transactional
     public Collection<Link> listAll(long tgChatId) {
 
-        List<TrackInfo> trackInfos = entityManager.createQuery(
-                "SELECT ti FROM TrackInfo ti WHERE ti.chat.id = :tgChatId", TrackInfo.class)
-            .setParameter("tgChatId", tgChatId)
-            .getResultList();
+        Collection<TrackInfo> trackInfos = trackInfoRepository.findTrackInfoByChat_Id(tgChatId);
 
         return trackInfos.stream()
-            .map(
-                e -> new Link(
+            .map(e -> new Link(
                     URI.create(e.getLink().getUrl())
-                )
-            )
+            ))
             .collect(Collectors.toList());
     }
 
-    private SupportedService getLinksService(URI url) throws MalformedURLException {
-        String urlString = url.toURL().toString();
-
+    private SupportedService getLinksService(String urlString) {
         if (urlString.startsWith("https://stackoverflow.com/")) {
             return servicesRepository.getService("stackoverflow");
         } else if (urlString.startsWith("https://github.com/")) {

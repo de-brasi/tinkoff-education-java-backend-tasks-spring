@@ -6,6 +6,7 @@ import edu.java.bot.core.commands.TelegramBotCommand;
 import edu.java.bot.core.util.Link;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@Slf4j
 public class UsedCommandsConfig {
     public UsedCommandsConfig(@Autowired ScrapperClient scrapperClient) {
         this.scrapperClient = scrapperClient;
@@ -31,7 +33,7 @@ public class UsedCommandsConfig {
                     //  - исправить сообщение пользователю
 
                     usedBot.sendPlainTextMessage(context.getChatId(), "command 'start' was called");
-                    LOGGER.info("...Command start called...");
+                    log.info("...Command start called...");
 
                     try {
                         scrapperClient.registerChat(context.getChatId());
@@ -54,7 +56,7 @@ public class UsedCommandsConfig {
                         context.getChatId(),
                         "Тут будет большое и подробное описание команд"
                     );
-                    LOGGER.info("...Command help called...");
+                    log.info("...Command help called...");
                 }
             );
     }
@@ -75,7 +77,7 @@ public class UsedCommandsConfig {
                         context.getChatId(),
                         "Tracked links:\n" + String.join("\n", links)
                     );
-                    LOGGER.info("...Command track called...");
+                    log.info("...Command track called...");
 
                     try {
                         // todo:
@@ -108,7 +110,7 @@ public class UsedCommandsConfig {
                         context.getChatId(),
                         "Untracked links:\n" + String.join("\n", links)
                     );
-                    LOGGER.info("...Command untrack called...");
+                    log.info("...Command untrack called...");
 
                     try {
                         // todo:
@@ -132,7 +134,7 @@ public class UsedCommandsConfig {
             .withCallAction((usedBot, context) -> {
                     // todo:
                     //  - исправить сообщение пользователю
-                    LOGGER.info("...Command list called...");
+                    log.info("...Command list called...");
 
                     try {
                         var resp = scrapperClient.getAllTrackedLinks(context.getChatId());
@@ -155,13 +157,13 @@ public class UsedCommandsConfig {
                         context.getChatId(),
                         "Unexpected command or argument. Please, check out your query!"
                     );
-                    LOGGER.info("...Unexpected command called...");
+                    log.info("...Unexpected command called...");
                 }
             );
     }
 
     private static void logException(Exception e, String commandName) {
-        LOGGER.info((
+        log.info((
                 """
                     Exception occurs when command %s action!
                     Exception name: %s
@@ -179,6 +181,4 @@ public class UsedCommandsConfig {
             )
         );
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

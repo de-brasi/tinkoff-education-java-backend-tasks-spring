@@ -7,7 +7,7 @@ app:
     timeout-in-milliseconds: 1000
   stackoverflow-client-settings:
     timeout-in-milliseconds: 1000
-  database-access-type: jdbc
+  database-access-type: jpa
 
 spring:
   application:

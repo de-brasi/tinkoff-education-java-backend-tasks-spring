@@ -9,7 +9,7 @@ import java.util.Collection;
 
 public interface JpaTrackInfoRepository extends JpaRepository<TrackInfo, Long> {
     @Transactional(readOnly = true)
-    Collection<TrackInfo> findTrackInfoByChat_Id(Long chatId);
+    Collection<TrackInfo> findAllByChat_ChatId(Long chatId);
 
     @Transactional
     @Modifying

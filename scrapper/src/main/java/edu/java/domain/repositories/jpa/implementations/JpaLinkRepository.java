@@ -2,86 +2,45 @@ package edu.java.domain.repositories.jpa.implementations;
 
 import edu.java.domain.repositories.jpa.entities.Link;
 import edu.java.domain.repositories.jpa.entities.SupportedService;
-import edu.java.services.ExternalServicesObserver;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
-import jakarta.transaction.Transactional;
-import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @SuppressWarnings("MultipleStringLiterals")
-public class JpaLinkRepository {
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    public JpaLinkRepository(@Autowired ExternalServicesObserver observer) {
-        servicesObserver = observer;
-    }
-
-    private final ExternalServicesObserver servicesObserver;
-
-    private static final OffsetDateTime DEFAULT_TIME =
-        OffsetDateTime.ofInstant(Instant.ofEpochSecond(0), ZoneOffset.UTC);
+public interface JpaLinkRepository extends JpaRepository<Link, Long> {
 
     @Transactional
-    public void add(String url, SupportedService service) {
+    default Optional<Link> add(String url, SupportedService service, OffsetDateTime lastCheckTime, OffsetDateTime lastUpdateTime, String snapshot) {
         try {
             Link link = new Link();
             link.setUrl(url);
-            link.setLastCheckTime(DEFAULT_TIME);
-            link.setLastUpdateTime(DEFAULT_TIME);
+            link.setLastCheckTime(lastCheckTime);
+            link.setLastUpdateTime(lastUpdateTime);
             link.setService(service);
-
-            final String snapshot = servicesObserver.getActualSnapshot(url);
             link.setSnapshot(snapshot);
 
-            entityManager.persist(link);
-            entityManager.flush();
+            save(link);
+            return Optional.of(link);
         } catch (PersistenceException ignored) {
+            return Optional.empty();
         }
     }
 
     @Transactional
-    public void save(Link link) {
-        entityManager.persist(link);
-        entityManager.flush();
-    }
+    Optional<Link> getLinkByUrl(String url);
 
     @Transactional
-    public Link get(String url) {
-        try {
-            return entityManager.createQuery("SELECT link FROM Link link WHERE link.url = :url", Link.class)
-                .setParameter("url", url)
-                .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-
-    }
+    void removeLinkByUrl(String url);
 
     @Transactional
-    public void remove(String url) {
-        Link link = entityManager.createQuery("SELECT link FROM Link link WHERE link.url = :url", Link.class)
-            .setParameter("url", url)
-            .getSingleResult();
-        entityManager.remove(link);
-    }
+    void removeLink(Link link);
 
     @Transactional
-    public void remove(Link link) {
-        entityManager.remove(link);
-    }
+    List<Link> getAll();
 
-    @Transactional
-    public List<Link> findAll() {
-        return entityManager.createQuery("SELECT link from Link link", Link.class).getResultList();
-    }
 }

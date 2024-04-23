@@ -37,15 +37,15 @@ public class JpaSupportedServicesRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void checkStackoverflow() {
-        var stackoverflow = supportedServicesRepository.getService("stackoverflow");
-        assertThat(stackoverflow.getName()).isEqualTo("stackoverflow");
+        var stackoverflow = supportedServicesRepository.getSupportedServiceByName("stackoverflow");
+        assertThat(stackoverflow.orElseThrow().getName()).isEqualTo("stackoverflow");
     }
 
     @Test
     @Transactional
     @Rollback
     void checkGithub() {
-        var gh = supportedServicesRepository.getService("github");
-        assertThat(gh.getName()).isEqualTo("github");
+        var gh = supportedServicesRepository.getSupportedServiceByName("github");
+        assertThat(gh.orElseThrow().getName()).isEqualTo("github");
     }
 }

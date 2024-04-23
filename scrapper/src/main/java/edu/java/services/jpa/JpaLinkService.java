@@ -47,14 +47,15 @@ public class JpaLinkService implements LinkService {
             if (link.isEmpty()) {
                 final SupportedService service = getLinksService(urlString);
                 final String actualSnapshot = externalServicesObserver.getActualSnapshot(urlString);
-                link = linkRepository.add(urlString, service, initialTime, initialTime, actualSnapshot);
+                linkRepository.saveIfNotExists(urlString, service, initialTime, initialTime, actualSnapshot);
+                link = linkRepository.getLinkByUrl(urlString);
             }
 
             TrackInfo trackInfo = new TrackInfo();
             trackInfo.setLink(link.orElseThrow());
             trackInfo.setChat(chat.orElseThrow());
 
-            trackInfoRepository.save(trackInfo);
+            trackInfoRepository.saveIfNotExists(trackInfo);
 
             return new Link(url);
         } catch (MalformedURLException e) {

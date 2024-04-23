@@ -15,12 +15,12 @@ public class JpaTgChatService implements TgChatService {
     @Override
     @Transactional
     public void register(long tgChatId) {
-        chatRepository.add(tgChatId);
+        chatRepository.saveByChatId(tgChatId);
     }
 
     @Override
     @Transactional
     public void unregister(long tgChatId) {
-        chatRepository.remove(tgChatId);
+        chatRepository.removeByChatId(tgChatId);
     }
 }

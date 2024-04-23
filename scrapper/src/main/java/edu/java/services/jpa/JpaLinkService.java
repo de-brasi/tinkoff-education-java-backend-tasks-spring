@@ -38,7 +38,7 @@ public class JpaLinkService implements LinkService {
             final OffsetDateTime initialTime = OffsetDateTime.ofInstant(
                 Instant.ofEpochSecond(0), ZoneOffset.UTC);
 
-            TelegramChat chat = chatRepository.get(tgChatId);
+            Optional<TelegramChat> chat = chatRepository.getTelegramChatByChatId(tgChatId);
             final String urlString = url.toURL().toString();
 
             Optional<edu.java.domain.repositories.jpa.entities.Link> link =
@@ -52,7 +52,7 @@ public class JpaLinkService implements LinkService {
 
             TrackInfo trackInfo = new TrackInfo();
             trackInfo.setLink(link.orElseThrow());
-            trackInfo.setChat(chat);
+            trackInfo.setChat(chat.orElseThrow());
 
             trackInfoRepository.save(trackInfo);
 
@@ -67,13 +67,13 @@ public class JpaLinkService implements LinkService {
     @Transactional
     public Link remove(long tgChatId, URI url) {
         try {
-            TelegramChat chat = chatRepository.get(tgChatId);
+            Optional<TelegramChat> chat = chatRepository.getTelegramChatByChatId(tgChatId);
             String urlString = url.toURL().toString();
 
             Optional<edu.java.domain.repositories.jpa.entities.Link> link = linkRepository.getLinkByUrl(urlString);
             TrackInfo trackInfo = new TrackInfo();
             trackInfo.setLink(link.orElseThrow());
-            trackInfo.setChat(chat);
+            trackInfo.setChat(chat.orElseThrow());
 
             trackInfoRepository.delete(trackInfo);
 
@@ -101,9 +101,9 @@ public class JpaLinkService implements LinkService {
 
     private SupportedService getLinksService(String urlString) {
         if (urlString.startsWith("https://stackoverflow.com/")) {
-            return servicesRepository.getService("stackoverflow");
+            return servicesRepository.getSupportedServiceByName("stackoverflow").orElseThrow();
         } else if (urlString.startsWith("https://github.com/")) {
-            return servicesRepository.getService("github");
+            return servicesRepository.getSupportedServiceByName("github").orElseThrow();
         } else {
             throw new RuntimeException("Unexpected link %s; cant find relative service".formatted(urlString));
         }

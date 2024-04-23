@@ -1,12 +1,12 @@
 package edu.java.domain.repositories.jpa.implementations;
 
 import edu.java.domain.repositories.jpa.entities.TelegramChat;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Optional;
 
 @Repository
 public interface JpaTelegramChatRepository extends JpaRepository<TelegramChat, Long> {

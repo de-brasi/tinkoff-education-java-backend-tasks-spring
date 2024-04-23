@@ -5,6 +5,7 @@ import edu.java.domain.repositories.jpa.entities.SupportedService;
 import jakarta.persistence.PersistenceException;
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,7 @@ public interface JpaLinkRepository extends JpaRepository<Link, Long> {
 
             save(link);
             return Optional.of(link);
-        } catch (PersistenceException ignored) {
+        } catch (PersistenceException | DataIntegrityViolationException ignored) {
             return Optional.empty();
         }
     }

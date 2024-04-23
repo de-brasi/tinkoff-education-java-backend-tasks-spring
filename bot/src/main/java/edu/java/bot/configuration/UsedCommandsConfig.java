@@ -163,7 +163,7 @@ public class UsedCommandsConfig {
     }
 
     private static void logException(Exception e, String commandName) {
-        log.info((
+        log.error((
                 """
                     Exception occurs when command %s action!
                     Exception name: %s

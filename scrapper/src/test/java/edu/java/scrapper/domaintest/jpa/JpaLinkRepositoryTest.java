@@ -39,9 +39,6 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Autowired
-    private JpaSupportedServicesRepository servicesRepository;
-
     final OffsetDateTime INITIAL_TIME = OffsetDateTime.ofInstant(Instant.ofEpochSecond(0), ZoneOffset.UTC);
 
     final Link testLink = new Link(URI.create(
@@ -59,9 +56,29 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
         ).getSingleResult();
 
         final String urlString = testLink.uri().toURL().toString();
-        final SupportedService service = getLinksService(urlString);
 
-        linkRepository.add(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
+        linkRepository.saveIfNotExists(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
+
+        Long suchRowCount = entityManager
+            .createQuery("SELECT count(*) from Link link where link.url = :url", Long.class)
+            .setParameter("url", testLink.uri().toURL().toString())
+            .getSingleResult();
+        assertThat(suchRowCount).isEqualTo(1);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void addURLTwiceTest() throws MalformedURLException {
+        SupportedService stackoverflowService = entityManager.createQuery(
+            "select service from SupportedService service where service.name = 'stackoverflow'",
+            SupportedService.class
+        ).getSingleResult();
+
+        final String urlString = testLink.uri().toURL().toString();
+
+        linkRepository.saveIfNotExists(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
+        linkRepository.saveIfNotExists(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
 
         Long suchRowCount = entityManager
             .createQuery("SELECT count(*) from Link link where link.url = :url", Long.class)
@@ -80,7 +97,7 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
         ).getSingleResult();
 
         final String urlString = testLink.uri().toURL().toString();
-        linkRepository.add(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
+        linkRepository.saveIfNotExists(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
         linkRepository.removeLinkByUrl(urlString);
 
         Long suchRowCount = entityManager
@@ -100,7 +117,7 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
         ).getSingleResult();
 
         final String urlString = testLink.uri().toURL().toString();
-        linkRepository.add(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
+        linkRepository.saveIfNotExists(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
         var got = linkRepository.getLinkByUrl(urlString);
 
         assertThat(got.orElseThrow().getUrl()).isEqualTo(urlString);
@@ -137,8 +154,8 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
 
         when(externalServicesObserver.getActualSnapshot(any(String.class))).thenReturn("example");
 
-        linkRepository.add(testLinkUrl1, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
-        linkRepository.add(testLinkUrl2, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
+        linkRepository.saveIfNotExists(testLinkUrl1, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
+        linkRepository.saveIfNotExists(testLinkUrl2, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
 
         var got = linkRepository.findAll()
             .stream()
@@ -148,15 +165,5 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
         final List<Link> expected = List.of(testLink1, testLink2);
 
         assertThat(got).containsAll(expected);
-    }
-
-    private SupportedService getLinksService(String urlString) {
-        if (urlString.startsWith("https://stackoverflow.com/")) {
-            return servicesRepository.getSupportedServiceByName("stackoverflow").orElseThrow();
-        } else if (urlString.startsWith("https://github.com/")) {
-            return servicesRepository.getSupportedServiceByName("github").orElseThrow();
-        } else {
-            throw new RuntimeException("Unexpected link %s; cant find relative service".formatted(urlString));
-        }
     }
 }

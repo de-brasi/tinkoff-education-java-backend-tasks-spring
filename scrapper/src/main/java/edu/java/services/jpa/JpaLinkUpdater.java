@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class JpaLinkUpdater implements LinkUpdater {
 
     public JpaLinkUpdater(
@@ -61,7 +63,7 @@ public class JpaLinkUpdater implements LinkUpdater {
             )
             .toList();
 
-        LOGGER.info("Links need to update: " + allLinksToCheck);
+        log.info("Links need to update: " + allLinksToCheck);
         int updatedLinks = 0;
 
         for (Link link : allLinksToCheck) {
@@ -83,7 +85,7 @@ public class JpaLinkUpdater implements LinkUpdater {
                 }
 
             } catch (Exception e) {
-                LOGGER.info(("""
+                log.error(("""
                     Exception when checking update of link %s;
                     Exception: %s
                     Message: %s
@@ -176,6 +178,4 @@ public class JpaLinkUpdater implements LinkUpdater {
             .map(e -> new TelegramChat(e.getChat().getChatId()))
             .toList();
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

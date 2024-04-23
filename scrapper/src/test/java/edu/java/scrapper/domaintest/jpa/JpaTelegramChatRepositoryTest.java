@@ -22,7 +22,7 @@ public class JpaTelegramChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addTest() {
-        telegramChatRepository.add(1L);
+        telegramChatRepository.saveByChatId(1L);
 
         Long suchRowCount = entityManager
             .createQuery("SELECT count(*) from TelegramChat chat where chat.chatId = :chatId", Long.class)
@@ -35,8 +35,8 @@ public class JpaTelegramChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void removeTest() {
-        telegramChatRepository.add(1L);
-        telegramChatRepository.remove(1L);
+        telegramChatRepository.saveByChatId(1L);
+        telegramChatRepository.removeByChatId(1L);
 
         Long suchRowCount = entityManager
             .createQuery("SELECT count(*) from TelegramChat chat where chat.chatId = :chatId", Long.class)
@@ -49,9 +49,9 @@ public class JpaTelegramChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void getTest() {
-        telegramChatRepository.add(1L);
-        var got = telegramChatRepository.get(1L);
+        telegramChatRepository.saveByChatId(1L);
+        var got = telegramChatRepository.getTelegramChatByChatId(1L);
 
-        assertThat(got.getChatId()).isEqualTo(1L);
+        assertThat(got.orElseThrow().getChatId()).isEqualTo(1L);
     }
 }

@@ -3,11 +3,12 @@ package edu.java.scrapper.domaintest.jpa;
 import edu.java.domain.entities.Link;
 import edu.java.domain.repositories.jpa.entities.SupportedService;
 import edu.java.domain.repositories.jpa.implementations.JpaLinkRepository;
+import edu.java.domain.repositories.jpa.implementations.JpaSupportedServicesRepository;
 import edu.java.scrapper.IntegrationTest;
 import edu.java.services.ExternalServicesObserver;
+import edu.java.services.jpa.JpaLinkUpdater;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,9 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,8 +33,16 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
     @MockBean
     ExternalServicesObserver externalServicesObserver;
 
+    @MockBean
+    JpaLinkUpdater jpaLinkUpdater;
+
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private JpaSupportedServicesRepository servicesRepository;
+
+    final OffsetDateTime INITIAL_TIME = OffsetDateTime.ofInstant(Instant.ofEpochSecond(0), ZoneOffset.UTC);
 
     final Link testLink = new Link(URI.create(
         "https://stackoverflow.com/questions/70914106/" +
@@ -46,7 +58,10 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
             SupportedService.class
         ).getSingleResult();
 
-        linkRepository.add(testLink.uri().toURL().toString(), stackoverflowService);
+        final String urlString = testLink.uri().toURL().toString();
+        final SupportedService service = getLinksService(urlString);
+
+        linkRepository.add(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
 
         Long suchRowCount = entityManager
             .createQuery("SELECT count(*) from Link link where link.url = :url", Long.class)
@@ -64,12 +79,13 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
             SupportedService.class
         ).getSingleResult();
 
-        linkRepository.add(testLink.uri().toURL().toString(), stackoverflowService);
-        linkRepository.remove(testLink.uri().toURL().toString());
+        final String urlString = testLink.uri().toURL().toString();
+        linkRepository.add(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
+        linkRepository.removeLinkByUrl(urlString);
 
         Long suchRowCount = entityManager
             .createQuery("SELECT count(*) from Link link where link.url = :url", Long.class)
-            .setParameter("url", testLink.uri().toURL().toString())
+            .setParameter("url", urlString)
             .getSingleResult();
         assertThat(suchRowCount).isEqualTo(0);
     }
@@ -83,19 +99,21 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
             SupportedService.class
         ).getSingleResult();
 
-        linkRepository.add(testLink.uri().toURL().toString(), stackoverflowService);
-        var got = linkRepository.get(testLink.uri().toURL().toString());
+        final String urlString = testLink.uri().toURL().toString();
+        linkRepository.add(urlString, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
+        var got = linkRepository.getLinkByUrl(urlString);
 
-        assertThat(got.getUrl()).isEqualTo(testLink.uri().toURL().toString());
+        assertThat(got.orElseThrow().getUrl()).isEqualTo(urlString);
     }
 
     @Test
     @Transactional
     @Rollback
     void getNotExistsTest() throws MalformedURLException {
-        var got = linkRepository.get(testLink.uri().toURL().toString());
+        final String urlString = testLink.uri().toURL().toString();
+        var got = linkRepository.getLinkByUrl(urlString);
 
-        assertThat(got).isEqualTo(null);
+        assertThat(got.isPresent()).isFalse();
     }
 
     @Test
@@ -109,6 +127,9 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
             "https://stackoverflow.com/questions/1"
         ));
 
+        final String testLinkUrl1 = testLink1.uri().toURL().toString();
+        final String testLinkUrl2 = testLink2.uri().toURL().toString();
+
         SupportedService stackoverflowService = entityManager.createQuery(
             "select service from SupportedService service where service.name = 'stackoverflow'",
             SupportedService.class
@@ -116,8 +137,8 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
 
         when(externalServicesObserver.getActualSnapshot(any(String.class))).thenReturn("example");
 
-        linkRepository.add(testLink1.uri().toURL().toString(), stackoverflowService);
-        linkRepository.add(testLink2.uri().toURL().toString(), stackoverflowService);
+        linkRepository.add(testLinkUrl1, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
+        linkRepository.add(testLinkUrl2, stackoverflowService, INITIAL_TIME, INITIAL_TIME, "");
 
         var got = linkRepository.findAll()
             .stream()
@@ -127,5 +148,15 @@ public class JpaLinkRepositoryTest extends IntegrationTest {
         final List<Link> expected = List.of(testLink1, testLink2);
 
         assertThat(got).containsAll(expected);
+    }
+
+    private SupportedService getLinksService(String urlString) {
+        if (urlString.startsWith("https://stackoverflow.com/")) {
+            return servicesRepository.getSupportedServiceByName("stackoverflow").orElseThrow();
+        } else if (urlString.startsWith("https://github.com/")) {
+            return servicesRepository.getSupportedServiceByName("github").orElseThrow();
+        } else {
+            throw new RuntimeException("Unexpected link %s; cant find relative service".formatted(urlString));
+        }
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-@SuppressWarnings("MultipleStringLiterals")
 public interface JpaLinkRepository extends JpaRepository<Link, Long> {
 
     @Transactional

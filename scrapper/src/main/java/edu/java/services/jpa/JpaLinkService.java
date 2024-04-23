@@ -91,7 +91,7 @@ public class JpaLinkService implements LinkService {
     @Transactional
     public Collection<Link> listAll(long tgChatId) {
 
-        Collection<TrackInfo> trackInfos = trackInfoRepository.findTrackInfoByChat_Id(tgChatId);
+        Collection<TrackInfo> trackInfos = trackInfoRepository.findAllByChat_ChatId(tgChatId);
 
         return trackInfos.stream()
             .map(e -> new Link(

@@ -117,7 +117,7 @@ public class JpaLinkUpdater implements LinkUpdater {
         final String currentLinkUrl = link.uri().toURL().toString();
 
         if (resourceUpdated) {
-            final String oldSnapshot = linkRepository.get(currentLinkUrl).getSnapshot();
+            final String oldSnapshot = linkRepository.getLinkByUrl(currentLinkUrl).orElseThrow().getSnapshot();
             final String actualSnapshot = servicesObserver.getActualSnapshot(currentLinkUrl);
             final String changesDescription =
                 servicesObserver.getChangingDescription(currentLinkUrl, oldSnapshot, actualSnapshot);
@@ -136,7 +136,8 @@ public class JpaLinkUpdater implements LinkUpdater {
                 subscribers
             );
 
-            edu.java.domain.repositories.jpa.entities.Link updatedLink = linkRepository.get(currentLinkUrl);
+            edu.java.domain.repositories.jpa.entities.Link updatedLink =
+                linkRepository.getLinkByUrl(currentLinkUrl).orElseThrow();
             updatedLink.setSnapshot(actualSnapshot);
             updatedLink.setLastUpdateTime(actualUpdateTime);
             updatedLink.setLastCheckTime(OffsetDateTime.now());
@@ -154,7 +155,7 @@ public class JpaLinkUpdater implements LinkUpdater {
         */
         final String url = target.uri().toURL().toString();
 
-        OffsetDateTime storedLastUpdateTime = linkRepository.get(target.uri().toURL().toString()).getLastUpdateTime();
+        OffsetDateTime storedLastUpdateTime = linkRepository.getLinkByUrl(url).orElseThrow().getLastUpdateTime();
 
         if (storedLastUpdateTime == null) {
             throw new UnexpectedDataBaseStateException(

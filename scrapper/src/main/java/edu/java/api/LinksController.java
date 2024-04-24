@@ -33,31 +33,13 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings({"MultipleStringLiterals"})
 public class LinksController {
     private final LinkService linkService;
-    private final RequestRateSupervisor requestRateSupervisor;
-    private static final ResponseEntity<?> REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE = new ResponseEntity<>(
-        new ApiErrorResponse(
-            "rate limit", "429", null, null, null
-        ),
-        HttpStatus.TOO_MANY_REQUESTS
-    );
 
-    public LinksController(@Autowired LinkService linkService, @Autowired RequestRateSupervisor supervisor) {
+    public LinksController(@Autowired LinkService linkService) {
         this.linkService = linkService;
-        this.requestRateSupervisor = supervisor;
     }
 
     @GetMapping()
-    public ResponseEntity<?> getAllTrackedLinkForChat(
-        @RequestHeader("Tg-Chat-Id") Long tgChatId,
-        HttpServletRequest request
-    ) {
-        Bucket bucket = requestRateSupervisor.resolveBucket(request.getRemoteAddr());
-        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-
-        if (!probe.isConsumed()) {
-            return REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE;
-        }
-
+    public ResponseEntity<?> getAllTrackedLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
         Collection<Link> allLinks = linkService.listAll(tgChatId);
         // todo: добавить id в сущность Link, брать id оттуда
         List<LinkResponse> linkResponseList = allLinks
@@ -81,16 +63,8 @@ public class LinksController {
     @PostMapping()
     public ResponseEntity<?> addTrackingLinkForChat(
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
-        @RequestBody AddLinkRequest requestBody,
-        HttpServletRequest request
+        @RequestBody AddLinkRequest requestBody
     ) throws MalformedURLException {
-        Bucket bucket = requestRateSupervisor.resolveBucket(request.getRemoteAddr());
-        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-
-        if (!probe.isConsumed()) {
-            return REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE;
-        }
-
         Link added = linkService.add(tgChatId, URI.create(requestBody.getLink()));
         // todo: добавить id в сущность Link, брать id оттуда
         LinkResponse response = new LinkResponse(1, added.uri().toURL().toString());
@@ -101,16 +75,8 @@ public class LinksController {
     @DeleteMapping()
     public ResponseEntity<?> untrackLinkForChat(
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
-        @RequestBody RemoveLinkRequest requestBody,
-        HttpServletRequest request
+        @RequestBody RemoveLinkRequest requestBody
     ) throws MalformedURLException {
-        Bucket bucket = requestRateSupervisor.resolveBucket(request.getRemoteAddr());
-        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-
-        if (!probe.isConsumed()) {
-            return REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE;
-        }
-
         Link removed = linkService.remove(tgChatId, URI.create(requestBody.getLink()));
         // todo: добавить id в сущность Link, брать id оттуда
         LinkResponse response = new LinkResponse(1, removed.uri().toURL().toString());

@@ -1,16 +1,11 @@
 package edu.java.api;
 
 import edu.common.datatypes.dtos.AddLinkRequest;
-import edu.common.datatypes.dtos.ApiErrorResponse;
 import edu.common.datatypes.dtos.LinkResponse;
 import edu.common.datatypes.dtos.ListLinksResponse;
 import edu.common.datatypes.dtos.RemoveLinkRequest;
-import edu.common.ratelimiting.RequestRateSupervisor;
 import edu.java.domain.entities.Link;
 import edu.java.services.interfaces.LinkService;
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.ConsumptionProbe;
-import jakarta.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;

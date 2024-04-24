@@ -1,11 +1,6 @@
 package edu.java.api;
 
-import edu.common.datatypes.dtos.ApiErrorResponse;
-import edu.common.ratelimiting.RequestRateSupervisor;
 import edu.java.services.interfaces.TgChatService;
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.ConsumptionProbe;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings({"MultipleStringLiterals"})
 public class ChatController {
     private final TgChatService tgChatService;
-    
+
     public ChatController(@Autowired TgChatService tgChatService) {
         this.tgChatService = tgChatService;
     }

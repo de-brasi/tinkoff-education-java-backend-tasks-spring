@@ -31,8 +31,6 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         Bucket bucket = requestRateSupervisor.resolveBucket(request.getRemoteAddr());
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
-        System.out.println("preHandle probe " + probe);
-
         if (!probe.isConsumed()) {
             response.getWriter().write(REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE.toString());
             response.setStatus(REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE.getStatusCode().value());

@@ -4,8 +4,7 @@ import edu.common.datatypes.exceptions.httpresponse.BadHttpResponseException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
+@Slf4j
 public class RetryAspect {
     @Around("@annotation(edu.common.customretry.Retry)")
     public Object retry(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -31,14 +31,15 @@ public class RetryAspect {
                 Thread.sleep(time);
                 return joinPoint.proceed();
             } catch (BadHttpResponseException e) {
-                LOGGER.info("Error BadHttpResponseException caught in aspect. Status: " + e.getHttpCode());
+                // information message about the error being caught
+                log.warn("Error BadHttpResponseException caught in aspect. Status: " + e.getHttpCode());
 
                 HttpStatus responseStatus = e.getHttpCode();
                 if (!handledStatusCodes.contains(responseStatus)) {
                     throw e;
                 } else {
                     var time = delayTimeGenerator.next();
-                    LOGGER.info("In aspect retry delay " + time + "ms");
+                    log.info("In aspect retry delay " + time + "ms");
                     Thread.sleep(time);
                 }
             }
@@ -53,9 +54,12 @@ public class RetryAspect {
         return method.getAnnotation(Retry.class);
     }
 
-    private final static Logger LOGGER = LogManager.getLogger();
-
     private static class DelayTimeGenerator {
+        private static final float GROWTH_RATE = 100;
+        private final long delay;
+        private final DelayFunction<Integer, Long, Long> delayFunction;
+        private int curIter = 0;
+
         DelayTimeGenerator(BackoffPolicy policy, long delay) {
             this.delay = delay;
 
@@ -65,12 +69,6 @@ public class RetryAspect {
                 case EXPONENTIAL -> ((iter, initialDelay) -> initialDelay + Math.round(Math.pow(Math.E, iter)));
             };
         }
-
-        private static final float GROWTH_RATE = 100;
-
-        private final long delay;
-        private final DelayFunction<Integer, Long, Long> delayFunction;
-        private int curIter = 0;
 
         long next() {
             return delayFunction.apply(curIter++, delay);

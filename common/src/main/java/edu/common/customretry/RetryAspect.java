@@ -57,26 +57,28 @@ public class RetryAspect {
     private static class DelayTimeGenerator {
         private static final float GROWTH_RATE = 100;
         private final long delay;
-        private final DelayFunction<Integer, Long, Long> delayFunction;
-        private int curIter = 0;
+        private final DelayValueGeneratingFunction<Integer, Long, Long> delayValueGeneratingFunction;
+        private int currentRetryNumber = 0;
 
         DelayTimeGenerator(BackoffPolicy policy, long delay) {
             this.delay = delay;
 
-            delayFunction = switch (policy) {
-                case CONSTANT -> ((iter, initialDelay) -> initialDelay);
-                case LINEAR -> ((iter, initialDelay) -> initialDelay + Math.round(iter * GROWTH_RATE));
-                case EXPONENTIAL -> ((iter, initialDelay) -> initialDelay + Math.round(Math.pow(Math.E, iter)));
+            delayValueGeneratingFunction = switch (policy) {
+                case CONSTANT -> ((retryNumber, initialDelayValue) -> initialDelayValue);
+                case LINEAR ->
+                    ((retryNumber, initialDelayValue) -> initialDelayValue + Math.round(retryNumber * GROWTH_RATE));
+                case EXPONENTIAL ->
+                    ((retryNumber, initialDelayValue) -> initialDelayValue + Math.round(Math.pow(Math.E, retryNumber)));
             };
         }
 
         long next() {
-            return delayFunction.apply(curIter++, delay);
+            return delayValueGeneratingFunction.apply(currentRetryNumber++, delay);
         }
     }
 
     @FunctionalInterface
-    private interface DelayFunction<I, D, R> {
+    private interface DelayValueGeneratingFunction<I, D, R> {
         R apply(I iter, D delay);
     }
 }

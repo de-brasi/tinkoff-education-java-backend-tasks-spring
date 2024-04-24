@@ -4,7 +4,6 @@ import edu.common.datatypes.exceptions.ChatIdNotExistsException;
 import edu.common.datatypes.exceptions.ReRegistrationException;
 import edu.java.api.ChatController;
 import edu.java.api.LinksController;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,7 @@ public class ApiChatControllerTest {
     @Test
     @DisplayName("Test correct chat registry to /tg-chat with manually occurred Exception")
     public void test2() throws Exception {
-        when(chatController.handleRegistryChat(any(Long.class), any(HttpServletRequest.class)))
+        when(chatController.handleRegistryChat(any(Long.class)))
             .thenAnswer(invocation -> {
                 throw new Exception();
             });
@@ -63,7 +62,7 @@ public class ApiChatControllerTest {
     @Test
     @DisplayName("Test correct chat registry to /tg-chat with manually occurred ReRegistrationException")
     public void test3() throws Exception {
-        when(chatController.handleRegistryChat(any(Long.class), any(HttpServletRequest.class)))
+        when(chatController.handleRegistryChat(any(Long.class)))
             .thenAnswer(invocation -> {
                 throw new ReRegistrationException();
             });
@@ -105,7 +104,7 @@ public class ApiChatControllerTest {
     @Test
     @DisplayName("Test correct chat delete to /tg-chat with manually occurred Exception")
     public void test6() throws Exception {
-        when(chatController.handleDeleteChat(any(Long.class), any(HttpServletRequest.class)))
+        when(chatController.handleDeleteChat(any(Long.class)))
             .thenAnswer(invocation -> {
                 throw new Exception();
             });
@@ -122,7 +121,7 @@ public class ApiChatControllerTest {
     @Test
     @DisplayName("Test correct chat delete to /tg-chat with manually occurred ChatIdNotExistsException")
     public void test7() throws Exception {
-        when(chatController.handleDeleteChat(any(Long.class), any(HttpServletRequest.class)))
+        when(chatController.handleDeleteChat(any(Long.class)))
             .thenAnswer(invocation -> {
                 throw new ChatIdNotExistsException();
             });

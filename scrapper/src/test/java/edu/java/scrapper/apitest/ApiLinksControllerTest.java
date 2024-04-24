@@ -3,7 +3,6 @@ package edu.java.scrapper.apitest;
 import edu.common.datatypes.exceptions.LinksNotAddedException;
 import edu.java.api.ChatController;
 import edu.java.api.LinksController;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,7 @@ public class ApiLinksControllerTest {
     @Test
     @DisplayName("Test correct link get to /links with manually occurred Exception")
     public void test10() throws Exception {
-        when(linksController.getAllTrackedLinkForChat(any(Long.class), any(HttpServletRequest.class)))
+        when(linksController.getAllTrackedLinkForChat(any(Long.class)))
             .thenAnswer(invocation -> {
                 throw new Exception();
             });
@@ -64,7 +63,7 @@ public class ApiLinksControllerTest {
     @Test
     @DisplayName("Test correct link get to /links with manually occurred LinkNotExistsException")
     public void test11() throws Exception {
-        when(linksController.getAllTrackedLinkForChat(any(Long.class), any(HttpServletRequest.class)))
+        when(linksController.getAllTrackedLinkForChat(any(Long.class)))
             .thenAnswer(invocation -> {
                 throw new LinksNotAddedException();
             });

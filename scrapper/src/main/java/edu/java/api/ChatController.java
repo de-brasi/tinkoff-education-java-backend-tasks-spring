@@ -21,43 +21,20 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings({"MultipleStringLiterals"})
 public class ChatController {
     private final TgChatService tgChatService;
-    private final RequestRateSupervisor requestRateSupervisor;
-    private static final ResponseEntity<?> REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE = new ResponseEntity<>(
-        new ApiErrorResponse(
-            "rate limit", "429", null, null, null
-        ),
-        HttpStatus.TOO_MANY_REQUESTS
-    );
-
-    public ChatController(@Autowired TgChatService tgChatService, @Autowired RequestRateSupervisor supervisor) {
+    
+    public ChatController(@Autowired TgChatService tgChatService) {
         this.tgChatService = tgChatService;
-        this.requestRateSupervisor = supervisor;
     }
 
     @PostMapping(value = "/{id}")
-    public ResponseEntity<?> handleRegistryChat(@PathVariable Long id, HttpServletRequest request) {
-        Bucket bucket = requestRateSupervisor.resolveBucket(request.getRemoteAddr());
-        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-
-        if (!probe.isConsumed()) {
-            return REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE;
-        }
-
+    public ResponseEntity<?> handleRegistryChat(@PathVariable Long id) {
         tgChatService.register(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> handleDeleteChat(@PathVariable Long id, HttpServletRequest request) {
-        Bucket bucket = requestRateSupervisor.resolveBucket(request.getRemoteAddr());
-        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-
-        if (!probe.isConsumed()) {
-            return REQUEST_RATE_LIMIT_ACHIEVED_RESPONSE;
-        }
-
+    public ResponseEntity<?> handleDeleteChat(@PathVariable Long id) {
         tgChatService.unregister(id);
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

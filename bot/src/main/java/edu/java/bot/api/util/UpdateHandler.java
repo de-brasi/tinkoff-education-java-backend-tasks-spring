@@ -1,9 +1,9 @@
 package edu.java.bot.api.util;
 
 import edu.common.datatypes.dtos.LinkUpdateRequest;
+import edu.java.bot.configuration.ApplicationConfig;
 import edu.java.bot.services.TelegramBotWrapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service;
 public class UpdateHandler {
     private final TelegramBotWrapper telegramBot;
     private final KafkaTemplate<String, LinkUpdateRequest> template;
-
-    @Value("${app.dead-letter-queue-topic.name}")
-    private String faultyLettersTopicName;
+    private final ApplicationConfig applicationConfig;
 
     public void handleUpdate(LinkUpdateRequest updateRequest) {
+        final String faultyLettersTopicName = applicationConfig.deadLetterQueueTopic().name();
+
         final String messageToClient = "Update in link %s with description: '%s'"
             .formatted(updateRequest.getUrl(), updateRequest.getDescription());
 

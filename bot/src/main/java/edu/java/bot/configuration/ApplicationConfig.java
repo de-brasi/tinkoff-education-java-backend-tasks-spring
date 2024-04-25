@@ -2,6 +2,7 @@ package edu.java.bot.configuration;
 
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.validation.annotation.Validated;
 
@@ -11,11 +12,27 @@ public record ApplicationConfig(
     @NotEmpty
     String telegramToken,
 
-    @Bean("scrapperTopic")
-    KafkaTopicConfig scrapperTopic,
-
-    @Bean("deadLetterQueueTopic")
-    KafkaTopicConfig deadLetterQueueTopic
+    @Bean("kafkaSettings")
+    KafkaSettings kafkaSettings
 ) {
-    public record KafkaTopicConfig(String name, int partitionsCount, int replicasCount) {}
+    public record KafkaSettings(
+        boolean enabled,
+        String consumerGroupId,
+
+        @NestedConfigurationProperty
+        KafkaTopicsConfig topics
+    ) {
+    }
+
+    public record KafkaTopicsConfig(
+        @NestedConfigurationProperty
+        KafkaTopicConfig scrapperTopic,
+
+        @NestedConfigurationProperty
+        KafkaTopicConfig deadLetterQueueTopic
+    ) {
+    }
+
+    public record KafkaTopicConfig(boolean enabled, String name, int partitionsCount, int replicasCount) {
+    }
 }

@@ -15,7 +15,7 @@ public class UpdateHandler {
     private final ApplicationConfig applicationConfig;
 
     public void handleUpdate(LinkUpdateRequest updateRequest) {
-        final String faultyLettersTopicName = applicationConfig.deadLetterQueueTopic().name();
+        final String faultyLettersTopicName = applicationConfig.kafkaSettings().topics().deadLetterQueueTopic().name();
 
         final String messageToClient = "Update in link %s with description: '%s'"
             .formatted(updateRequest.getUrl(), updateRequest.getDescription());

@@ -5,7 +5,6 @@ import edu.java.bot.api.util.UpdateHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,27 +18,30 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic mainTopic(
-        @Qualifier("scrapperTopic")
-        ApplicationConfig.KafkaTopicConfig scrapperTopic
+        ApplicationConfig.KafkaSettings kafkaSettings
     ) {
-        return TopicBuilder.name(scrapperTopic.name())
-            .partitions(scrapperTopic.partitionsCount())
-            .replicas(scrapperTopic.replicasCount())
+        var topicSettings = kafkaSettings.topics().scrapperTopic();
+
+        return TopicBuilder.name(topicSettings.name())
+            .partitions(topicSettings.partitionsCount())
+            .replicas(topicSettings.replicasCount())
             .build();
     }
 
     @Bean
     public NewTopic deadLetterQueue(
-        @Qualifier("deadLetterQueueTopic")
-        ApplicationConfig.KafkaTopicConfig deadLetterQueueTopic
+        ApplicationConfig.KafkaSettings dlqSettings
     ) {
-        return TopicBuilder.name(deadLetterQueueTopic.name())
-            .partitions(deadLetterQueueTopic.partitionsCount())
-            .replicas(deadLetterQueueTopic.replicasCount())
+        var topicSettings = dlqSettings.topics().scrapperTopic();
+
+        return TopicBuilder.name(topicSettings.name())
+            .partitions(topicSettings.partitionsCount())
+            .replicas(topicSettings.replicasCount())
             .build();
     }
 
-    @KafkaListener(id = "consumer-group-1", topics = "${app.scrapper-topic.name}")
+//    @KafkaListener(id = "consumer-group-1", topics = "${app.scrapper-topic.name}")
+    @KafkaListener(id = "consumer-group-1", topics = "topic1")
     public void listen(LinkUpdateRequest in) {
         log.info("Got message from kafka:" + in.toString());
         updateHandler.handleUpdate(in);

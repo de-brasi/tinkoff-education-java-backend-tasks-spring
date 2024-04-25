@@ -20,7 +20,7 @@ public class KafkaConfig {
     @Bean
     public NewTopic mainTopic(
         @Qualifier("scrapperTopic")
-        ApplicationConfig.KafkaTopicSettings scrapperTopic
+        ApplicationConfig.KafkaTopicConfig scrapperTopic
     ) {
         return TopicBuilder.name(scrapperTopic.name())
             .partitions(scrapperTopic.partitionsCount())
@@ -31,7 +31,7 @@ public class KafkaConfig {
     @Bean
     public NewTopic deadLetterQueue(
         @Qualifier("deadLetterQueueTopic")
-        ApplicationConfig.KafkaTopicSettings deadLetterQueueTopic
+        ApplicationConfig.KafkaTopicConfig deadLetterQueueTopic
     ) {
         return TopicBuilder.name(deadLetterQueueTopic.name())
             .partitions(deadLetterQueueTopic.partitionsCount())

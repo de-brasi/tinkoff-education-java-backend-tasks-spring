@@ -5,7 +5,7 @@ import edu.java.bot.api.util.UpdateHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,35 +19,23 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic mainTopic(
-        @Value("${app.scrapper-topic.name}")
-        String topicName,
-
-        @Value("${app.scrapper-topic.partitions-count}")
-        int partitionsCount,
-
-        @Value("${app.scrapper-topic.replicas-count}")
-        int replicasCount
+        @Qualifier("scrapperTopic")
+        ApplicationConfig.KafkaTopicSettings scrapperTopic
     ) {
-        return TopicBuilder.name(topicName)
-            .partitions(partitionsCount)
-            .replicas(replicasCount)
+        return TopicBuilder.name(scrapperTopic.name())
+            .partitions(scrapperTopic.partitionsCount())
+            .replicas(scrapperTopic.replicasCount())
             .build();
     }
 
     @Bean
     public NewTopic deadLetterQueue(
-        @Value("${app.scrapper-topic.name}")
-        String topicName,
-
-        @Value("${app.scrapper-topic.partitions-count}")
-        int partitionsCount,
-
-        @Value("${app.scrapper-topic.replicas-count}")
-        int replicasCount
+        @Qualifier("deadLetterQueueTopic")
+        ApplicationConfig.KafkaTopicSettings deadLetterQueueTopic
     ) {
-        return TopicBuilder.name(topicName)
-            .partitions(partitionsCount)
-            .replicas(replicasCount)
+        return TopicBuilder.name(deadLetterQueueTopic.name())
+            .partitions(deadLetterQueueTopic.partitionsCount())
+            .replicas(deadLetterQueueTopic.replicasCount())
             .build();
     }
 

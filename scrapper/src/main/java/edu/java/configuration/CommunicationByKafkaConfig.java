@@ -14,7 +14,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class CommunicationByKafkaConfig {
     @Bean
     ScrapperUpdateProducer scrapperKafkaProducer(
-        @Value("#{@kafkaTopic}")
+        @Value("#{@kafkaTopic.name}")
         String topicName,
 
         KafkaTemplate<String, LinkUpdateRequest> kafkaTemplate

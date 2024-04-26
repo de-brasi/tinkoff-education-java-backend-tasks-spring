@@ -4,6 +4,7 @@ import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.java.bot.api.util.UpdateHandler;
 import edu.java.bot.configuration.ApplicationConfig;
 import edu.java.bot.services.TelegramBotWrapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -36,6 +38,20 @@ public class RequestProcessorTest {
 
     @MockBean
     TelegramBotWrapper telegramBot;
+
+    @BeforeEach
+    public void setUp() {
+        ApplicationConfig.KafkaSettings kafkaSettings = Mockito.mock(ApplicationConfig.KafkaSettings.class);
+        when(applicationConfig.kafkaSettings()).thenReturn(kafkaSettings);
+
+        ApplicationConfig.KafkaTopicsConfig topics = Mockito.mock(ApplicationConfig.KafkaTopicsConfig.class);
+        when(kafkaSettings.topics()).thenReturn(topics);
+
+        ApplicationConfig.KafkaTopicConfig deadLetterQueueTopic = Mockito.mock(ApplicationConfig.KafkaTopicConfig.class);
+        when(topics.deadLetterQueueTopic()).thenReturn(deadLetterQueueTopic);
+
+        when(deadLetterQueueTopic.name()).thenReturn("test-topic");
+    }
 
     @Test
     public void correctRequestSendNotificationsToAllClientsTest() {
@@ -67,16 +83,45 @@ public class RequestProcessorTest {
             return null;
         }).when(telegramBot).sendPlainTextMessage(anyLong(), anyString());
 
-        ApplicationConfig.KafkaSettings kafkaSettings = Mockito.mock(ApplicationConfig.KafkaSettings.class);
-        when(applicationConfig.kafkaSettings()).thenReturn(kafkaSettings);
+        // do
+        updateHandler.handleUpdate(linkUpdateRequest);
 
-        ApplicationConfig.KafkaTopicsConfig topics = Mockito.mock(ApplicationConfig.KafkaTopicsConfig.class);
-        when(kafkaSettings.topics()).thenReturn(topics);
+        // check
+        assertThat(clientIdToReceivedMessage).isEqualTo(clientIdToReceivedMessageExpected);
+    }
 
-        ApplicationConfig.KafkaTopicConfig deadLetterQueueTopic = Mockito.mock(ApplicationConfig.KafkaTopicConfig.class);
-        when(topics.deadLetterQueueTopic()).thenReturn(deadLetterQueueTopic);
+    @Test
+    public void correctRequestSendNotificationsToAllClientsInterruptedByExceptionTest() {
+        // init
+        final List<Long> clients = List.of(1L, 2L, 3L);
+        final HashMap<Long, Integer> clientIdToReceivedMessage = clients
+            .stream()
+            .collect(Collectors.toMap(
+                k -> k,
+                v -> 0,
+                (oldValue, newValue) -> newValue,
+                HashMap::new
+            ));
+        final Map<Long, Integer> clientIdToReceivedMessageExpected = Map.of(
+            1L, 1,
+            2L, 1,
+            3L, 0
+        );
+        final LinkUpdateRequest linkUpdateRequest = new LinkUpdateRequest(
+            -1, "test-url", "test-description", clients);
 
-        when(deadLetterQueueTopic.name()).thenReturn("test-topic");
+        // mock behaviour
+        doAnswer((Answer<Void>) invocation -> {
+            Long chatId = invocation.getArgument(0);
+
+            if (chatId == 3L) {
+                // interrupt handling on third chat
+                throw new Exception();
+            }
+
+            clientIdToReceivedMessage.put(chatId, clientIdToReceivedMessage.get(chatId) + 1);
+            return null;
+        }).when(telegramBot).sendPlainTextMessage(anyLong(), anyString());
 
         // do
         updateHandler.handleUpdate(linkUpdateRequest);

@@ -52,7 +52,7 @@ public class KafkaConfig {
 
 //    @KafkaListener(id = "consumer-group-1", topics = "${app.scrapper-topic.name}")
     @KafkaListener(id = "consumer-group-1", topics = "topic1")
-    public void listen(LinkUpdateRequest in) {
+    public void processLinkUpdateRequest(LinkUpdateRequest in) {
         log.info("Got message from kafka:" + in.toString());
         updateHandler.handleUpdate(in);
     }

@@ -2,12 +2,12 @@ package edu.java.bot.api.util;
 
 import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.java.bot.services.TelegramBotWrapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

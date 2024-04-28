@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -38,20 +39,6 @@ public class RequestProcessorTest {
 
     @MockBean
     TelegramBotWrapper telegramBot;
-
-    @BeforeEach
-    public void setUp() {
-        ApplicationConfig.KafkaSettings kafkaSettings = Mockito.mock(ApplicationConfig.KafkaSettings.class);
-        when(applicationConfig.kafkaSettings()).thenReturn(kafkaSettings);
-
-        ApplicationConfig.KafkaTopicsConfig topics = Mockito.mock(ApplicationConfig.KafkaTopicsConfig.class);
-        when(kafkaSettings.topics()).thenReturn(topics);
-
-        ApplicationConfig.KafkaTopicConfig deadLetterQueueTopic = Mockito.mock(ApplicationConfig.KafkaTopicConfig.class);
-        when(topics.deadLetterQueueTopic()).thenReturn(deadLetterQueueTopic);
-
-        when(deadLetterQueueTopic.name()).thenReturn("test-topic");
-    }
 
     @Test
     public void correctRequestSendNotificationsToAllClientsTest() {

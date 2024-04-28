@@ -6,12 +6,7 @@ app:
     topics:
       scrapper-topic:
         enabled: true
-        name: "topic1"
-        partitions-count: 1
-        replicas-count: 2
-      dead-letter-queue-topic:
-        enabled: true
-        name: "faulty_dlq"
+        name: 'topic1'
         partitions-count: 1
         replicas-count: 2
 
@@ -23,8 +18,8 @@ spring:
   liquibase:
     enabled: false
   kafka:
+    bootstrap-servers: localhost:9092
     consumer:
-      bootstrap-servers: localhost:9092
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
@@ -34,7 +29,6 @@ spring:
               packages: '*'
       enable-auto-commit: false
     producer:
-      bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 

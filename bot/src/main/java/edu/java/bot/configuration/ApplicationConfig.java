@@ -26,10 +26,7 @@ public record ApplicationConfig(
 
     public record KafkaTopicsConfig(
         @NestedConfigurationProperty
-        KafkaTopicConfig scrapperTopic,
-
-        @NestedConfigurationProperty
-        KafkaTopicConfig deadLetterQueueTopic
+        KafkaTopicConfig scrapperTopic
     ) {
     }
 

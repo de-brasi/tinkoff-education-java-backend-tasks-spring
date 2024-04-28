@@ -1,31 +1,46 @@
 package edu.java.bot.api.util;
 
 import edu.common.datatypes.dtos.LinkUpdateRequest;
-import edu.java.bot.configuration.ApplicationConfig;
 import edu.java.bot.services.TelegramBotWrapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.kafka.core.KafkaTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UpdateHandler {
     private final TelegramBotWrapper telegramBot;
-    private final KafkaTemplate<String, LinkUpdateRequest> template;
-    private final ApplicationConfig applicationConfig;
 
     public void handleUpdate(LinkUpdateRequest updateRequest) {
-        final String faultyLettersTopicName = applicationConfig.kafkaSettings().topics().deadLetterQueueTopic().name();
 
         final String messageToClient = "Update in link %s with description: '%s'"
             .formatted(updateRequest.getUrl(), updateRequest.getDescription());
 
-        try {
-            for (Long chatId : updateRequest.getTgChatIds()) {
+        for (Long chatId : updateRequest.getTgChatIds()) {
+            try {
                 telegramBot.sendPlainTextMessage(chatId, messageToClient);
+            } catch (Exception e) {
+                log.error("""
+                        Cant send message '{}' to client with chat id {};
+                        Reason:
+                        Exception {}
+                        with message {}
+                        with stack trace
+                        {}
+                        """,
+                    messageToClient,
+                    chatId,
+                    e.getClass().getCanonicalName(),
+                    e.getMessage(),
+                    Arrays.stream(e.getStackTrace())
+                        .map(Objects::toString)
+                        .collect(Collectors.joining("\n"))
+                );
             }
-        } catch (Exception e) {
-            template.send(faultyLettersTopicName, updateRequest);
         }
     }
 }

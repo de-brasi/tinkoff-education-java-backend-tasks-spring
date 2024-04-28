@@ -30,7 +30,6 @@ import static org.mockito.Mockito.verify;
 @TestPropertySource(
     properties = {
         "app.kafka-settings.topics.scrapper-topic.replicas-count=1",
-        "app.kafka-settings.topics.dead-letter-queue-topic.replicas-count=1",
         "spring.kafka.consumer.auto-offset-reset=earliest"
     }
 )

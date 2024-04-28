@@ -8,8 +8,14 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.retrytopic.DltStrategy;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 
 @Configuration
 @ConditionalOnProperty(prefix = "app.kafka-settings", name = "enabled", havingValue = "true")
@@ -17,14 +23,13 @@ import org.springframework.kafka.config.TopicBuilder;
 @Slf4j
 public class KafkaConfig {
     private final UpdateHandler updateHandler;
+    private final KafkaTemplate<String, LinkUpdateRequest> dlqKafkaTemplate;
 
     @Bean
     @ConditionalOnProperty(prefix = "app.kafka-settings.topics.scrapper-topic", name = "enabled", havingValue = "true")
     public NewTopic mainTopic(
         ApplicationConfig.KafkaSettings kafkaSettings
     ) {
-        System.out.println("main topic created");
-
         var topicSettings = kafkaSettings.topics().scrapperTopic();
 
         return TopicBuilder.name(topicSettings.name())
@@ -48,9 +53,19 @@ public class KafkaConfig {
             .build();
     }
 
+    @RetryableTopic(attempts = "1", dltStrategy = DltStrategy.FAIL_ON_ERROR, dltTopicSuffix = "_dlq")
     @KafkaListener(id = "consumer-group-1", topics = "${app.kafka-settings.topics.scrapper-topic.name}")
     public void processLinkUpdateRequest(LinkUpdateRequest in) {
         log.info("Got message from kafka:" + in.toString());
         updateHandler.handleUpdate(in);
+    }
+
+    @DltHandler
+    public void handleDltMessage(
+        LinkUpdateRequest linkUpdateRequest,
+        @Header(KafkaHeaders.RECEIVED_TOPIC) String topicName
+    ) {
+       log.info("LinkUpdateRequest on dead letters queue; topic={}, content={}", topicName, linkUpdateRequest);
+       dlqKafkaTemplate.send(topicName + "_dlq", linkUpdateRequest);
     }
 }

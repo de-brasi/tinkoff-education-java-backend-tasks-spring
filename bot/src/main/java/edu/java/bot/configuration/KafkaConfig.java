@@ -38,21 +38,6 @@ public class KafkaConfig {
             .build();
     }
 
-    @Bean
-    @ConditionalOnProperty(prefix = "app.kafka-settings.topics.dead-letter-queue-topic",
-                           name = "enabled",
-                           havingValue = "true")
-    public NewTopic deadLetterQueue(
-        ApplicationConfig.KafkaSettings dlqSettings
-    ) {
-        var topicSettings = dlqSettings.topics().scrapperTopic();
-
-        return TopicBuilder.name(topicSettings.name())
-            .partitions(topicSettings.partitionsCount())
-            .replicas(topicSettings.replicasCount())
-            .build();
-    }
-
     @RetryableTopic(attempts = "1", dltStrategy = DltStrategy.FAIL_ON_ERROR, dltTopicSuffix = "_dlq")
     @KafkaListener(id = "consumer-group-1", topics = "${app.kafka-settings.topics.scrapper-topic.name}")
     public void processLinkUpdateRequest(LinkUpdateRequest in) {
@@ -66,6 +51,5 @@ public class KafkaConfig {
         @Header(KafkaHeaders.RECEIVED_TOPIC) String topicName
     ) {
        log.info("LinkUpdateRequest on dead letters queue; topic={}, content={}", topicName, linkUpdateRequest);
-       dlqKafkaTemplate.send(topicName + "_dlq", linkUpdateRequest);
     }
 }

@@ -4,8 +4,6 @@ import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;

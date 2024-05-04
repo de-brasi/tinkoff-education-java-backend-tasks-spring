@@ -121,17 +121,12 @@ public class StackOverflowClient implements ExternalServiceClient {
         if (question != null) {
             Integer questionId = Integer.valueOf(question);
 
-            var res = this.restClient
+            return this.restClient
                 .get()
                 .uri("/%s?site=stackoverflow&filter=withbody".formatted(questionId))
                 .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
                 .retrieve()
                 .body(String.class);
-
-            // todo: remove
-            System.out.println(res);
-
-            return res;
         } else {
             throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"
                 .formatted(url));

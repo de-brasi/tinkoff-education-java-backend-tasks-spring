@@ -1,9 +1,6 @@
 package edu.java.services.jdbc;
 
 import edu.java.clients.BotClient;
-import edu.java.clients.GitHubClient;
-import edu.java.clients.StackOverflowClient;
-import edu.java.domain.BaseEntityRepository;
 import edu.java.domain.JdbcLinkRepository;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
@@ -11,7 +8,6 @@ import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import edu.java.services.ExternalServicesObserver;
 import edu.java.services.interfaces.LinkUpdater;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -19,64 +15,35 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 @SuppressWarnings("MultipleStringLiterals")
 public class JdbcLinkUpdater implements LinkUpdater {
     private final JdbcTemplate jdbcTemplate;
-    private final GitHubClient gitHubClient;
-    private final StackOverflowClient stackOverflowClient;
     private final BotClient botClient;
-    private final BaseEntityRepository<Link> linkRepository;
+    private final JdbcLinkRepository linkRepository;
     private final ExternalServicesObserver servicesObserver;
 
-    public JdbcLinkUpdater(
-        @Autowired JdbcTemplate jdbcTemplate,
-        @Autowired GitHubClient gitHubClient,
-        @Autowired StackOverflowClient stackOverflowClient,
-        @Autowired BotClient botClient,
-        @Autowired JdbcLinkRepository jdbcLinkRepository,
-        @Autowired ExternalServicesObserver externalServicesObserver
-    ) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.stackOverflowClient = stackOverflowClient;
-        this.gitHubClient = gitHubClient;
-        this.botClient = botClient;
-        this.linkRepository = jdbcLinkRepository;
-        this.servicesObserver = externalServicesObserver;
-    }
-
     @Override
-    @Transactional
     public int update(Duration updateInterval) {
-//        Collection<Link> toUpdate = getNotCheckedForAWhile(updateInterval);
-
-        Predicate<Link> outdatedLinkPredicate = link -> {
-            try {
-                return Duration.between(OffsetDateTime.now(), getLinkUpdateTime(link)).compareTo(updateInterval) > 0;
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        Collection<Link> toUpdate = getAllLinksFilteredByPredicate(outdatedLinkPredicate);
-
-        LOGGER.info("Links need to update: " + toUpdate);
+        Collection<Link> linksToUpdate = linkRepository.getOutdated(updateInterval);
+        log.info("Links need to update: " + linksToUpdate);
 
         int updatedLinks = 0;
 
-        for (Link link : toUpdate) {
+        for (Link link : linksToUpdate) {
             try {
                 final String currentLinkUrl = link.uri().toURL().toString();
 
                 List<Long> subscribers =
-                    getSubscribers(link)
+                    getSubscribers(currentLinkUrl)
                         .stream()
                         .map(TelegramChat::id)
                         .toList();
@@ -96,51 +63,26 @@ public class JdbcLinkUpdater implements LinkUpdater {
                 }
 
             } catch (Exception e) {
-                LOGGER.info(("""
+                log.error(("""
                     Exception when checking update of link %s;
                     Exception: %s
                     Message: %s
                     Stacktrace:
                     %s
-                    """).formatted(link, e.getClass().getCanonicalName(), e.getMessage(),
-                    Arrays.stream(e.getStackTrace())
-                        .map(StackTraceElement::toString)
-                        .toList()
-                ));
+                    """)
+                    .formatted(link, e.getClass().getCanonicalName(), e.getMessage(),
+                        Arrays.stream(e.getStackTrace())
+                            .map(StackTraceElement::toString)
+                            .toList()
+                    )
+                );
             }
         }
 
         return updatedLinks;
     }
 
-    public Collection<Link> getNotCheckedForAWhile(Duration duration) {
-        Instant threshold = Instant.now().minus(duration);
-
-        String getNotCheckedLinkQuery = "select id, url from links where links.last_check_time < ?";
-        Collection<Link> result = jdbcTemplate.query(
-            getNotCheckedLinkQuery,
-            ps -> ps.setTimestamp(1, Timestamp.from(threshold)),
-            (rs, rowNum) -> new Link(URI.create(rs.getString("url")))
-        );
-
-        return result
-            .stream()
-            .toList();
-    }
-
-    public Collection<Link> getAllLinksFilteredByPredicate(Predicate<Link> predicate) {
-        return linkRepository.search(predicate);
-    }
-
-    private OffsetDateTime getLinkUpdateTime(Link link) throws MalformedURLException {
-        return jdbcTemplate.queryForObject(
-            "select last_update_time from links where url = ?",
-            OffsetDateTime.class,
-            link.uri().toURL().toString()
-        );
-    }
-
-    private Collection<TelegramChat> getSubscribers(Link link) {
+    private Collection<TelegramChat> getSubscribers(String link) {
         String getSubsQuery =
             "select chat_id "
                 + "from track_info "
@@ -148,13 +90,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
                 + "join public.telegram_chat tc on tc.id = track_info.telegram_chat_id";
         Collection<TelegramChat> result = jdbcTemplate.query(
             getSubsQuery,
-            ps -> {
-                try {
-                    ps.setString(1, link.uri().toURL().toString());
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
-                }
-            },
+            ps -> ps.setString(1, link),
             (rs, rowNum) -> new TelegramChat(rs.getLong("chat_id"))
         );
 
@@ -163,18 +99,17 @@ public class JdbcLinkUpdater implements LinkUpdater {
             .toList();
     }
 
-    public boolean checkLastUpdateTimeChanged(Link target, OffsetDateTime actualTime) throws MalformedURLException {
-        /*
-        Return:
-        - true: time updated
-        - false: time not updated
-        */
-        final String url = target.uri().toURL().toString();
-
+    /**
+     * Check if database stores last_update_time value different with time in parameter;
+     * @param targetLink with {@link edu.java.domain.entities.Link} to check time
+     * @param actualTime that will be compared with last saved time
+     * @return true if stored time before actual
+     */
+    public boolean checkLastUpdateTimeChanged(String targetLink, OffsetDateTime actualTime) {
         OffsetDateTime storedLastUpdateTime = jdbcTemplate.queryForObject(
             "select last_update_time from links where url = ?",
             OffsetDateTime.class,
-            url
+            targetLink
         );
 
         if (storedLastUpdateTime == null) {
@@ -186,36 +121,45 @@ public class JdbcLinkUpdater implements LinkUpdater {
         return storedLastUpdateTime.isBefore(actualTime);
     }
 
+    /**
+     * Notify clients if time of last update changed
+     * @param actualTime Actual last update time.
+     * @param link {@link edu.java.domain.entities.Link} For checking update time.
+     * @param subscribersId Link subscribers.
+     * @return true if time updated, otherwise false.
+     */
     private boolean notifyClientsIfUpdatedTimeChanged(
         OffsetDateTime actualTime,
         Link link,
         List<Long> subscribersId
     ) throws MalformedURLException {
-        /*
-        Return:
-        - true: time updated
-        - false: time not updated
-        */
-        final boolean timeUpdated = checkLastUpdateTimeChanged(link, actualTime);
-        final String currentLinkUrl = link.uri().toURL().toString();
+        final String linkUrl = link.uri().toURL().toString();
+        final boolean timeUpdated = checkLastUpdateTimeChanged(linkUrl, actualTime);
 
         if (timeUpdated) {
-            final String oldSnapshot = getSnapshot(currentLinkUrl);
-            final String actualSnapshot = servicesObserver.getActualSnapshot(currentLinkUrl);
+            final String oldSnapshot = getSnapshot(linkUrl);
+            final String actualSnapshot = servicesObserver.getActualSnapshot(linkUrl);
             final String changesDescription =
-                servicesObserver.getChangingDescription(currentLinkUrl, oldSnapshot, actualSnapshot);
+                servicesObserver.getChangingDescription(linkUrl, oldSnapshot, actualSnapshot);
 
-            // todo: использовать id ссылки, пока заглушка
-            botClient.sendUpdates(
-                -1,
-                link.uri().toURL().toString(),
-                changesDescription,
-                subscribersId
-            );
+            botClient.sendUpdates(link.id(), linkUrl, changesDescription, subscribersId);
 
-            actualizeSnapshot(currentLinkUrl, actualSnapshot);
-            actualizeLastUpdateTimeForLink(currentLinkUrl, actualTime);
-            actualizeCheckingTimeForLink(currentLinkUrl);
+            int updatedCheckTimeRowsCount = linkRepository.updateLastCheckTime(linkUrl, Timestamp.from(Instant.now()));
+            int updatedUpdateTimeRowsCount =
+                linkRepository.updateLastUpdateTime(linkUrl, Timestamp.from(actualTime.toInstant()));
+            actualizeSnapshot(linkUrl, actualSnapshot);
+
+            if (updatedCheckTimeRowsCount != 1) {
+                throw new UnexpectedDataBaseStateException(
+                    "Expected to update field 'last_check_time' one row with current time but no one row changed!"
+                );
+            }
+
+            if (updatedUpdateTimeRowsCount != 1) {
+                throw new UnexpectedDataBaseStateException(
+                    "Expected to update field 'last_update_time' one row with current time but no one row changed!"
+                );
+            }
         }
 
         return timeUpdated;
@@ -229,12 +173,13 @@ public class JdbcLinkUpdater implements LinkUpdater {
         );
     }
 
-    private void actualizeSnapshot(String url, String snapshot) {
+    @Transactional
+    public void actualizeSnapshot(String url, String snapshot) {
         int affectedRows = jdbcTemplate.update(
             "update links set snapshot = ? where url = ?",
             snapshot,
             url
-            );
+        );
 
         if (affectedRows != 1) {
             throw new UnexpectedDataBaseStateException(
@@ -244,40 +189,4 @@ public class JdbcLinkUpdater implements LinkUpdater {
             );
         }
     }
-
-    private void actualizeCheckingTimeForLink(String url) {
-        final String query = "update links set last_check_time = ? where url = ?";
-        int affectedRowsCount = jdbcTemplate.update(
-            query,
-            Timestamp.from(Instant.now()),
-            url
-        );
-
-        if (affectedRowsCount != 1) {
-            throw new UnexpectedDataBaseStateException(
-                "Expected to update field 'last_check_time' one row with current time but no one row changed!"
-            );
-        }
-    }
-
-    private void actualizeLastUpdateTimeForLink(String url, OffsetDateTime actualTime) {
-        final String query =
-            "update links "
-                + "set last_update_time = ? "
-                + "where url = ?";
-
-        int affectedRowsCount = jdbcTemplate.update(
-            query,
-            Timestamp.from(actualTime.toInstant()),
-            url
-        );
-
-        if (affectedRowsCount != 1) {
-            throw new UnexpectedDataBaseStateException(
-                "Saving new 'last_update_time' not affect to database!"
-            );
-        }
-    }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

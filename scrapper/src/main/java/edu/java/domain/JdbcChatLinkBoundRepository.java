@@ -2,101 +2,82 @@ package edu.java.domain;
 
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
-import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.DataBaseInteractingException;
-import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
-import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Repository for working with entities from database representing bound between chat and tracked link.
+ */
 @Repository
+@RequiredArgsConstructor
+@Slf4j
+@SuppressWarnings("MultipleStringLiterals")
 public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLinkBound> {
+
     private final JdbcTemplate jdbcTemplate;
     private final JdbcLinkRepository linkRepository;
+    private final JdbcTelegramChatRepository telegramChatRepository;
+    private final RowMapper<ChatLinkBound> chatLinkBoundRowMapper;
+    private final RowMapper<Link> linkRowMapper;
 
     private static final String CHAT_ENTITY_NAME = "telegram_chat";
 
-    public JdbcChatLinkBoundRepository(
-        @Autowired JdbcTemplate jdbcTemplate,
-        @Autowired JdbcLinkRepository linkRepository
-    ) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.linkRepository = linkRepository;
-    }
-
+    /**
+     * Add bound between chat and link in table 'track_info'.
+     * If link with passed url not saved in table 'links' create record in 'links' table
+     * and try to store pair (chat_id, link_id) in table 'track_info'.
+     *
+     * @param chatLinkBound object via info about chat and tracked link
+     * @return affected rows count
+     * @throws NoExpectedEntityInDataBaseException In case of telegram chat not saved yet in table 'telegram_chat'
+     * {@link edu.java.domain.exceptions.NoExpectedEntityInDataBaseException} will be thrown
+     * @throws DataBaseInteractingException        In case of some error occurs when working with JdbcTemplate
+     * {@link edu.java.domain.exceptions.DataBaseInteractingException} will be thrown
+     */
     @Override
     @Transactional
-    public boolean add(ChatLinkBound chatLinkBound) {
-        /*
-        Add bound between chat and link in table 'track_info'.
-        If link with passed url not saved in table 'links' creates record in 'links' table and
-            try to store pair <chat_id, link_id> in table 'track_info'.
-
-        In case such bound already exists returns false,
-        otherwise - true.
-
-        Throws:
-        - InvalidArgumentForTypeInDataBase: in case of invalid url value passed;
-        - NoExpectedEntityInDataBaseException: if telegram chat not saved yet in table 'telegram_chat';
-        - DataBaseInteractingException: if some error occurs when working with JdbcTemplate;
-        */
-
+    public int add(ChatLinkBound chatLinkBound) {
         try {
-            if (!checkChatExists(chatLinkBound.chat())) {
+            int telegramChatIdInDatabase;
+
+            // get chat id or throw exception
+            try {
+                final String getTgChatIdQuery = "select id from telegram_chat where chat_id = ? limit 1";
+                telegramChatIdInDatabase = jdbcTemplate.queryForObject(
+                    getTgChatIdQuery,
+                    Integer.class,
+                    chatLinkBound.chatId()
+                );
+            } catch (EmptyResultDataAccessException e) {
                 throw new NoExpectedEntityInDataBaseException(CHAT_ENTITY_NAME);
             }
-            if (!checkLinkExists(chatLinkBound.link())) {
-                linkRepository.add(chatLinkBound.link());
-            }
 
-            final String getTgChatIdQuery = "select id from telegram_chat where chat_id = ? limit 1";
-            int telegramChatIdInDatabase = jdbcTemplate.queryForObject(
-                getTgChatIdQuery,
-                Integer.class,
-                chatLinkBound.chat().id()
-            );
-
+            // try to add link, do nothing on conflict
+            linkRepository.add(chatLinkBound.linkURL());
             final String getLinkIdQuery = "select id from links where url = ? limit 1";
             int linkIdInDatabase = jdbcTemplate.queryForObject(
                 getLinkIdQuery,
                 Integer.class,
-                chatLinkBound.link().uri().toURL().toString()
+                chatLinkBound.linkURL()
             );
-
-            final String countSuchPairQuery =
-                "select count(*) from track_info where link_id = ? and telegram_chat_id = ?";
-            int pairsCount = jdbcTemplate.queryForObject(
-                countSuchPairQuery,
-                Integer.class,
-                linkIdInDatabase, telegramChatIdInDatabase
-            );
-
-            if (pairsCount == 1) {
-                return false;
-            } else if (pairsCount > 1) {
-                throw new UnexpectedDataBaseStateException("There are unique pairs in 'track_info' tables!");
-            }
 
             final String insertBoundQuery =
-                "insert into track_info(telegram_chat_id, link_id) values (?, ?)";
-            LOGGER.info(
-                "Inserting into track_info: [chat_id: "
+                "insert into track_info(telegram_chat_id, link_id) values (?, ?) on conflict do nothing";
+            log.info(
+                "Try to insert into track_info: [chat_id: "
                     + telegramChatIdInDatabase + ", link_id: "
                     + linkIdInDatabase + "]"
             );
@@ -104,71 +85,68 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
                 insertBoundQuery,
                 telegramChatIdInDatabase, linkIdInDatabase
             );
-            return (affectedRowsCount == 1);
-        } catch (DuplicateKeyException e) {
-            return false;
-        } catch (MalformedURLException e) {
-            throw new InvalidArgumentForTypeInDataBase(e);
-        } catch (DataAccessException | NullPointerException e) {
-            throw new DataBaseInteractingException(e);
-        }
-    }
-
-    @Override
-    @Transactional
-    public @Nullable ChatLinkBound remove(ChatLinkBound chatLinkBound) {
-        /*
-        Remove bound between chat and link in table 'track_info'.
-
-        Returns:
-        - chatLinkBound: if removed,
-        - null: otherwise.
-
-        Throws:
-        - InvalidArgumentForTypeInDataBase: in case of invalid url value passed;
-        - NoExpectedEntityInDataBaseException: if telegram chat not saved yet in table 'telegram_chat';
-        - DataBaseInteractingException: if some error occurs when working with JdbcTemplate;
-        */
-
-        try {
-            if (!checkChatExists(chatLinkBound.chat())) {
-                throw new NoExpectedEntityInDataBaseException(CHAT_ENTITY_NAME);
-            }
-
-            final String deleteBoundaryRecordQuery =
-                "delete from track_info "
-                + "where telegram_chat_id = (select id from telegram_chat where chat_id = ?) "
-                    + "and link_id = (select id from links where url = ?)";
-            int affectedRowsCount = jdbcTemplate.update(
-                deleteBoundaryRecordQuery,
-                chatLinkBound.chat().id(), chatLinkBound.link().uri().toURL().toString()
-            );
-
-            if (affectedRowsCount > 1) {
-                throw new UnexpectedDataBaseStateException(
-                    "Too many records in table 'track_info' for unique pair of telegram_chat id and link id"
+            if (affectedRowsCount == 1) {
+                log.info(
+                    "Success inserting into track_info: [chat_id: "
+                        + telegramChatIdInDatabase + ", link_id: "
+                        + linkIdInDatabase + "]"
                 );
             }
-
-            return (affectedRowsCount == 1) ? chatLinkBound : null;
-        } catch (MalformedURLException e) {
-            throw new InvalidArgumentForTypeInDataBase(e);
-        } catch (DataAccessException | NullPointerException e) {
+            return affectedRowsCount;
+        } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }
     }
 
+    /**
+     * Remove bound between chat and link in table 'track_info'.
+     *
+     * @param chatLinkBound object via info about chat and tracked link
+     * @return affected rows count
+     */
+    @Override
+    @Transactional
+    public int remove(ChatLinkBound chatLinkBound) {
+        try {
+            final String deleteBoundaryRecordQuery =
+                "delete from track_info "
+                    + "where telegram_chat_id = (select id from telegram_chat where chat_id = ?) "
+                    + "and link_id = (select id from links where url = ?)";
+
+            return jdbcTemplate.update(
+                deleteBoundaryRecordQuery,
+                chatLinkBound.chatId(), chatLinkBound.linkURL()
+            );
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
+    }
+
+    /**
+     * Get all information about chats and their tracked links.
+     *
+     * @return collection of {@link edu.java.domain.entities.ChatLinkBound} represented existing bounds
+     */
     @Override
     @Transactional
     public Collection<ChatLinkBound> findAll() {
-        String sql =
-            "select tg_chats.id, chat_id, link_id, url "
-            + "from track_info "
-            + "join telegram_chat tg_chats on track_info.telegram_chat_id = tg_chats.id "
-            + "join links links_table on links_table.id = track_info.link_id;";
-        return jdbcTemplate.query(sql, new JdbcChatLinkBoundRepository.LinkRowMapper());
+        try {
+            String sql =
+                "select tg_chats.id, chat_id, link_id, url "
+                    + "from track_info "
+                    + "join telegram_chat tg_chats on track_info.telegram_chat_id = tg_chats.id "
+                    + "join links links_table on links_table.id = track_info.link_id;";
+            return jdbcTemplate.query(sql, chatLinkBoundRowMapper);
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
+        }
     }
 
+    /**
+     * Get all information about chats and their tracked links filtered with {@link java.util.function.Predicate}.
+     *
+     * @return collection of {@link edu.java.domain.entities.ChatLinkBound} represented existing bounds
+     */
     @Override
     @Transactional
     public Collection<ChatLinkBound> search(Predicate<ChatLinkBound> condition) {
@@ -178,48 +156,45 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
             .collect(Collectors.toList());
     }
 
-    private boolean checkChatExists(TelegramChat telegramChat) {
-        final String queryToCountChatWithId = "select count(*) from telegram_chat where chat_id = ?";
-
-        int recordsCount = jdbcTemplate.queryForObject(
-            queryToCountChatWithId, Integer.class,
-            telegramChat.id()
-        );
-
-        if (recordsCount > 1) {
-            throw new UnexpectedDataBaseStateException(
-                "Too many records in table 'telegram_chat' for unique telegram chat id value"
-            );
+    /**
+     * Get id of entity record in table 'track_info'.
+     * @param entity ChatLinkBound for search.
+     * @return Positive Long value with id on success, negative value if record not found in database.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Integer getEntityId(ChatLinkBound entity) {
+        try {
+            final String query =
+                "select id from track_info "
+                    + "where link_id = (select id from links where url = ?) "
+                    + "and telegram_chat_id = (select id from telegram_chat where chat_id = ?)";
+            return jdbcTemplate.queryForObject(query, Integer.class, entity.linkURL(), entity.chatId());
+        } catch (EmptyResultDataAccessException e) {
+            return -1;
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
         }
-
-        return (recordsCount == 1);
     }
 
-    private boolean checkLinkExists(Link link) throws MalformedURLException {
-        final String queryToCountLinksWithUrl = "select count(*) from links where url = ?";
-        int recordsCount = jdbcTemplate.queryForObject(
-            queryToCountLinksWithUrl,
-            Integer.class,
-            link.uri().toURL().toString()
-        );
-
-        if (recordsCount > 1) {
-            throw new UnexpectedDataBaseStateException(
-                "Too many records in table 'links' for unique link's url value"
+    @Transactional
+    public Collection<Link> getLinksTrackedBy(Long chatId) {
+        try {
+            String sql =
+                "select link_id, url "
+                    + "from track_info "
+                    + "join telegram_chat tg_chats "
+                    + "on (track_info.telegram_chat_id = tg_chats.id) "
+                    + "and (tg_chats.chat_id = ?) "
+                    + "join links links_table "
+                    + "on links_table.id = track_info.link_id;";
+            return jdbcTemplate.query(
+                sql,
+                ps -> ps.setLong(1, chatId),
+                linkRowMapper
             );
-        }
-
-        return (recordsCount == 1);
-    }
-
-    private final static Logger LOGGER = LogManager.getLogger();
-
-    private static class LinkRowMapper implements RowMapper<ChatLinkBound> {
-        @Override
-        public ChatLinkBound mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Long tgChatId = rs.getLong("chat_id");
-            String url = rs.getString("url");
-            return new ChatLinkBound(new TelegramChat(tgChatId), new Link(URI.create(url)));
+        } catch (DataAccessException e) {
+            throw new DataBaseInteractingException(e);
         }
     }
 }

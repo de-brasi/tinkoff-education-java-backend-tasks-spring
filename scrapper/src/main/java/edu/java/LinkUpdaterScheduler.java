@@ -1,34 +1,51 @@
 package edu.java;
 
 import edu.java.services.interfaces.LinkUpdater;
-import edu.java.services.jdbc.JdbcLinkUpdater;
 import java.time.Duration;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 @EnableScheduling
+@RequiredArgsConstructor
+@Slf4j
 public class LinkUpdaterScheduler {
+
     private final LinkUpdater linkUpdater;
 
-    public LinkUpdaterScheduler(@Autowired JdbcLinkUpdater linkUpdater) {
-        this.linkUpdater = linkUpdater;
-    }
+    @Value("#{@scheduler.forceCheckDelay()}")
+    private Duration checkingDeadline;
 
     @SuppressWarnings("RegexpSinglelineJava")
     @Scheduled(fixedDelayString = "#{@scheduler.interval()}")
     public void update() {
-        LOGGER.info("Update");
+        log.info("Updating...");
 
-        Duration checkingDeadline = Duration.ofMinutes(1);
-
-        int updated = linkUpdater.update(checkingDeadline);
-        LOGGER.info("Updated %d links.".formatted(updated));
+        try {
+            int updated = linkUpdater.update(checkingDeadline);
+            log.info("Updated %d links.".formatted(updated));
+        } catch (Exception e) {
+            log.error(("""
+                Exception when updating links.
+                Failed when getting links for updating with exception: %s
+                Message: %s
+                Stack trace:
+                %s
+                """)
+                .formatted(
+                    e.getClass().getCanonicalName(),
+                    e.getMessage(),
+                    Arrays.stream(e.getStackTrace())
+                        .map(StackTraceElement::toString)
+                        .collect(Collectors.joining("\n"))
+                )
+            );
+        }
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

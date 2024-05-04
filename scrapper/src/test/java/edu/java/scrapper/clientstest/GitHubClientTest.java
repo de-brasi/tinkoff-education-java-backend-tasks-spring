@@ -40,7 +40,7 @@ public class GitHubClientTest {
         stubFor(get("/" + testURI + "/" + testOwner + "/" + testRepoName)
             .willReturn(
                 aResponse()
-                    .withBody("\"updated_at\": \"2024-02-12T12:45:18Z\"")
+                    .withBody("\"pushed_at\": \"2024-02-12T12:45:18Z\"")
                     .withStatus(200)
             )
         );

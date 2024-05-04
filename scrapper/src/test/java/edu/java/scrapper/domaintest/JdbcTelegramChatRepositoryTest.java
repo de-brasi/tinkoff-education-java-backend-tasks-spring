@@ -31,13 +31,13 @@ public class JdbcTelegramChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addChatTest() {
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Long testChat = 1L;
 
-        final boolean res = telegramChatRepository.add(testChat);
-        assertThat(res).isTrue();
+        final int res = telegramChatRepository.add(testChat);
+        assertThat(res).isEqualTo(1);
 
         String query = "SELECT COUNT(*) FROM telegram_chat WHERE chat_id = ?";
-        int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testChat.id());
+        int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testChat);
         assertThat(rowCount).isEqualTo(1);
     }
 
@@ -45,17 +45,16 @@ public class JdbcTelegramChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addEqualChatsTest() {
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Long testChat = 1L;
 
-        final boolean res = telegramChatRepository.add(testChat);
-        assertThat(res).isTrue();
+        final int res = telegramChatRepository.add(testChat);
+        assertThat(res).isEqualTo(1);
 
-        // TODO: какого черта не отлавливается ошибка в "catch" внутри метода JdbcLinkRepository::add?
-        final boolean resOneMore = telegramChatRepository.add(testChat);
-        assertThat(resOneMore).isFalse();
+        final int secondTryResult = telegramChatRepository.add(testChat);
+        assertThat(secondTryResult).isEqualTo(0);
 
         String query = "SELECT COUNT(*) FROM telegram_chat WHERE chat_id = ?";
-        int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testChat.id());
+        int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testChat);
         assertThat(rowCount).isEqualTo(1);
     }
 
@@ -63,21 +62,21 @@ public class JdbcTelegramChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void removeChatTest() {
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Long testChat = 1L;
 
         // add record
-        final boolean addResult = telegramChatRepository.add(testChat);
-        assertThat(addResult).isTrue();
+        final int addResult = telegramChatRepository.add(testChat);
+        assertThat(addResult).isEqualTo(1);
 
         // clear record
-        final TelegramChat removeResult = telegramChatRepository.remove(testChat);
-        assertThat(removeResult).isEqualTo(testChat);
+        final int removeResult = telegramChatRepository.remove(testChat);
+        assertThat(removeResult).isEqualTo(1);
 
         // check link actually was removed
         int rowCount = jdbcTemplate.queryForObject(
             "SELECT COUNT(*) FROM telegram_chat WHERE id = ?",
             Integer.class,
-            testChat.id()
+            testChat
         );
         assertThat(rowCount).isEqualTo(0);
     }
@@ -86,25 +85,25 @@ public class JdbcTelegramChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void removeChatTwiceTest() {
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Long testChat = 1L;
 
         // add record
-        final boolean addResult = telegramChatRepository.add(testChat);
-        assertThat(addResult).isTrue();
+        final int addResult = telegramChatRepository.add(testChat);
+        assertThat(addResult).isEqualTo(1);
 
         // clear record once
-        final TelegramChat firstRemoveResult = telegramChatRepository.remove(testChat);
-        assertThat(firstRemoveResult).isEqualTo(testChat);
+        final int firstRemoveResult = telegramChatRepository.remove(testChat);
+        assertThat(firstRemoveResult).isEqualTo(1);
 
         // clear record twice
-        final TelegramChat secondRemoveResult = telegramChatRepository.remove(testChat);
-        assertThat(secondRemoveResult).isNull();
+        int secondRemoveResult = telegramChatRepository.remove(testChat);
+        assertThat(secondRemoveResult).isEqualTo(0);
 
         // check link actually was removed
         int rowCount = jdbcTemplate.queryForObject(
             "SELECT COUNT(*) FROM telegram_chat WHERE id = ?",
             Integer.class,
-            testChat.id()
+            testChat
         );
         assertThat(rowCount).isEqualTo(0);
     }
@@ -113,29 +112,27 @@ public class JdbcTelegramChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void getAllChatsTest() {
-        final TelegramChat testChat1 = new TelegramChat(1L);
-        final TelegramChat testChat2 = new TelegramChat(2L);
-        final TelegramChat testChat3 = new TelegramChat(3L);
+        final Long testChat1 = 1L;
+        final Long testChat2 = 2L;
+        final Long testChat3 = 3L;
 
         // add records
-        final boolean addResult1 = telegramChatRepository.add(testChat1);
-        assertThat(addResult1).isTrue();
-        final boolean addResult2 = telegramChatRepository.add(testChat2);
-        assertThat(addResult2).isTrue();
-        final boolean addResult3 = telegramChatRepository.add(testChat3);
-        assertThat(addResult3).isTrue();
+        final int addResult1 = telegramChatRepository.add(testChat1);
+        assertThat(addResult1).isEqualTo(1);
+        final int addResult2 = telegramChatRepository.add(testChat2);
+        assertThat(addResult2).isEqualTo(1);
+        final int addResult3 = telegramChatRepository.add(testChat3);
+        assertThat(addResult3).isEqualTo(1);
 
         // check result contains all
-        Collection<TelegramChat> gettingAll = telegramChatRepository.findAll();
+        Collection<Long> gettingAll = telegramChatRepository.findAll();
         assertThat(gettingAll).containsExactlyInAnyOrder(testChat1, testChat2, testChat3);
 
         // check link actually was removed
         int rowCount = jdbcTemplate.queryForObject(
             "SELECT COUNT(*) FROM telegram_chat WHERE chat_id IN (?, ?, ?)",
             Integer.class,
-            testChat1.id(),
-            testChat2.id(),
-            testChat3.id()
+            testChat1, testChat2, testChat3
         );
         assertThat(rowCount).isEqualTo(3);
     }

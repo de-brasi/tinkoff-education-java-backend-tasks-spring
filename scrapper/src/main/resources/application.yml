@@ -3,10 +3,14 @@ app:
     enable: true
     interval: 10s
     force-check-delay: 10s
-  github-client-settings:
+
+third-party-web-clients:
+  github-properties:
     timeout-in-milliseconds: 1000
-  stackoverflow-client-settings:
+    base-url: https://api.github.com/repos/
+  stackoverflow-properties:
     timeout-in-milliseconds: 1000
+    base-url: https://api.stackexchange.com/2.3/questions/
 
 spring:
   application:

@@ -11,9 +11,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,26 +26,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/scrapper/api/links", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
+@Slf4j
 @SuppressWarnings({"MultipleStringLiterals"})
-public class LinksController {
-    private final LinkService linkService;
+public class LinkController {
 
-    public LinksController(@Autowired LinkService linkService) {
-        this.linkService = linkService;
-    }
+    private final LinkService linkService;
 
     @GetMapping()
     public ResponseEntity<ListLinksResponse> getAllTrackedLinkForChat(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
-        // todo проверять на:
-        //  - некорректные параметры 400
+        log.info("All tracked links command for chat with chat-id " + tgChatId);
 
         Collection<Link> allLinks = linkService.listAll(tgChatId);
-        // todo: добавить id в сущность Link, брать id оттуда
         List<LinkResponse> linkResponseList = allLinks
             .stream()
             .map(e -> {
                 try {
-                    return new LinkResponse(1, e.uri().toURL().toString());
+                    return new LinkResponse(e.id(), e.uri().toURL().toString());
                 } catch (MalformedURLException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -61,37 +57,27 @@ public class LinksController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> addTrackingLinkForChat(
+    public ResponseEntity<LinkResponse> addTrackingLinkForChat(
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody AddLinkRequest request
     ) throws MalformedURLException {
-        // todo проверять на:
-        //  - некорректные параметры 400
-
-        LOGGER.info(tgChatId);
+        log.info("Add link command for chat with chat-id " + tgChatId + " and request " + request);
         Link added = linkService.add(tgChatId, URI.create(request.getLink()));
-        // todo: добавить id в сущность Link, брать id оттуда
-        LinkResponse response = new LinkResponse(1, added.uri().toURL().toString());
+        LinkResponse response = new LinkResponse(added.id(), added.uri().toURL().toString());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> untrackLinkForChat(
+    public ResponseEntity<LinkResponse> untrackLinkForChat(
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody RemoveLinkRequest request
     ) throws MalformedURLException {
-        // todo проверять на:
-        //  - некорректные параметры 400
-        //  - чат не существует 404
-        LOGGER.info(tgChatId);
+        log.info("Delete link command for chat with chat-id " + tgChatId + " and request " + request);
         Link removed = linkService.remove(tgChatId, URI.create(request.getLink()));
-        // todo: добавить id в сущность Link, брать id оттуда
-        LinkResponse response = new LinkResponse(1, removed.uri().toURL().toString());
+        LinkResponse response = new LinkResponse(removed.id(), removed.uri().toURL().toString());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }
 

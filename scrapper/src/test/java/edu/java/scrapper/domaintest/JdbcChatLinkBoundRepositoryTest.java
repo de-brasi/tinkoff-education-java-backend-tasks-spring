@@ -1,27 +1,38 @@
 package edu.java.scrapper.domaintest;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import edu.java.domain.JdbcChatLinkBoundRepository;
 import edu.java.domain.JdbcLinkRepository;
 import edu.java.domain.JdbcTelegramChatRepository;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
 import edu.java.domain.entities.ChatLinkBound;
-import edu.java.domain.entities.Link;
-import edu.java.domain.entities.TelegramChat;
 import edu.java.scrapper.IntegrationTest;
+import edu.java.services.jdbc.JdbcLinkUpdater;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import java.net.MalformedURLException;
-import java.net.URI;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@WireMockTest
 public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -34,6 +45,63 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
 
     @Autowired
     private JdbcLinkRepository linkRepository;
+
+    @MockBean
+    JdbcLinkUpdater linkUpdater;
+
+    private static final String TEST_LINK = "https://stackoverflow.com/questions/100500";
+
+    @RegisterExtension
+    static WireMockExtension wireMockExtension = WireMockExtension
+        .newInstance()
+        .options(
+            WireMockConfiguration
+                .wireMockConfig()
+                .dynamicPort()
+        )
+        .build();
+
+    @DynamicPropertySource
+    public static void mockStackOverflowClientBaseUrl(DynamicPropertyRegistry registry) {
+        registry.add("third-party-web-clients.stackoverflow-properties.base-url", wireMockExtension::baseUrl);
+    }
+
+    @BeforeEach
+    public void configureProperties() {
+        final String stubResponseBody = """
+                {
+                  "items": [
+                    {
+                      "tags": [
+                        "java",
+                        "xml",
+                        "csv",
+                        "data-conversion"
+                      ],
+                      "is_answered": true,
+                      "protected_date": 1433355035,
+                      "closed_date": 1543288543,
+                      "last_activity_date": 1590400952,
+                      "creation_date": 1217606932,
+                      "last_edit_date": 1445938449,
+                      "question_id": 123,
+                      "link": "https://stackoverflow.com/questions/123/java-lib-or-app-to-convert-csv-to-xml-file",
+                      "title": "Java lib or app to convert CSV to XML file?"
+                    }
+                  ]
+                }
+            """;
+        wireMockExtension.stubFor(
+            WireMock.get(WireMock.urlMatching("/[0-9]+\\?.*"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .withHeader(HttpHeaders.ACCEPT_ENCODING, "gzip")
+                        .withBody(stubResponseBody)
+                )
+        );
+    }
 
     @BeforeEach
     void testTablesCleared() {
@@ -61,16 +129,15 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addCorrectPair() throws MalformedURLException {
+    void addCorrectPair() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
-        final TelegramChat testChat = new TelegramChat(1L);
+        final Long testChat = 1L;
         telegramChatRepository.add(testChat);
-        linkRepository.add(testLink);
+        linkRepository.add(TEST_LINK);
 
         // bound
-        boolean res = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
-        assertThat(res).isTrue();
+        int resCount = chatLinkBoundRepository.add(new ChatLinkBound(testChat, TEST_LINK));
+        assertThat(resCount).isEqualTo(1);
 
         // checkout records count
         String query =
@@ -82,7 +149,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
         int rowCount = jdbcTemplate.queryForObject(
             query,
             Integer.class,
-            testLink.uri().toURL().toString(), testChat.id()
+            TEST_LINK, testChat
         );
         assertThat(rowCount).isEqualTo(1);
     }
@@ -90,19 +157,18 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addCorrectPairTwice() throws MalformedURLException {
+    void addCorrectPairTwice() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
-        final TelegramChat testChat = new TelegramChat(2L);
+        final Long testChat = 2L;
         telegramChatRepository.add(testChat);
-        linkRepository.add(testLink);
+        linkRepository.add(TEST_LINK);
 
         // bound
-        boolean res = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
-        assertThat(res).isTrue();
+        int res = chatLinkBoundRepository.add(new ChatLinkBound(testChat, TEST_LINK));
+        assertThat(res).isEqualTo(1);
 
-        boolean secondRes = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
-        assertThat(secondRes).isFalse();
+        int secondRes = chatLinkBoundRepository.add(new ChatLinkBound(testChat, TEST_LINK));
+        assertThat(secondRes).isEqualTo(0);
 
         // checkout records count
         String query =
@@ -114,7 +180,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
         int rowCount = jdbcTemplate.queryForObject(
             query,
             Integer.class,
-            testLink.uri().toURL().toString(), testChat.id()
+            TEST_LINK, testChat
         );
         assertThat(rowCount).isEqualTo(1);
     }
@@ -124,32 +190,31 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void addIncorrectPairTgChatRequired() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
-        final TelegramChat testChat = new TelegramChat(3L);
-        linkRepository.add(testLink);
+        final Long testChat = 3L;
+        linkRepository.add(TEST_LINK);
 
-        assertThatThrownBy(() -> chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink))).isInstanceOf(
-            NoExpectedEntityInDataBaseException.class);
+        assertThatThrownBy(() -> chatLinkBoundRepository.add(new ChatLinkBound(
+            testChat, TEST_LINK
+        ))).isInstanceOf(NoExpectedEntityInDataBaseException.class);
     }
 
     @Test
     @Transactional
     @Rollback
-    void addInCorrectPairLinkRequiredCheckLinkActuallyAddedToTable() throws MalformedURLException {
+    void addInCorrectPairLinkRequiredCheckLinkActuallyAddedToTable() {
         // preconditions
-        final TelegramChat testChat = new TelegramChat(4L);
-        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
+        final Long testChat = 4L;
         telegramChatRepository.add(testChat);
 
         // bound
-        chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
+        chatLinkBoundRepository.add(new ChatLinkBound(testChat, TEST_LINK));
 
         // check link actually added
         String queryToCheckTestLink = "select count(*) from links where url = ?";
         int rowCount = jdbcTemplate.queryForObject(
             queryToCheckTestLink,
             Integer.class,
-            testLink.uri().toURL().toString()
+            TEST_LINK
         );
         assertThat(rowCount).isEqualTo(1);
     }
@@ -157,15 +222,14 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addInCorrectPairLinkRequiredCheckBoundingInformationActuallyCreated() throws MalformedURLException {
+    void addInCorrectPairLinkRequiredCheckBoundingInformationActuallyCreated() {
         // preconditions
-        final TelegramChat testChat = new TelegramChat(5L);
-        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
+        final Long testChat = 5L;
         telegramChatRepository.add(testChat);
 
         // bound
-        boolean res = chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
-        assertThat(res).isTrue();
+        int res = chatLinkBoundRepository.add(new ChatLinkBound(testChat, TEST_LINK));
+        assertThat(res).isEqualTo(1);
 
         // check link actually added
         String queryToCheckBoundingInfo =
@@ -177,7 +241,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
         int rowCount = jdbcTemplate.queryForObject(
             queryToCheckBoundingInfo,
             Integer.class,
-            testLink.uri().toURL().toString(), testChat.id()
+            TEST_LINK, testChat
         );
         assertThat(rowCount).isEqualTo(1);
     }
@@ -185,32 +249,19 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addInCorrectPairTgChatAndLinkRequired() {
-        // preconditions: empty
-        final Link testLink = new Link(URI.create("https://example/link6"));
-        final TelegramChat testChat = new TelegramChat(6L);
-
-        assertThatThrownBy(() -> chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink))).isInstanceOf(
-            NoExpectedEntityInDataBaseException.class);
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    void removeCorrectPair() throws MalformedURLException {
+    void removeCorrectPair() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
-        final TelegramChat testChat = new TelegramChat(7L);
+        final Long testChat = 7L;
         telegramChatRepository.add(testChat);
-        linkRepository.add(testLink);
-        chatLinkBoundRepository.add(new ChatLinkBound(testChat, testLink));
+        linkRepository.add(TEST_LINK);
+        chatLinkBoundRepository.add(new ChatLinkBound(testChat, TEST_LINK));
 
         // remove
-        final ChatLinkBound removedExpected = new ChatLinkBound(testChat, testLink);
-        final ChatLinkBound removedActual = chatLinkBoundRepository.remove(removedExpected);
+        final ChatLinkBound removedExpected = new ChatLinkBound(testChat, TEST_LINK);
+        final int removedRowsCount = chatLinkBoundRepository.remove(removedExpected);
 
         // checkout equivalency
-        assertThat(removedExpected).isEqualTo(removedActual);
+        assertThat(removedRowsCount).isEqualTo(1);
 
         // checkout records count
         String query =
@@ -218,11 +269,7 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
                 "from track_info " +
                 "where link_id = ((select id as tg_chat_id from telegram_chat where chat_id = ?)) " +
                 "and telegram_chat_id = (select id as link_id from links where url = ?);";
-        int rowCount = jdbcTemplate.queryForObject(
-            query,
-            Integer.class,
-            testChat.id() , testLink.uri().toURL().toString()
-        );
+        int rowCount = jdbcTemplate.queryForObject(query, Integer.class, testChat , TEST_LINK);
         assertThat(rowCount).isEqualTo(0);
     }
 
@@ -230,13 +277,22 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void removeInCorrectPairTgChatNotExists() {
-        // preconditions
-        final Link testLink = new Link(URI.create("https://stackoverflow.com/questions/3838242/minimum-date-in-java"));
-        final TelegramChat testChat = new TelegramChat(8L);
-        linkRepository.add(testLink);
+        stubFor(WireMock.get(urlEqualTo("/2.3/questions/100500"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\"items\":[{\"tags\":[\"java\",\"xml\",\"csv\",\"data-conversion\"],\"owner\":{\"account_id\":64,\"reputation\":1325,\"user_id\":78,\"user_type\":\"registered\",\"accept_rate\":75,\"profile_image\":\"https://www.gravatar.com/avatar/90f0ea16725b9f41c2121b40e2cc45cd?s=256&d=identicon&r=PG\",\"display_name\":\"A Salim\",\"link\":\"https://stackoverflow.com/users/78/a-salim\"},\"is_answered\":true,\"view_count\":81218,\"protected_date\":1433355035,\"closed_date\":1543288543,\"accepted_answer_id\":183,\"answer_count\":16,\"score\":121,\"last_activity_date\":1590400952,\"creation_date\":1217606932,\"last_edit_date\":1445938449,\"question_id\":123,\"link\":\"https://stackoverflow.com/questions/123/java-lib-or-app-to-convert-csv-to-xml-file\",\"closed_reason\":\"Not suitable for this site\",\"title\":\"Java lib or app to convert CSV to XML file?\"}],\"has_more\":false,\"quota_max\":300,\"quota_remaining\":231}")));
 
-        assertThatThrownBy(() -> chatLinkBoundRepository.remove(new ChatLinkBound(testChat, testLink))).isInstanceOf(
-            NoExpectedEntityInDataBaseException.class);
+
+        // preconditions
+        final Long testChat = 8L;
+        linkRepository.add(TEST_LINK);
+
+        var res = chatLinkBoundRepository.remove(new ChatLinkBound(
+            testChat, TEST_LINK
+        ));
+
+        assertThat(res).isEqualTo(0);
     }
 
     @Test
@@ -244,10 +300,9 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void removeInCorrectPairLinkNotExists() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link9"));
-        final TelegramChat testChat = new TelegramChat(9L);
-        var res = telegramChatRepository.remove(testChat);
-        assertThat(res).isEqualTo(null);
+        final Long testChat = 9L;
+        var res = chatLinkBoundRepository.remove(new ChatLinkBound(testChat, TEST_LINK));
+        assertThat(res).isEqualTo(0);
     }
 
     @Test
@@ -255,11 +310,13 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Rollback
     void removeInCorrectPairLinkAndChatNotExists() {
         // preconditions
-        final Link testLink = new Link(URI.create("https://example/link10"));
-        final TelegramChat testChat = new TelegramChat(10L);
+        final Long testChat = 10L;
 
-        // if no link and chat - firstly need to notify that chat not exists
-        assertThatThrownBy(() -> chatLinkBoundRepository.remove(new ChatLinkBound(testChat, testLink))).isInstanceOf(
-            NoExpectedEntityInDataBaseException.class);
+        var res = chatLinkBoundRepository.remove(new ChatLinkBound(
+            testChat,
+            TEST_LINK
+        ));
+
+        assertThat(res).isEqualTo(0);
     }
 }

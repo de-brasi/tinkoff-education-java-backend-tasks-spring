@@ -3,13 +3,13 @@ package edu.java.services.jdbc;
 import edu.common.exceptions.ChatIdNotExistsException;
 import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.ReAddingLinkException;
-import edu.java.domain.JdbcChatLinkBoundRepository;
-import edu.java.domain.JdbcLinkRepository;
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
+import edu.java.domain.repositories.jdbc.JdbcChatLinkBoundRepository;
+import edu.java.domain.repositories.jdbc.JdbcLinkRepository;
 import edu.java.services.interfaces.LinkService;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -44,9 +44,9 @@ public class JdbcLinkService implements LinkService {
             }
 
             // get id of link that may be just created
-            final Integer addedRecordId = linkRepository.getEntityId(urlString);
+            final Long addedRecordId = linkRepository.getEntityId(urlString);
 
-            if (addedRecordId < 0) {
+            if (addedRecordId < 0L) {
                 // unexpected state
                 throw new NoExpectedEntityInDataBaseException(
                     "Expected record for url %s not found".formatted(urlString)
@@ -74,7 +74,7 @@ public class JdbcLinkService implements LinkService {
             ChatLinkBound bound = new ChatLinkBound(tgChatId, urlString);
 
             // get id of link
-            final Integer addedRecordId = linkRepository.getEntityId(urlString);
+            final Long addedRecordId = linkRepository.getEntityId(urlString);
 
             if (addedRecordId < 0) {
                 // unexpected state

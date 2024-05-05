@@ -1,10 +1,10 @@
 package edu.java.services.jdbc;
 
 import edu.java.clients.BotClient;
-import edu.java.domain.JdbcLinkRepository;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
+import edu.java.domain.repositories.jdbc.JdbcLinkRepository;
 import edu.java.services.ExternalServicesObserver;
 import edu.java.services.interfaces.LinkUpdater;
 import java.net.MalformedURLException;
@@ -15,6 +15,7 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,16 +43,10 @@ public class JdbcLinkUpdater implements LinkUpdater {
             try {
                 final String currentLinkUrl = link.uri().toURL().toString();
 
-                List<Long> subscribers =
-                    getSubscribers(currentLinkUrl)
-                        .stream()
-                        .map(TelegramChat::id)
-                        .toList();
-
                 if (servicesObserver.checkURLSupported(currentLinkUrl)) {
                     final OffsetDateTime actualUpdateTime =
                         servicesObserver.getActualUpdateTime(currentLinkUrl);
-                    boolean linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link, subscribers);
+                    boolean linkUpdated = notifyClientsIfUpdatedTimeChanged(actualUpdateTime, link);
 
                     if (linkUpdated) {
                         updatedLinks++;
@@ -70,12 +65,14 @@ public class JdbcLinkUpdater implements LinkUpdater {
                     Stacktrace:
                     %s
                     """)
-                    .formatted(link, e.getClass().getCanonicalName(), e.getMessage(),
+                    .formatted(
+                        link,
+                        e.getClass().getCanonicalName(),
+                        e.getMessage(),
                         Arrays.stream(e.getStackTrace())
                             .map(StackTraceElement::toString)
-                            .toList()
-                    )
-                );
+                            .collect(Collectors.joining("\n"))
+                    ));
             }
         }
 
@@ -123,18 +120,16 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     /**
      * Notify clients if time of last update changed
-     * @param actualTime Actual last update time.
+     * @param actualUpdateTime Actual last update time.
      * @param link {@link edu.java.domain.entities.Link} For checking update time.
-     * @param subscribersId Link subscribers.
      * @return true if time updated, otherwise false.
      */
     private boolean notifyClientsIfUpdatedTimeChanged(
-        OffsetDateTime actualTime,
-        Link link,
-        List<Long> subscribersId
+        OffsetDateTime actualUpdateTime,
+        Link link
     ) throws MalformedURLException {
         final String linkUrl = link.uri().toURL().toString();
-        final boolean timeUpdated = checkLastUpdateTimeChanged(linkUrl, actualTime);
+        final boolean timeUpdated = checkLastUpdateTimeChanged(linkUrl, actualUpdateTime);
 
         if (timeUpdated) {
             final String oldSnapshot = getSnapshot(linkUrl);
@@ -142,11 +137,17 @@ public class JdbcLinkUpdater implements LinkUpdater {
             final String changesDescription =
                 servicesObserver.getChangingDescription(linkUrl, oldSnapshot, actualSnapshot);
 
+            List<Long> subscribersId =
+                getSubscribers(linkUrl)
+                    .stream()
+                    .map(TelegramChat::id)
+                    .toList();
+
             botClient.sendUpdates(link.id(), linkUrl, changesDescription, subscribersId);
 
             int updatedCheckTimeRowsCount = linkRepository.updateLastCheckTime(linkUrl, Timestamp.from(Instant.now()));
             int updatedUpdateTimeRowsCount =
-                linkRepository.updateLastUpdateTime(linkUrl, Timestamp.from(actualTime.toInstant()));
+                linkRepository.updateLastUpdateTime(linkUrl, Timestamp.from(actualUpdateTime.toInstant()));
             actualizeSnapshot(linkUrl, actualSnapshot);
 
             if (updatedCheckTimeRowsCount != 1) {

@@ -1,9 +1,10 @@
-package edu.java.domain;
+package edu.java.domain.repositories.jdbc;
 
 import edu.java.domain.entities.ChatLinkBound;
 import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.NoExpectedEntityInDataBaseException;
+import edu.java.domain.repositories.BaseEntityRepository;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -48,6 +49,20 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
     @Override
     @Transactional
     public int add(ChatLinkBound chatLinkBound) {
+        /*
+        Add bound between chat and link in table 'track_info'.
+        If link with passed url not saved in table 'links' creates record in 'links' table and
+            try to store pair <chat_id, link_id> in table 'track_info'.
+
+        In case such bound already exists returns false,
+        otherwise - true.
+
+        Throws:
+        - InvalidArgumentForTypeInDataBase: in case of invalid url value passed;
+        - NoExpectedEntityInDataBaseException: if telegram chat not saved yet in table 'telegram_chat';
+        - DataBaseInteractingException: if some error occurs when working with JdbcTemplate;
+        */
+
         try {
             int telegramChatIdInDatabase;
 
@@ -161,15 +176,15 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
      */
     @Override
     @Transactional(readOnly = true)
-    public Integer getEntityId(ChatLinkBound entity) {
+    public Long getEntityId(ChatLinkBound entity) {
         try {
             final String query =
                 "select id from track_info "
                     + "where link_id = (select id from links where url = ?) "
                     + "and telegram_chat_id = (select id from telegram_chat where chat_id = ?)";
-            return jdbcTemplate.queryForObject(query, Integer.class, entity.linkURL(), entity.chatId());
+            return jdbcTemplate.queryForObject(query, Long.class, entity.linkURL(), entity.chatId());
         } catch (EmptyResultDataAccessException e) {
-            return -1;
+            return -1L;
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }

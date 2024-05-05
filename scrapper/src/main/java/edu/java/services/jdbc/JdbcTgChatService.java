@@ -2,19 +2,14 @@ package edu.java.services.jdbc;
 
 import edu.common.exceptions.ChatIdNotExistsException;
 import edu.common.exceptions.ReRegistrationException;
-import edu.java.domain.BaseEntityRepository;
-import edu.java.domain.JdbcTelegramChatRepository;
+import edu.java.domain.repositories.jdbc.JdbcTelegramChatRepository;
 import edu.java.services.interfaces.TgChatService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
-@Service
+@RequiredArgsConstructor
 public class JdbcTgChatService implements TgChatService {
-    private final BaseEntityRepository<Long> chatRepository;
 
-    public JdbcTgChatService(@Autowired JdbcTelegramChatRepository chatRepository) {
-        this.chatRepository = chatRepository;
-    }
+    private final JdbcTelegramChatRepository chatRepository;
 
     @Override
     public void register(long tgChatId) {
@@ -35,4 +30,5 @@ public class JdbcTgChatService implements TgChatService {
             throw new ChatIdNotExistsException();
         }
     }
+
 }

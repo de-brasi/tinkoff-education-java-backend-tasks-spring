@@ -1,4 +1,4 @@
-package edu.java.domain;
+package edu.java.domain.repositories;
 
 import java.util.Collection;
 import java.util.function.Predicate;
@@ -12,5 +12,5 @@ public interface BaseEntityRepository<E> {
 
     Collection<E> search(Predicate<E> condition);
 
-    Integer getEntityId(E entity);
+    Long getEntityId(E entity);
 }

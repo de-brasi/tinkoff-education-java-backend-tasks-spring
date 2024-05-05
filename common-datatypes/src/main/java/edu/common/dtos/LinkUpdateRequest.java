@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LinkUpdateRequest {
-    int id;
+    long id;
     String url;
     String description;
     List<Long> tgChatIds;

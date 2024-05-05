@@ -1,8 +1,9 @@
-package edu.java.domain;
+package edu.java.domain.repositories.jdbc;
 
 import edu.java.domain.entities.Link;
 import edu.java.domain.exceptions.DataBaseInteractingException;
 import edu.java.domain.exceptions.InvalidArgumentForTypeInDataBase;
+import edu.java.domain.repositories.BaseEntityRepository;
 import edu.java.services.ExternalServicesObserver;
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -99,14 +100,14 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
      */
     @Override
     @Transactional(readOnly = true)
-    public Integer getEntityId(String entity) {
+    public Long getEntityId(String entity) {
         try {
             return jdbcTemplate.queryForObject(
                 "select id from links where url = ?",
-                Integer.class, entity
+                Long.class, entity
             );
         } catch (EmptyResultDataAccessException e) {
-            return -1;
+            return -1L;
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }

@@ -33,7 +33,7 @@ public class BotClient {
     }
 
     public void sendUpdates(
-        int id, String updatedUrl, String updateDescription, List<Long> subscribers
+        long id, String updatedUrl, String updateDescription, List<Long> subscribers
     ) {
         LinkUpdateRequest updates = new LinkUpdateRequest(id, updatedUrl, updateDescription, subscribers);
         this.restClient

@@ -1,6 +1,7 @@
-package edu.java.domain;
+package edu.java.domain.repositories.jdbc;
 
 import edu.java.domain.exceptions.DataBaseInteractingException;
+import edu.java.domain.repositories.BaseEntityRepository;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -68,16 +69,17 @@ public class JdbcTelegramChatRepository implements BaseEntityRepository<Long> {
      */
     @Override
     @Transactional(readOnly = true)
-    public Integer getEntityId(Long entity) {
+    public Long getEntityId(Long entity) {
         try {
             return jdbcTemplate.queryForObject(
                 "select id from telegram_chat where chat_id = ?",
-                Integer.class, entity
+                Long.class, entity
             );
         } catch (EmptyResultDataAccessException e) {
-            return -1;
+            return -1L;
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }
     }
+
 }

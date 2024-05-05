@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.common.dtos.ApiErrorResponse;
 import edu.common.exceptions.IncorrectRequestException;
 import edu.common.exceptions.UnexpectedResponse;
+import edu.java.bot.client.ScrapperClient;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -45,5 +47,25 @@ public class ScrapperClientConfig {
             }
 
         };
+    }
+
+    @Bean("scrapperClient")
+    public ScrapperClient scrapperClient(
+        @Autowired
+        ObjectMapper mapper,
+
+        @Autowired
+        @Qualifier("defaultUnexpectedStatusHandler")
+        RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler,
+
+        @Autowired
+        @Qualifier("linkManagementStatus4xxHandler")
+        RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler
+    ) {
+        return new ScrapperClient(
+            mapper,
+            defaultUnexpectedStatusHandler,
+            linkManagementStatus4xxHandler
+        );
     }
 }

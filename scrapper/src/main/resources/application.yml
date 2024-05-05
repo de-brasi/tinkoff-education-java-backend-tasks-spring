@@ -3,6 +3,7 @@ app:
     enable: true
     interval: 10s
     force-check-delay: 10s
+  database-access-type: jpa
 
 third-party-web-clients:
   github-properties:
@@ -22,6 +23,14 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        connection:
+          driver_class: org.postgresql.Driver
+        hbm2ddl:
+          auto: validate
 
 server:
   port: 8080

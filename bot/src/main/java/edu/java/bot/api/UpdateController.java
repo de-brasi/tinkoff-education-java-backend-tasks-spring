@@ -2,9 +2,9 @@ package edu.java.bot.api;
 
 import edu.common.dtos.ApiErrorResponse;
 import edu.common.dtos.LinkUpdateRequest;
+import edu.java.bot.services.TelegramBotWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import edu.java.bot.services.TelegramBotWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

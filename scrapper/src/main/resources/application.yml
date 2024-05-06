@@ -8,10 +8,10 @@ app:
 third-party-web-clients:
   github-properties:
     timeout-in-milliseconds: 1000
-    base-url: https://api.github.com/repos/
+    base-url: https://api.github.com/
   stackoverflow-properties:
     timeout-in-milliseconds: 1000
-    base-url: https://api.stackexchange.com/2.3/questions/
+    base-url: https://api.stackexchange.com/2.3/
 
 spring:
   application:

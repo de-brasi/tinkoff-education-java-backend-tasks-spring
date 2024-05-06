@@ -10,14 +10,16 @@ import java.time.ZoneOffset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ReactorNettyClientRequestFactory;
 import org.springframework.web.client.RestClient;
 
 @SuppressWarnings("MultipleStringLiterals")
 public class StackOverflowClient implements ExternalServiceClient {
     private final RestClient restClient;
+    private final RestClient.ResponseSpec.ErrorHandler notOkResponseHandler;
     private static final String DEFAULT_BASE_URL =
-        "https://api.stackexchange.com/2.3/questions/";
+        "https://api.stackexchange.com/2.3/";
     private static final String SUPPOERTED_PREFIX = "https://stackoverflow";
     private static final String SERVICE_NAME_IN_DATABASE = "stackoverflow";
 
@@ -36,29 +38,7 @@ public class StackOverflowClient implements ExternalServiceClient {
     private static final Pattern IS_ANSWERED_PATTERN = Pattern.compile(".*\\\"is_answered\\\":\\s*(true|false),.*");
     private static final Pattern ANSWER_COUNT_PATTERN = Pattern.compile(".*\\\"answer_count\\\":\\s*(\\d+),.*");
 
-    public StackOverflowClient() {
-        RestClient.Builder restClientBuilder = RestClient.builder();
-
-        var requestFactory = new ReactorNettyClientRequestFactory();
-
-        this.restClient = restClientBuilder
-            .requestFactory(requestFactory)
-            .baseUrl(StackOverflowClient.DEFAULT_BASE_URL)
-            .build();
-    }
-
-    public StackOverflowClient(String baseUrl) {
-        RestClient.Builder restClientBuilder = RestClient.builder();
-
-        var requestFactory = new ReactorNettyClientRequestFactory();
-
-        this.restClient = restClientBuilder
-            .requestFactory(requestFactory)
-            .baseUrl(baseUrl)
-            .build();
-    }
-
-    public StackOverflowClient(int timeoutInMilliseconds) {
+    public StackOverflowClient(int timeoutInMilliseconds, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new ReactorNettyClientRequestFactory();
@@ -68,9 +48,14 @@ public class StackOverflowClient implements ExternalServiceClient {
             .requestFactory(requestFactory)
             .baseUrl(StackOverflowClient.DEFAULT_BASE_URL)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public StackOverflowClient(String baseUrl, int timeoutInMilliseconds) {
+    public StackOverflowClient(
+        String baseUrl,
+        int timeoutInMilliseconds,
+        RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
+    ) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new ReactorNettyClientRequestFactory();
@@ -80,14 +65,19 @@ public class StackOverflowClient implements ExternalServiceClient {
             .requestFactory(requestFactory)
             .baseUrl(baseUrl)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
     public UpdateResponse fetchUpdate(Integer questionId) throws FieldNotFoundException {
         String responseBody = this.restClient
             .get()
-            .uri("/%s?site=stackoverflow&filter=withbody".formatted(questionId))
+            .uri("/questions/%s?site=stackoverflow&filter=withbody".formatted(questionId))
             .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
             .retrieve()
+            .onStatus(HttpStatusCode::is1xxInformational, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, notOkResponseHandler)
             .body(String.class);
 
         String updateTimeString = parser.retrieveValueOfField("last_activity_date", responseBody);
@@ -123,9 +113,13 @@ public class StackOverflowClient implements ExternalServiceClient {
 
             return this.restClient
                 .get()
-                .uri("/%s?site=stackoverflow&filter=withbody".formatted(questionId))
+                .uri("/questions/%s?site=stackoverflow&filter=withbody".formatted(questionId))
                 .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
                 .retrieve()
+                .onStatus(HttpStatusCode::is1xxInformational, notOkResponseHandler)
+                .onStatus(HttpStatusCode::is3xxRedirection, notOkResponseHandler)
+                .onStatus(HttpStatusCode::is4xxClientError, notOkResponseHandler)
+                .onStatus(HttpStatusCode::is5xxServerError, notOkResponseHandler)
                 .body(String.class);
         } else {
             throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"

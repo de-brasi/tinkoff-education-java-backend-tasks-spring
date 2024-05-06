@@ -1,9 +1,10 @@
 package edu.java.bot.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.common.dtos.ApiErrorResponse;
-import edu.common.exceptions.IncorrectRequestException;
-import edu.common.exceptions.UnexpectedResponse;
+import edu.common.datatypes.dtos.ApiErrorResponse;
+import edu.common.datatypes.exceptions.IncorrectRequestException;
+import edu.common.datatypes.exceptions.UnexpectedResponse;
+import edu.common.datatypes.exceptions.httpresponse.BadHttpResponseException;
 import edu.java.bot.client.ScrapperClient;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -49,23 +50,28 @@ public class ScrapperClientConfig {
         };
     }
 
+    @Bean("notOkResponseHandler")
+    RestClient.ResponseSpec.ErrorHandler notOkResponseHandler(@Autowired ObjectMapper objectMapper) {
+        return (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
+                ApiErrorResponse.class
+            );
+
+            HttpStatus status = HttpStatus.valueOf(resp.getStatusCode().value());
+
+            throw new BadHttpResponseException(status, errorResponse);
+        };
+    }
+
     @Bean("scrapperClient")
     public ScrapperClient scrapperClient(
         @Autowired
-        ObjectMapper mapper,
-
-        @Autowired
-        @Qualifier("defaultUnexpectedStatusHandler")
-        RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler,
-
-        @Autowired
-        @Qualifier("linkManagementStatus4xxHandler")
-        RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler
+        @Qualifier("notOkResponseHandler")
+        RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
     ) {
         return new ScrapperClient(
-            mapper,
-            defaultUnexpectedStatusHandler,
-            linkManagementStatus4xxHandler
+            notOkResponseHandler
         );
     }
 }

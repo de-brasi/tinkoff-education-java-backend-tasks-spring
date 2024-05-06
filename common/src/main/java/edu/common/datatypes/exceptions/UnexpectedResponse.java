@@ -1,4 +1,4 @@
-package edu.common.exceptions;
+package edu.common.datatypes.exceptions;
 
 public class UnexpectedResponse extends RuntimeException {
     public UnexpectedResponse(int responseCode, String errorMessage) {

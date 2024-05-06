@@ -5,6 +5,7 @@ import edu.java.clients.entities.UpdateResponse;
 import edu.java.clients.exceptions.EmptyResponseBodyException;
 import edu.java.clients.exceptions.FieldNotFoundException;
 import java.time.OffsetDateTime;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
@@ -12,7 +13,8 @@ import org.springframework.web.client.RestClient;
 public class GitHubClient implements ExternalServiceClient {
 
     private final RestClient restClient;
-    private static final String DEFAULT_BASE_URL = "https://api.github.com/repos/";
+    private final RestClient.ResponseSpec.ErrorHandler notOkResponseHandler;
+    private static final String DEFAULT_BASE_URL = "https://api.github.com/";
     private static final String SUPPOERTED_PREFIX = "https://github";
     private static final String SERVICE_NAME_IN_DATABASE = "github";
     private final Parser parser = Parser.builder()
@@ -24,23 +26,7 @@ public class GitHubClient implements ExternalServiceClient {
             "https://github\\.com/[^/\\s]+/([^/\\s]+)/?.*")
         .build();
 
-    public GitHubClient() {
-        RestClient.Builder restClientBuilder = RestClient.builder();
-
-        this.restClient = restClientBuilder
-            .baseUrl(GitHubClient.DEFAULT_BASE_URL)
-            .build();
-    }
-
-    public GitHubClient(String baseUrl) {
-        RestClient.Builder restClientBuilder = RestClient.builder();
-
-        this.restClient = restClientBuilder
-            .baseUrl(baseUrl)
-            .build();
-    }
-
-    public GitHubClient(int timeoutInMilliseconds) {
+    public GitHubClient(int timeoutInMilliseconds, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new JdkClientHttpRequestFactory();
@@ -50,9 +36,14 @@ public class GitHubClient implements ExternalServiceClient {
             .baseUrl(GitHubClient.DEFAULT_BASE_URL)
             .requestFactory(requestFactory)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public GitHubClient(String baseUrl, int timeoutInMilliseconds) {
+    public GitHubClient(
+        String baseUrl,
+        int timeoutInMilliseconds,
+        RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
+    ) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new JdkClientHttpRequestFactory();
@@ -62,6 +53,7 @@ public class GitHubClient implements ExternalServiceClient {
             .baseUrl(baseUrl)
             .requestFactory(requestFactory)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
     public UpdateResponse fetchUpdate(String url) throws FieldNotFoundException, EmptyResponseBodyException {
@@ -80,8 +72,12 @@ public class GitHubClient implements ExternalServiceClient {
         throws FieldNotFoundException, EmptyResponseBodyException {
         String responseBody = this.restClient
             .get()
-            .uri("/{owner}/{repo}", owner, repo)
+            .uri("/repos/{owner}/{repo}", owner, repo)
             .retrieve()
+            .onStatus(HttpStatusCode::is1xxInformational, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, notOkResponseHandler)
             .body(String.class);
 
         if (responseBody == null) {
@@ -106,8 +102,12 @@ public class GitHubClient implements ExternalServiceClient {
         if (ownerName != null && repoName != null) {
             return this.restClient
                 .get()
-                .uri("/{owner}/{repo}", ownerName, repoName)
+                .uri("/repos/{owner}/{repo}", ownerName, repoName)
                 .retrieve()
+                .onStatus(HttpStatusCode::is1xxInformational, notOkResponseHandler)
+                .onStatus(HttpStatusCode::is3xxRedirection, notOkResponseHandler)
+                .onStatus(HttpStatusCode::is4xxClientError, notOkResponseHandler)
+                .onStatus(HttpStatusCode::is5xxServerError, notOkResponseHandler)
                 .body(String.class);
         } else {
             throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"

@@ -1,6 +1,6 @@
 package edu.java.clients;
 
-import edu.common.dtos.LinkUpdateRequest;
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import java.util.List;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClient;

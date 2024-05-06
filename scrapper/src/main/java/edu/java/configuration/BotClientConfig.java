@@ -1,9 +1,9 @@
 package edu.java.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.common.dtos.ApiErrorResponse;
-import edu.common.exceptions.IncorrectRequestException;
-import edu.common.exceptions.UnexpectedResponse;
+import edu.common.datatypes.dtos.ApiErrorResponse;
+import edu.common.datatypes.exceptions.IncorrectRequestException;
+import edu.common.datatypes.exceptions.UnexpectedResponse;
 import edu.java.clients.BotClient;
 import java.io.IOException;
 import java.nio.charset.Charset;

@@ -1,4 +1,4 @@
-package edu.common.exceptions;
+package edu.common.datatypes.exceptions;
 
 public class IncorrectRequestException extends RuntimeException {
     @SuppressWarnings("AvoidNoArgumentSuperConstructorCall")

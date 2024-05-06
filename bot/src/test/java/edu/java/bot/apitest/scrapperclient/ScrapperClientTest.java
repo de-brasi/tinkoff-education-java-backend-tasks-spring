@@ -3,11 +3,10 @@ package edu.java.bot.apitest.scrapperclient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.common.dtos.ApiErrorResponse;
-import edu.common.dtos.LinkResponse;
-import edu.common.dtos.ListLinksResponse;
-import edu.common.exceptions.ChatIdNotExistsException;
-import edu.common.exceptions.IncorrectRequestException;
+import edu.common.datatypes.dtos.ApiErrorResponse;
+import edu.common.datatypes.dtos.LinkResponse;
+import edu.common.datatypes.dtos.ListLinksResponse;
+import edu.common.datatypes.exceptions.httpresponse.BadHttpResponseException;
 import edu.java.bot.client.ScrapperClient;
 import edu.java.bot.configuration.ScrapperClientConfig;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
@@ -24,6 +24,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = {TestConfig.class, ScrapperClientConfig.class})
 @WireMockTest(httpPort = 8080)
@@ -84,9 +85,11 @@ public class ScrapperClientTest {
                 )
         );
 
-        assertThatThrownBy(
+        BadHttpResponseException exception = assertThrows(
+            BadHttpResponseException.class,
             () -> scrapperClient.registerChat(chatIdToRegistry)
-        ).isInstanceOf(IncorrectRequestException.class);
+        );
+        assertThat(exception.getHttpCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -120,9 +123,11 @@ public class ScrapperClientTest {
                 )
         );
 
-        assertThatThrownBy(
+        BadHttpResponseException exception = assertThrows(
+            BadHttpResponseException.class,
             () -> scrapperClient.deleteChat(chatIdToDelete)
-        ).isInstanceOf(IncorrectRequestException.class);
+        );
+        assertThat(exception.getHttpCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -140,9 +145,11 @@ public class ScrapperClientTest {
                 )
         );
 
-        assertThatThrownBy(
+        BadHttpResponseException exception = assertThrows(
+            BadHttpResponseException.class,
             () -> scrapperClient.deleteChat(chatIdToDelete)
-        ).isInstanceOf(ChatIdNotExistsException.class);
+        );
+        assertThat(exception.getHttpCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -180,8 +187,10 @@ public class ScrapperClientTest {
                 )
         );
 
-        assertThatThrownBy(
+        BadHttpResponseException exception = assertThrows(
+            BadHttpResponseException.class,
             () -> scrapperClient.getAllTrackedLinks(chatIdToGetTrackedLinks)
-        ).isInstanceOf(IncorrectRequestException.class);
+        );
+        assertThat(exception.getHttpCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }

@@ -1,4 +1,4 @@
-package edu.common.dtos;
+package edu.common.datatypes.dtos;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

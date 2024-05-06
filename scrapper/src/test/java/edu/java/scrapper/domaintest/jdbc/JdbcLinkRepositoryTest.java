@@ -78,7 +78,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
                 }
             """;
         wireMockExtension.stubFor(
-            WireMock.get(WireMock.urlMatching("/[0-9]+\\?.*"))
+            WireMock.get(WireMock.urlMatching("/questions/[0-9]+\\??.*"))
                 .willReturn(
                     aResponse()
                         .withStatus(200)

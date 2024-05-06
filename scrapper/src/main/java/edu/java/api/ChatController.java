@@ -1,6 +1,6 @@
 package edu.java.api;
 
-import edu.common.dtos.ApiErrorResponse;
+import edu.common.datatypes.dtos.ApiErrorResponse;
 import edu.java.services.interfaces.TgChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,14 +23,12 @@ public class ChatController {
     @PostMapping(value = "/{id}")
     public ResponseEntity<ApiErrorResponse> handleRegistryChat(@PathVariable Long id) {
         tgChatService.register(id);
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<ApiErrorResponse> handleDeleteChat(@PathVariable Long id) {
         tgChatService.unregister(id);
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

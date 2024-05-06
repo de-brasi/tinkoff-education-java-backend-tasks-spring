@@ -1,17 +1,12 @@
 package edu.java.bot.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.common.dtos.AddLinkRequest;
-import edu.common.dtos.ApiErrorResponse;
-import edu.common.dtos.RemoveLinkRequest;
-import edu.common.exceptions.ChatIdNotExistsException;
-import edu.common.exceptions.IncorrectRequestException;
-import edu.common.exceptions.UnexpectedResponse;
+import edu.common.customretry.Retry;
+import edu.common.datatypes.dtos.AddLinkRequest;
+import edu.common.datatypes.dtos.RemoveLinkRequest;
 import edu.java.bot.client.dtos.LinkResponse;
 import edu.java.bot.client.dtos.ListLinksResponse;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -24,19 +19,12 @@ public class ScrapperClient {
     private static final String ENDPOINT_CHAT_MANAGEMENT_PREFIX = "/tg-chat";
     private static final String ENDPOINT_LINK_MANAGEMENT_PREFIX = "/links";
     private static final String CUSTOM_HEADER_TG_CHAT_ID = "Tg-Chat-Id";
-    private final ObjectMapper objectMapper;
-    private final RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler;
-    private final RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler;
-    private static final Charset DEFAULT_BODY_ENCODING = StandardCharsets.UTF_8;
+    private final RestClient.ResponseSpec.ErrorHandler badResponseStatusHandler;
 
     public ScrapperClient(
-        ObjectMapper objectMapper,
-        RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler,
-        RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler
+        RestClient.ResponseSpec.ErrorHandler badResponseStatusHandler
     ) {
-        this.defaultUnexpectedStatusHandler = defaultUnexpectedStatusHandler;
-        this.linkManagementStatus4xxHandler = linkManagementStatus4xxHandler;
-        this.objectMapper = objectMapper;
+        this.badResponseStatusHandler = badResponseStatusHandler;
         this.restClient = RestClient
             .builder()
             .baseUrl(ScrapperClient.DEFAULT_BASE_URL)
@@ -45,92 +33,65 @@ public class ScrapperClient {
 
     public ScrapperClient(
         String baseUrl,
-        ObjectMapper objectMapper,
-        RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler,
-        RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler
+        RestClient.ResponseSpec.ErrorHandler badResponseStatusHandler
     ) {
-        this.defaultUnexpectedStatusHandler = defaultUnexpectedStatusHandler;
-        this.linkManagementStatus4xxHandler = linkManagementStatus4xxHandler;
-        this.objectMapper = objectMapper;
+        this.badResponseStatusHandler = badResponseStatusHandler;
         this.restClient = RestClient
             .builder()
             .baseUrl(baseUrl)
             .build();
     }
 
+    @Retry(initialDelay = 100,
+           attempts = 3,
+           handled = {HttpStatus.BAD_GATEWAY, HttpStatus.GATEWAY_TIMEOUT, HttpStatus.INTERNAL_SERVER_ERROR})
     public void registerChat(Long chatId) {
         this.restClient
             .post()
             .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + "/%d".formatted(chatId))
             .contentType(APPLICATION_JSON)
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
-            .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
-            .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
-                ApiErrorResponse errorResponse = objectMapper.readValue(
-                    new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
-                    ApiErrorResponse.class
-                );
-
-                if (resp.getStatusCode().value() == 400) {
-                    throw new IncorrectRequestException(
-                        errorResponse.getExceptionMessage()
-                    );
-                }
-                throw new UnexpectedResponse(
-                    resp.getStatusCode().value(),
-                    errorResponse.getExceptionMessage()
-                );
-
-            })
-            .onStatus(HttpStatusCode::is5xxServerError, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is1xxInformational, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, badResponseStatusHandler)
             .toBodilessEntity();
     }
 
+    @Retry(initialDelay = 100,
+           attempts = 3,
+           handled = {HttpStatus.BAD_GATEWAY, HttpStatus.GATEWAY_TIMEOUT, HttpStatus.INTERNAL_SERVER_ERROR})
     public void deleteChat(Long chatId) {
         this.restClient
             .delete()
             .uri(ScrapperClient.ENDPOINT_CHAT_MANAGEMENT_PREFIX + "/%d".formatted(chatId))
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
-            .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
-            .onStatus(HttpStatusCode::is4xxClientError, (req, resp) -> {
-                ApiErrorResponse errorResponse = objectMapper.readValue(
-                    new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
-                    ApiErrorResponse.class
-                );
-
-                switch (resp.getStatusCode().value()) {
-                    case 400 -> throw new IncorrectRequestException(
-                        errorResponse.getExceptionMessage()
-                    );
-                    case 404 -> throw new ChatIdNotExistsException(
-                        errorResponse.getExceptionMessage()
-                    );
-                    default -> throw new UnexpectedResponse(
-                        resp.getStatusCode().value(),
-                        errorResponse.getExceptionMessage()
-                    );
-                }
-
-            })
-            .onStatus(HttpStatusCode::is5xxServerError, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is1xxInformational, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, badResponseStatusHandler)
             .toBodilessEntity();
     }
 
+    @Retry(initialDelay = 100,
+           attempts = 3,
+           handled = {HttpStatus.BAD_GATEWAY, HttpStatus.GATEWAY_TIMEOUT, HttpStatus.INTERNAL_SERVER_ERROR})
     public ListLinksResponse getAllTrackedLinks(Long chatId) {
         return this.restClient
             .get()
             .uri(ScrapperClient.ENDPOINT_LINK_MANAGEMENT_PREFIX)
             .header(CUSTOM_HEADER_TG_CHAT_ID, "%d".formatted(chatId))
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
-            .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
-            .onStatus(HttpStatusCode::is4xxClientError, linkManagementStatus4xxHandler)
-            .onStatus(HttpStatusCode::is5xxServerError, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is1xxInformational, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, badResponseStatusHandler)
             .body(ListLinksResponse.class);
     }
 
+    @Retry(initialDelay = 100,
+           attempts = 3,
+           handled = {HttpStatus.BAD_GATEWAY, HttpStatus.GATEWAY_TIMEOUT, HttpStatus.INTERNAL_SERVER_ERROR})
     public LinkResponse trackLink(Long chatId, String link) {
         AddLinkRequest requestBody = new AddLinkRequest(link);
         return this.restClient
@@ -139,13 +100,16 @@ public class ScrapperClient {
             .header(CUSTOM_HEADER_TG_CHAT_ID, "%d".formatted(chatId))
             .body(requestBody)
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
-            .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
-            .onStatus(HttpStatusCode::is4xxClientError, linkManagementStatus4xxHandler)
-            .onStatus(HttpStatusCode::is5xxServerError, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is1xxInformational, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, badResponseStatusHandler)
             .body(LinkResponse.class);
     }
 
+    @Retry(initialDelay = 100,
+           attempts = 3,
+           handled = {HttpStatus.BAD_GATEWAY, HttpStatus.GATEWAY_TIMEOUT, HttpStatus.INTERNAL_SERVER_ERROR})
     public LinkResponse untrackLink(Long chatId, String link) {
         RemoveLinkRequest requestBody = new RemoveLinkRequest(link);
         return this.restClient
@@ -154,10 +118,10 @@ public class ScrapperClient {
             .header(CUSTOM_HEADER_TG_CHAT_ID, "%d".formatted(chatId))
             .body(requestBody)
             .retrieve()
-            .onStatus(HttpStatusCode::is1xxInformational, defaultUnexpectedStatusHandler)
-            .onStatus(HttpStatusCode::is3xxRedirection, defaultUnexpectedStatusHandler)
-            .onStatus(HttpStatusCode::is4xxClientError, linkManagementStatus4xxHandler)
-            .onStatus(HttpStatusCode::is5xxServerError, defaultUnexpectedStatusHandler)
+            .onStatus(HttpStatusCode::is1xxInformational, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, badResponseStatusHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, badResponseStatusHandler)
             .body(LinkResponse.class);
     }
 }

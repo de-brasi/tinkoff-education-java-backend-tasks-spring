@@ -42,7 +42,7 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
 
             final String snapshot = servicesObserver.getActualSnapshot(link);
 
-            int affectedRowCount = jdbcTemplate.update(
+            return jdbcTemplate.update(
                 "insert "
                     + "into links(url, last_check_time, last_update_time, service, snapshot) "
                     + "values (?, ?, ?, ?, cast(? as json)) on conflict do nothing",
@@ -52,8 +52,6 @@ public class JdbcLinkRepository implements BaseEntityRepository<String> {
                 serviceIndex,
                 snapshot
             );
-
-            return affectedRowCount;
         } catch (DataAccessException e) {
             throw new DataBaseInteractingException(e);
         }

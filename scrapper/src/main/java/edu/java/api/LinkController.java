@@ -1,9 +1,9 @@
 package edu.java.api;
 
-import edu.common.dtos.AddLinkRequest;
-import edu.common.dtos.LinkResponse;
-import edu.common.dtos.ListLinksResponse;
-import edu.common.dtos.RemoveLinkRequest;
+import edu.common.datatypes.dtos.AddLinkRequest;
+import edu.common.datatypes.dtos.LinkResponse;
+import edu.common.datatypes.dtos.ListLinksResponse;
+import edu.common.datatypes.dtos.RemoveLinkRequest;
 import edu.java.domain.entities.Link;
 import edu.java.services.interfaces.LinkService;
 import java.net.MalformedURLException;
@@ -59,10 +59,10 @@ public class LinkController {
     @PostMapping()
     public ResponseEntity<LinkResponse> addTrackingLinkForChat(
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
-        @RequestBody AddLinkRequest request
+        @RequestBody AddLinkRequest requestBody
     ) throws MalformedURLException {
-        log.info("Add link command for chat with chat-id " + tgChatId + " and request " + request);
-        Link added = linkService.add(tgChatId, URI.create(request.getLink()));
+        log.info("Add link command for chat with chat-id " + tgChatId + " and request " + requestBody);
+        Link added = linkService.add(tgChatId, URI.create(requestBody.getLink()));
         LinkResponse response = new LinkResponse(added.id(), added.uri().toURL().toString());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -71,10 +71,10 @@ public class LinkController {
     @DeleteMapping()
     public ResponseEntity<LinkResponse> untrackLinkForChat(
         @RequestHeader("Tg-Chat-Id") Long tgChatId,
-        @RequestBody RemoveLinkRequest request
+        @RequestBody RemoveLinkRequest requestBody
     ) throws MalformedURLException {
-        log.info("Delete link command for chat with chat-id " + tgChatId + " and request " + request);
-        Link removed = linkService.remove(tgChatId, URI.create(request.getLink()));
+        log.info("Delete link command for chat with chat-id " + tgChatId + " and request " + requestBody);
+        Link removed = linkService.remove(tgChatId, URI.create(requestBody.getLink()));
         LinkResponse response = new LinkResponse(removed.id(), removed.uri().toURL().toString());
 
         return new ResponseEntity<>(response, HttpStatus.OK);

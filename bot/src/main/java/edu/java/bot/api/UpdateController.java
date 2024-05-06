@@ -1,7 +1,7 @@
 package edu.java.bot.api;
 
-import edu.common.dtos.ApiErrorResponse;
-import edu.common.dtos.LinkUpdateRequest;
+import edu.common.datatypes.dtos.ApiErrorResponse;
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.java.bot.services.TelegramBotWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +22,13 @@ public class UpdateController {
 
     @PostMapping(value = "/updates", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @SuppressWarnings("RegexpSinglelineJava")
-    public ResponseEntity<ApiErrorResponse> handleUpdateRequest(@RequestBody LinkUpdateRequest request) {
-        log.info(request.toString());
+    public ResponseEntity<ApiErrorResponse> handleUpdateRequest(@RequestBody LinkUpdateRequest requestBody) {
+        log.info(requestBody.toString());
 
         final String messageToClient = "Update in link %s with description: '%s'"
-            .formatted(request.getUrl(), request.getDescription());
+            .formatted(requestBody.getUrl(), requestBody.getDescription());
 
-        for (Long chatId : request.getTgChatIds()) {
-            // todo: обработка ошибок
+        for (Long chatId : requestBody.getTgChatIds()) {
             telegramBot.sendPlainTextMessage(chatId, messageToClient);
         }
 

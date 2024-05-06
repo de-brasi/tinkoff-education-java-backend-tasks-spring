@@ -1,6 +1,6 @@
 package edu.java.scrapper.apitest;
 
-import edu.common.exceptions.LinksNotAddedException;
+import edu.common.datatypes.exceptions.LinksNotAddedException;
 import edu.java.api.ChatController;
 import edu.java.api.LinkController;
 import org.junit.jupiter.api.DisplayName;

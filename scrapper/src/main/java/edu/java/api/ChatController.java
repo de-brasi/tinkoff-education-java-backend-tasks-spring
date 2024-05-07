@@ -1,8 +1,8 @@
 package edu.java.api;
 
-import edu.common.dtos.ApiErrorResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import edu.common.datatypes.dtos.ApiErrorResponse;
+import edu.java.services.interfaces.TgChatService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,26 +14,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/scrapper/api/tg-chat", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 @SuppressWarnings({"MultipleStringLiterals"})
 public class ChatController {
+
+    private final TgChatService tgChatService;
+
     @PostMapping(value = "/{id}")
     public ResponseEntity<ApiErrorResponse> handleRegistryChat(@PathVariable Long id) {
-        // todo проверять на:
-        //  - некорректные параметры 400
-        LOGGER.info(id);
-
+        tgChatService.register(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<ApiErrorResponse> handleDeleteChat(@PathVariable Long id) {
-        // todo проверять на:
-        //  - некорректные параметры 400
-        //  - чат не существует 404
-        LOGGER.info(id);
-
+        tgChatService.unregister(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

@@ -16,21 +16,12 @@ public class TestConfig {
     @Bean("scrapperTestClient")
     public ScrapperClient scrapperTestClient(
         @Autowired
-        ObjectMapper mapper,
-
-        @Autowired
-        @Qualifier("defaultUnexpectedStatusHandler")
-        RestClient.ResponseSpec.ErrorHandler defaultUnexpectedStatusHandler,
-
-        @Autowired
-        @Qualifier("linkManagementStatus4xxHandler")
-        RestClient.ResponseSpec.ErrorHandler linkManagementStatus4xxHandler
+        @Qualifier("notOkResponseHandler")
+        RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
     ) {
         return new ScrapperClient(
             "http://localhost:8080/scrapperMock/",
-            mapper,
-            defaultUnexpectedStatusHandler,
-            linkManagementStatus4xxHandler
+            notOkResponseHandler
         );
     }
 }

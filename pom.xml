@@ -48,7 +48,7 @@
     <modules>
         <module>bot</module>
         <module>scrapper</module>
-        <module>common-datatypes</module>
+        <module>common</module>
     </modules>
 
     <dependencyManagement>
@@ -120,16 +120,31 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Database -->
+        <!-- For custom retry mechanism -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!-- Bucket4j -->
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>8.1.0</version>
+        </dependency>
+
+        <!-- Monitoring -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
         </dependency>
     </dependencies>
 

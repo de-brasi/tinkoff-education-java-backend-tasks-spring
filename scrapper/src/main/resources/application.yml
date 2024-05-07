@@ -1,20 +1,59 @@
 app:
+  topic:
+    name: "topic1"
+    partitions-count: 1
+    replicas-count: 2
   scheduler:
     enable: true
     interval: 10s
     force-check-delay: 10s
-  github-client-settings:
-    time-in-milliseconds: 1000
-  stackoverflow-client-settings:
-    time-in-milliseconds: 1000
+  database-access-type: jdbc
+  use-queue: false
+
+third-party-web-clients:
+  github-properties:
+    timeout-in-milliseconds: 1000
+    base-url: https://api.github.com/
+  stackoverflow-properties:
+    timeout-in-milliseconds: 1000
+    base-url: https://api.stackexchange.com/2.3/
 
 spring:
   application:
     name: scrapper
   liquibase:
     enabled: false
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/scrapper
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        connection:
+          driver_class: org.postgresql.Driver
+        hbm2ddl:
+          auto: validate
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoints:
+    web:
+      base-path: "/"
+      exposure:
+        include: "health,info,prometheus"
+      path-mapping:
+        prometheus: "metrics"
+  server:
+    port: 8081
 
 server:
   port: 8080

@@ -1,46 +1,32 @@
 package edu.java.clients;
 
-import edu.java.entities.UpdateResponse;
-import edu.java.exceptions.EmptyResponseBodyException;
-import edu.java.exceptions.FieldNotFoundException;
+import edu.java.api.util.Parser;
+import edu.java.clients.entities.UpdateResponse;
+import edu.java.clients.exceptions.EmptyResponseBodyException;
+import edu.java.clients.exceptions.FieldNotFoundException;
 import java.time.OffsetDateTime;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
-public class GitHubClient {
+@SuppressWarnings("MultipleStringLiterals")
+public class GitHubClient implements ExternalServiceClient {
 
     private final RestClient restClient;
+    private final RestClient.ResponseSpec.ErrorHandler notOkResponseHandler;
+    private static final String DEFAULT_BASE_URL = "https://api.github.com/";
+    private static final String SUPPOERTED_PREFIX = "https://github";
+    private static final String SERVICE_NAME_IN_DATABASE = "github";
+    private final Parser parser = Parser.builder()
+        .field("update",
+            "\"pushed_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\"")
+        .field("owner",
+            "https://github\\.com/([^/\\s]+)/[^/\\s]+/?.*")
+        .field("repo",
+            "https://github\\.com/[^/\\s]+/([^/\\s]+)/?.*")
+        .build();
 
-    private static final String DEFAULT_BASE_URL = "https://api.github.com/repos/";
-
-    private static final Pattern UPDATED_AT_SEARCH_PATTERN;
-
-    static {
-        UPDATED_AT_SEARCH_PATTERN = Pattern.compile(
-            "\"updated_at\": *\"([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)\""
-        );
-    }
-
-
-    public GitHubClient() {
-        RestClient.Builder restClientBuilder = RestClient.builder();
-
-        this.restClient = restClientBuilder
-            .baseUrl(GitHubClient.DEFAULT_BASE_URL)
-            .build();
-    }
-
-    public GitHubClient(String baseUrl) {
-        RestClient.Builder restClientBuilder = RestClient.builder();
-
-        this.restClient = restClientBuilder
-            .baseUrl(baseUrl)
-            .build();
-    }
-
-    public GitHubClient(int timeoutInMilliseconds) {
+    public GitHubClient(int timeoutInMilliseconds, RestClient.ResponseSpec.ErrorHandler notOkResponseHandler) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new JdkClientHttpRequestFactory();
@@ -50,9 +36,14 @@ public class GitHubClient {
             .baseUrl(GitHubClient.DEFAULT_BASE_URL)
             .requestFactory(requestFactory)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
     }
 
-    public GitHubClient(String baseUrl, int timeoutInMilliseconds) {
+    public GitHubClient(
+        String baseUrl,
+        int timeoutInMilliseconds,
+        RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
+    ) {
         RestClient.Builder restClientBuilder = RestClient.builder();
 
         var requestFactory = new JdkClientHttpRequestFactory();
@@ -62,32 +53,79 @@ public class GitHubClient {
             .baseUrl(baseUrl)
             .requestFactory(requestFactory)
             .build();
+        this.notOkResponseHandler = notOkResponseHandler;
+    }
+
+    public UpdateResponse fetchUpdate(String url) throws FieldNotFoundException, EmptyResponseBodyException {
+        String ownerName = parser.retrieveValueOfField("owner", url);
+        String repoName = parser.retrieveValueOfField("repo", url);
+
+        if (ownerName != null && repoName != null) {
+            return fetchUpdate(ownerName, repoName);
+        } else {
+            throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"
+                .formatted(url));
+        }
     }
 
     public UpdateResponse fetchUpdate(String owner, String repo)
-        throws EmptyResponseBodyException, FieldNotFoundException {
+        throws FieldNotFoundException, EmptyResponseBodyException {
         String responseBody = this.restClient
             .get()
-            .uri("/{owner}/{repo}", owner, repo)
+            .uri("/repos/{owner}/{repo}", owner, repo)
             .retrieve()
+            .onStatus(HttpStatusCode::is1xxInformational, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is3xxRedirection, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is4xxClientError, notOkResponseHandler)
+            .onStatus(HttpStatusCode::is5xxServerError, notOkResponseHandler)
             .body(String.class);
 
-        String updTimeString = retrieveUpdatedAtField(responseBody);
+        if (responseBody == null) {
+            throw new EmptyResponseBodyException("Body is null");
+        }
+
+        String updTimeString = parser.retrieveValueOfField("update", responseBody);
+
+        if (updTimeString == null) {
+            throw new FieldNotFoundException("No match found for 'updated_at' field in response body '%s'".formatted(
+                responseBody));
+        }
+
         return new UpdateResponse(OffsetDateTime.parse(updTimeString));
     }
 
-    private static String retrieveUpdatedAtField(String source)
-        throws FieldNotFoundException, EmptyResponseBodyException {
-        if (source == null) {
-            throw new EmptyResponseBodyException("Body has no content.");
+    @Override
+    public String getBodyJSONContent(String url) {
+        String ownerName = parser.retrieveValueOfField("owner", url);
+        String repoName = parser.retrieveValueOfField("repo", url);
+
+        if (ownerName != null && repoName != null) {
+            return this.restClient
+                .get()
+                .uri("/repos/{owner}/{repo}", ownerName, repoName)
+                .retrieve()
+                .onStatus(HttpStatusCode::is1xxInformational, notOkResponseHandler)
+                .onStatus(HttpStatusCode::is3xxRedirection, notOkResponseHandler)
+                .onStatus(HttpStatusCode::is4xxClientError, notOkResponseHandler)
+                .onStatus(HttpStatusCode::is5xxServerError, notOkResponseHandler)
+                .body(String.class);
+        } else {
+            throw new RuntimeException("Incorrect URL %s; Can't parse it via existing regexp pattern!"
+                .formatted(url));
         }
+    }
 
-        Matcher matcher = UPDATED_AT_SEARCH_PATTERN.matcher(source);
+    @Override
+    public String getServiceNameInDatabase() {
+        return SERVICE_NAME_IN_DATABASE;
+    }
 
-        if (!matcher.find()) {
-            throw new FieldNotFoundException("No match found for 'updated_at' field.");
-        }
+    @Override
+    public String getChangeDescriptionFromResponseBodies(String jsonStringBodyBefore, String jsonStringBodyAfter) {
+        return "Some updates!";
+    }
 
-        return matcher.group(1);
+    public boolean checkURLSupportedByService(String url) {
+        return url.startsWith(SUPPOERTED_PREFIX);
     }
 }

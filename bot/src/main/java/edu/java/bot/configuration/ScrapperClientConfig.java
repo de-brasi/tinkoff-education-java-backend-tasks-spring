@@ -1,12 +1,15 @@
 package edu.java.bot.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.common.dtos.ApiErrorResponse;
-import edu.common.exceptions.IncorrectRequestException;
-import edu.common.exceptions.UnexpectedResponse;
+import edu.common.datatypes.dtos.ApiErrorResponse;
+import edu.common.datatypes.exceptions.IncorrectRequestException;
+import edu.common.datatypes.exceptions.UnexpectedResponse;
+import edu.common.datatypes.exceptions.httpresponse.BadHttpResponseException;
+import edu.java.bot.client.ScrapperClient;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -45,5 +48,30 @@ public class ScrapperClientConfig {
             }
 
         };
+    }
+
+    @Bean("notOkResponseHandler")
+    RestClient.ResponseSpec.ErrorHandler notOkResponseHandler(@Autowired ObjectMapper objectMapper) {
+        return (req, resp) -> {
+            ApiErrorResponse errorResponse = objectMapper.readValue(
+                new String(resp.getBody().readAllBytes(), DEFAULT_BODY_ENCODING),
+                ApiErrorResponse.class
+            );
+
+            HttpStatus status = HttpStatus.valueOf(resp.getStatusCode().value());
+
+            throw new BadHttpResponseException(status, errorResponse);
+        };
+    }
+
+    @Bean("scrapperClient")
+    public ScrapperClient scrapperClient(
+        @Autowired
+        @Qualifier("notOkResponseHandler")
+        RestClient.ResponseSpec.ErrorHandler notOkResponseHandler
+    ) {
+        return new ScrapperClient(
+            notOkResponseHandler
+        );
     }
 }

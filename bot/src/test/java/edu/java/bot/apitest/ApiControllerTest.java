@@ -1,32 +1,30 @@
 package edu.java.bot.apitest;
 
-import edu.common.dtos.LinkUpdateRequest;
-import edu.common.exceptions.ChatIdNotExistsException;
+import edu.common.datatypes.dtos.LinkUpdateRequest;
+import edu.common.datatypes.exceptions.ChatIdNotExistsException;
 import edu.java.bot.api.UpdateController;
 import edu.java.bot.services.TelegramBotService;
 import edu.java.bot.services.TelegramBotWrapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(UpdateController.class)
 public class ApiControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private UpdateController controllers;
+    private UpdateController controller;
 
     @MockBean
     private TelegramBotWrapper telegramBotWrapper;
@@ -69,7 +67,7 @@ public class ApiControllerTest {
 
         final String exceptionMessage = "test message";
 
-        when(controllers.handleUpdateRequest(any(LinkUpdateRequest.class)))
+        when(controller.handleUpdateRequest(any(LinkUpdateRequest.class), any(HttpServletRequest.class)))
             .thenAnswer(invocation -> {
                 throw new ChatIdNotExistsException(exceptionMessage);
             });

@@ -14,16 +14,22 @@ public record ApplicationConfig(
     Scheduler scheduler,
 
     @NotNull
-    @Bean("githubClientSettings")
-    ClientSettings githubClientSettings,
+    AccessType databaseAccessType,
 
     @NotNull
-    @Bean("stackoverflowClientSettings")
-    ClientSettings stackoverflowClientSettings
+    @Bean("kafkaTopic")
+    ScrapperTopic topic,
+
+    boolean useQueue
 ) {
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
     }
 
-    public record ClientSettings(int timeInMilliseconds){
+    public record ScrapperTopic(String name, int partitionsCount, int replicasCount) {
+    }
+
+    public enum AccessType {
+        JDBC,
+        JPA,
     }
 }

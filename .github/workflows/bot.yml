@@ -26,6 +26,22 @@ jobs:
       - name: maven build
         run: mvn -pl bot -am package
 
+      - name: docker build
+        run: docker build -t bot-service-image -f ${{ github.workspace }}/bot/bot.Dockerfile .
+
+      - name: login to the container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag Docker image
+        run: docker tag bot-service-image ghcr.io/${{ github.repository_owner }}/bot-service-image:${{ github.event.number }}
+
+      - name: Push Docker image to GitHub Container Registry
+        run: docker push ghcr.io/${{ github.repository_owner }}/bot-service-image:${{ github.event.number }}
+
       - id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
         if: ( github.event_name != 'workflow_dispatch' )

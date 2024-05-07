@@ -2,9 +2,10 @@ package edu.java.bot.services;
 
 import com.pengrad.telegrambot.ExceptionHandler;
 import com.pengrad.telegrambot.TelegramException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.Arrays;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LinkTrackerErrorHandler implements ExceptionHandler {
     @Override
     public void onException(TelegramException e) {
@@ -12,9 +13,7 @@ public class LinkTrackerErrorHandler implements ExceptionHandler {
             e.response().errorCode();
             e.response().description();
         } else {
-            LOGGER.error(e.getStackTrace());
+            log.error(Arrays.toString(e.getStackTrace()));
         }
     }
-
-    private final static Logger LOGGER = LogManager.getLogger();
 }

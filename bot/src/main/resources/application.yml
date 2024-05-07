@@ -1,5 +1,14 @@
 app:
   telegram-token: ${TELEGRAM_TOKEN}
+  kafka-settings:
+    enabled: true
+    consumer-group-id: 'consumer-group-1'
+    topics:
+      scrapper-topic:
+        enabled: true
+        name: 'topic1'
+        partitions-count: 1
+        replicas-count: 2
 
 spring:
   application:
@@ -8,6 +17,20 @@ spring:
     time-zone: UTC
   liquibase:
     enabled: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+      enable-auto-commit: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 server:
   port: 8090

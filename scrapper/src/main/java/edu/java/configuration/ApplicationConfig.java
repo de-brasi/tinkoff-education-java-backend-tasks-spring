@@ -14,9 +14,18 @@ public record ApplicationConfig(
     Scheduler scheduler,
 
     @NotNull
-    AccessType databaseAccessType
+    AccessType databaseAccessType,
+
+    @NotNull
+    @Bean("kafkaTopic")
+    ScrapperTopic topic,
+
+    boolean useQueue
 ) {
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
+    }
+
+    public record ScrapperTopic(String name, int partitionsCount, int replicasCount) {
     }
 
     public enum AccessType {

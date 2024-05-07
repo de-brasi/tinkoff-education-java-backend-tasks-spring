@@ -4,8 +4,17 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import edu.java.LinkUpdaterScheduler;
+import edu.java.api.LinkController;
+import edu.java.configuration.KafkaConfig;
 import edu.java.domain.repositories.jdbc.JdbcLinkRepository;
 import edu.java.scrapper.IntegrationTest;
+import edu.java.services.interfaces.LinkUpdater;
+import edu.java.services.jpa.JpaLinkService;
+import edu.java.services.jpa.JpaLinkUpdater;
+import edu.java.services.jpa.JpaTgChatService;
+import edu.java.updateproducing.ScrapperHttpProducer;
+import edu.java.updateproducing.ScrapperQueueProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -13,8 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +38,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(properties = {
+    "app.database-access-type=jdbc",
+    "third-party-web-clients.github-properties.timeout-in-milliseconds=1000",
+    "third-party-web-clients.stackoverflow-properties.timeout-in-milliseconds=1000",
+    "app.use-queue=false",
+    "app.topic.name='some'",
+    "app.topic.partitions-count=1",
+    "app.topic.replicas-count=2",
+    "app.scheduler.enable=false",
+    "app.scheduler.force-check-delay=1000",
+    "app.scheduler.interval=1000"
+})
 @WireMockTest
 public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Autowired
@@ -34,6 +57,12 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
 
     @Autowired
     private JdbcLinkRepository linkRepository;
+
+    @MockBean
+    KafkaConfig kafkaConfig;
+
+    @MockBean
+    JpaLinkUpdater jpaLinkUpdater;
 
     @RegisterExtension
     static WireMockExtension wireMockExtension = WireMockExtension

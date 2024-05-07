@@ -1,12 +1,13 @@
 package edu.java.services.jdbc;
 
-import edu.java.clients.BotClient;
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
 import edu.java.domain.repositories.jdbc.JdbcLinkRepository;
 import edu.java.services.ExternalServicesObserver;
 import edu.java.services.interfaces.LinkUpdater;
+import edu.java.updateproducing.ScrapperUpdateProducer;
 import java.net.MalformedURLException;
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -28,9 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings("MultipleStringLiterals")
 public class JdbcLinkUpdater implements LinkUpdater {
     private final JdbcTemplate jdbcTemplate;
-    private final BotClient botClient;
     private final JdbcLinkRepository linkRepository;
     private final ExternalServicesObserver servicesObserver;
+    private final ScrapperUpdateProducer scrapperUpdateProducer;
 
     @Override
     public int update(Duration updateInterval) {
@@ -143,7 +144,9 @@ public class JdbcLinkUpdater implements LinkUpdater {
                     .map(TelegramChat::id)
                     .toList();
 
-            botClient.sendUpdates(link.id(), linkUrl, changesDescription, subscribersId);
+            LinkUpdateRequest updateRequest =
+                new LinkUpdateRequest(link.id(), linkUrl, changesDescription, subscribersId);
+            scrapperUpdateProducer.send(updateRequest);
 
             int updatedCheckTimeRowsCount = linkRepository.updateLastCheckTime(linkUrl, Timestamp.from(Instant.now()));
             int updatedUpdateTimeRowsCount =
@@ -174,6 +177,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
         );
     }
 
+    // todo: вынести как метод link-updater'а
     @Transactional
     public void actualizeSnapshot(String url, String snapshot) {
         int affectedRows = jdbcTemplate.update(
@@ -190,4 +194,5 @@ public class JdbcLinkUpdater implements LinkUpdater {
             );
         }
     }
+
 }

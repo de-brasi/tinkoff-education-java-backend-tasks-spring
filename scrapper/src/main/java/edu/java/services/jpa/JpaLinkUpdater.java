@@ -1,6 +1,6 @@
 package edu.java.services.jpa;
 
-import edu.java.clients.BotClient;
+import edu.common.datatypes.dtos.LinkUpdateRequest;
 import edu.java.domain.entities.Link;
 import edu.java.domain.entities.TelegramChat;
 import edu.java.domain.exceptions.UnexpectedDataBaseStateException;
@@ -8,6 +8,7 @@ import edu.java.domain.repositories.jpa.entities.TrackInfo;
 import edu.java.domain.repositories.jpa.implementations.JpaLinkRepository;
 import edu.java.services.ExternalServicesObserver;
 import edu.java.services.interfaces.LinkUpdater;
+import edu.java.updateproducing.ScrapperUpdateProducer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.net.MalformedURLException;
@@ -18,31 +19,22 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class JpaLinkUpdater implements LinkUpdater {
-
-    public JpaLinkUpdater(
-        @Autowired JpaLinkRepository linkRepository,
-        @Autowired ExternalServicesObserver externalServicesObserver,
-        @Autowired BotClient botClient
-    ) {
-        this.linkRepository = linkRepository;
-        this.servicesObserver = externalServicesObserver;
-        this.botClient = botClient;
-    }
 
     @PersistenceContext
     private EntityManager entityManager;
 
     private final JpaLinkRepository linkRepository;
     private final ExternalServicesObserver servicesObserver;
-    private final BotClient botClient;
+    private final ScrapperUpdateProducer scrapperUpdateProducer;
 
     @Override
     @Transactional
@@ -129,13 +121,11 @@ public class JpaLinkUpdater implements LinkUpdater {
                     .map(TelegramChat::id)
                     .toList();
 
-            // todo: использовать id ссылки, пока заглушка
-            botClient.sendUpdates(
-                -1,
-                link.uri().toURL().toString(),
-                changesDescription,
-                subscribers
+            LinkUpdateRequest linkUpdate = new LinkUpdateRequest(
+                link.id(), link.uri().toURL().toString(),
+                changesDescription, subscribers
             );
+            scrapperUpdateProducer.send(linkUpdate);
 
             edu.java.domain.repositories.jpa.entities.Link updatedLink =
                 linkRepository.getLinkByUrl(currentLinkUrl).orElseThrow();

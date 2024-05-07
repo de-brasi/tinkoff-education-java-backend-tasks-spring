@@ -1,5 +1,7 @@
 package edu.java.scrapper.domaintest.jpa;
 
+import edu.java.LinkUpdaterScheduler;
+import edu.java.configuration.KafkaConfig;
 import edu.java.domain.entities.Link;
 import edu.java.domain.repositories.jpa.entities.SupportedService;
 import edu.java.domain.repositories.jpa.implementations.JpaLinkRepository;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -26,14 +29,31 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@TestPropertySource(properties = {
+    "app.database-access-type=jpa",
+    "third-party-web-clients.github-properties.timeout-in-milliseconds=1000",
+    "third-party-web-clients.stackoverflow-properties.timeout-in-milliseconds=1000",
+    "app.use-queue=false",
+    "app.topic.name='some'",
+    "app.topic.partitions-count=1",
+    "app.topic.replicas-count=2",
+    "app.scheduler.enable=false",
+    "app.scheduler.force-check-delay=1000",
+    "app.scheduler.interval=1000"
+})
 public class JpaLinkRepositoryTest extends IntegrationTest {
     @Autowired JpaLinkRepository linkRepository;
+
+    @MockBean
+    LinkUpdaterScheduler linkUpdaterScheduler;
 
     @MockBean
     ExternalServicesObserver externalServicesObserver;
 
     @MockBean
     JpaLinkUpdater jpaLinkUpdater;
+
+    @MockBean KafkaConfig kafkaConfig;
 
     @PersistenceContext
     private EntityManager entityManager;

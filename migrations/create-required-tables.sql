@@ -1,14 +1,14 @@
 --liquibase formatted sql
 
 --changeset ilya:init-table-supported-services
-create table supported_services
+create table if not exists supported_services
 (
     id  bigint generated always as identity primary key,
     name text not null
 );
 
 --changeset ilya:init-table-links
-create table links
+create table if not exists links
 (
     id  bigint generated always as identity primary key,
     url text not null,
@@ -21,7 +21,7 @@ create table links
 );
 
 --changeset ilya:init-table-telegram-chat
-create table telegram_chat
+create table if not exists telegram_chat
 (
     id      bigint generated always as identity primary key,
     chat_id bigint not null,
@@ -29,7 +29,7 @@ create table telegram_chat
 );
 
 --changeset ilya:init-relation-table-track-info
-create table track_info
+create table if not exists track_info
 (
     id               bigint generated always as identity primary key,
     telegram_chat_id bigint not null,

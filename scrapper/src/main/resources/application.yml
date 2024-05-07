@@ -1,9 +1,14 @@
 app:
+  topic:
+    name: "topic1"
+    partitions-count: 1
+    replicas-count: 2
   scheduler:
     enable: true
     interval: 10s
     force-check-delay: 10s
-  database-access-type: jpa
+  database-access-type: jdbc
+  use-queue: true
 
 third-party-web-clients:
   github-properties:
@@ -31,6 +36,11 @@ spring:
           driver_class: org.postgresql.Driver
         hbm2ddl:
           auto: validate
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 server:
   port: 8080

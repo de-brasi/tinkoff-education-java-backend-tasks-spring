@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import edu.java.configuration.KafkaConfig;
 import edu.java.domain.repositories.jdbc.JdbcChatLinkBoundRepository;
 import edu.java.domain.repositories.jdbc.JdbcLinkRepository;
 import edu.java.domain.repositories.jdbc.JdbcTelegramChatRepository;
@@ -24,6 +25,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
@@ -33,6 +35,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @WireMockTest
+@TestPropertySource(properties = {
+    "app.database-access-type=jdbc",
+    "third-party-web-clients.github-properties.timeout-in-milliseconds=1000",
+    "third-party-web-clients.stackoverflow-properties.timeout-in-milliseconds=1000",
+    "app.use-queue=false",
+    "app.topic.name='some'",
+    "app.topic.partitions-count=1",
+    "app.topic.replicas-count=2",
+    "app.scheduler.enable=false",
+    "app.scheduler.force-check-delay=1000",
+    "app.scheduler.interval=1000"
+})
 public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -48,6 +62,9 @@ public class JdbcChatLinkBoundRepositoryTest extends IntegrationTest {
 
     @MockBean
     JdbcLinkUpdater linkUpdater;
+
+    @MockBean
+    KafkaConfig kafkaConfig;
 
     private static final String TEST_LINK = "https://stackoverflow.com/questions/100500";
 

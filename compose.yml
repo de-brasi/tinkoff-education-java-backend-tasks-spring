@@ -82,6 +82,27 @@ services:
     volumes:
       - grafana_storage:/var/lib/grafana
 
+  bot:
+    image: bot-service-image
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+    depends_on:
+      - kafka1
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+    network_mode: "host"
+
+  scrapper:
+    image: scrapper-service-image
+    depends_on:
+      - kafka1
+      - liquibase-migrations
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    network_mode: "host"
+
 volumes:
   postgresql: { }
   kafka-data: { }

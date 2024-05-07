@@ -11,21 +11,28 @@ import edu.java.bot.core.commands.TelegramBotCommand;
 import edu.java.bot.core.customexceptions.InvalidHandlersChainException;
 import edu.java.bot.core.entities.CommandCallContext;
 import edu.java.bot.core.mappers.FromPengradTelegramBotModelsToEntitiesMapper;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 @Slf4j
-@RequiredArgsConstructor
 public class LinkTrackerObserver implements UpdatesListener {
 
     private final TelegramBotWrapper bot;
 
     @Nullable private TelegramBotCommand handlersChainHead;
     @Nullable private TelegramBotCommand handlersChainTail;
+    private final Counter counter;
+
+    public LinkTrackerObserver(TelegramBotWrapper bot, MeterRegistry registry) {
+        this.bot = bot;
+        counter = Counter.builder("handled_messages").description("Count of messages handled by Telegram bot")
+            .register(registry);
+    }
 
     public void setCommands(
         TelegramBotCommand terminationCommand,
@@ -62,6 +69,8 @@ public class LinkTrackerObserver implements UpdatesListener {
             CommandCallContext callContext =
                 FromPengradTelegramBotModelsToEntitiesMapper.updateToCommandCallContext(update);
             this.handlersChainHead.handle(bot, callContext);
+
+            counter.increment();
         }
 
         return UpdatesListener.CONFIRMED_UPDATES_ALL;

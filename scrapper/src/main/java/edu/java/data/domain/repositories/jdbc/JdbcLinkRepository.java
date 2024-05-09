@@ -2,8 +2,8 @@ package edu.java.data.domain.repositories.jdbc;
 
 import edu.java.data.domain.entities.Link;
 import edu.java.data.domain.exceptions.DataBaseInteractingException;
-import edu.java.data.domain.repositories.BaseEntityRepository;
 import edu.java.data.domain.exceptions.InvalidArgumentForTypeInDataBase;
+import edu.java.data.domain.repositories.BaseEntityRepository;
 import edu.java.data.services.ExternalServicesObserver;
 import java.sql.Timestamp;
 import java.time.Duration;

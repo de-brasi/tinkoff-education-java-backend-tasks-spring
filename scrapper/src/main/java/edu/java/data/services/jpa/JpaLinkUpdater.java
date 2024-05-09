@@ -1,13 +1,13 @@
 package edu.java.data.services.jpa;
 
 import edu.common.datatypes.dtos.LinkUpdateRequest;
-import edu.java.data.domain.repositories.jpa.entities.Link;
 import edu.java.data.domain.entities.TelegramChat;
 import edu.java.data.domain.exceptions.UnexpectedDataBaseStateException;
+import edu.java.data.domain.repositories.jpa.entities.Link;
 import edu.java.data.domain.repositories.jpa.entities.TrackInfo;
 import edu.java.data.domain.repositories.jpa.implementations.JpaLinkRepository;
-import edu.java.data.services.interfaces.LinkUpdater;
 import edu.java.data.services.ExternalServicesObserver;
+import edu.java.data.services.interfaces.LinkUpdater;
 import edu.java.updateproducing.ScrapperUpdateProducer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -138,7 +138,8 @@ public class JpaLinkUpdater implements LinkUpdater {
         return resourceUpdated;
     }
 
-    public boolean checkLastUpdateTimeChanged(edu.java.data.domain.entities.Link target, OffsetDateTime actualTime) throws MalformedURLException {
+    public boolean checkLastUpdateTimeChanged(edu.java.data.domain.entities.Link target, OffsetDateTime actualTime)
+        throws MalformedURLException {
         /*
         Return:
         - true: time updated
@@ -157,7 +158,8 @@ public class JpaLinkUpdater implements LinkUpdater {
         return storedLastUpdateTime.isBefore(actualTime);
     }
 
-    private Collection<TelegramChat> getSubscribers(edu.java.data.domain.entities.Link link) throws MalformedURLException {
+    private Collection<TelegramChat> getSubscribers(edu.java.data.domain.entities.Link link)
+        throws MalformedURLException {
         return entityManager.createQuery(
                 "SELECT trackInfo FROM TrackInfo trackInfo WHERE trackInfo.link.url = :url",
                 TrackInfo.class

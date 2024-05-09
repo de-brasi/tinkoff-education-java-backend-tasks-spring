@@ -1,6 +1,6 @@
 package edu.java.scrapper.domaintest.jpa;
 
-import edu.java.LinkUpdaterScheduler;
+import edu.java.data.services.LinkUpdaterScheduler;
 import edu.java.configuration.KafkaConfig;
 import edu.java.data.domain.entities.Link;
 import edu.java.data.domain.repositories.jpa.entities.SupportedService;

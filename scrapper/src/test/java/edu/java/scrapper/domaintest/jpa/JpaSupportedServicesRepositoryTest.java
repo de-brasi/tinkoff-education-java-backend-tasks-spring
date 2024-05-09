@@ -1,7 +1,7 @@
 package edu.java.scrapper.domaintest.jpa;
 
 import edu.java.configuration.KafkaConfig;
-import edu.java.domain.repositories.jpa.implementations.JpaSupportedServicesRepository;
+import edu.java.data.domain.repositories.jpa.implementations.JpaSupportedServicesRepository;
 import edu.java.scrapper.IntegrationTest;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

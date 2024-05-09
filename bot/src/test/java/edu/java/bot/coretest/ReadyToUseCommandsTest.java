@@ -1,12 +1,14 @@
 package edu.java.bot.coretest;
 
-import edu.java.bot.core.commands.ReadyToUseCommands;
+import edu.java.bot.api.UpdateController;
+import edu.java.bot.api.util.UpdateHandler;
+import edu.java.bot.client.ScrapperClient;
+import edu.java.bot.configuration.KafkaConfig;
 import edu.java.bot.core.commands.TelegramBotCommand;
 import edu.java.bot.core.entities.Command;
 import edu.java.bot.core.entities.CommandCallContext;
 import edu.java.bot.core.entities.User;
-import edu.java.bot.repository.implementations.UserRepositoryMockImpl;
-import edu.java.bot.repository.interfaces.UsersRepository;
+import edu.java.bot.services.TelegramBotService;
 import edu.java.bot.services.TelegramBotWrapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -14,15 +16,58 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.List;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 public class ReadyToUseCommandsTest {
-    @Mock TelegramBotWrapper telegramBot;
+    @MockBean
+    TelegramBotWrapper telegramBot;
 
-    private final UsersRepository mockRepo = new UserRepositoryMockImpl();
+    @MockBean
+    ScrapperClient scrapperClient;
+
+    @MockBean
+    UpdateController updateController;
+
+    @MockBean
+    UpdateHandler updateHandler;
+
+    @MockBean
+    TelegramBotService telegramBotService;
+
+    @MockBean
+    KafkaConfig kafkaConfig;
+
+    @Autowired
+    @Qualifier("commandStart")
+    TelegramBotCommand commandStart;
+
+    @Autowired
+    @Qualifier("commandHelp")
+    TelegramBotCommand commandHelp;
+
+    @Autowired
+    @Qualifier("commandTrack")
+    TelegramBotCommand commandTrack;
+
+    @Autowired
+    @Qualifier("commandUntrack")
+    TelegramBotCommand commandUntrack;
+
+    @Autowired
+    @Qualifier("commandList")
+    TelegramBotCommand commandList;
+
+    @Autowired
+    @Qualifier("unexpectedCommand")
+    TelegramBotCommand unexpectedCommand;
 
     private final TelegramBotCommand voidTerminationCommand =
         new TelegramBotCommand()
@@ -34,7 +79,7 @@ public class ReadyToUseCommandsTest {
     @DisplayName("Test calling command 'track' with one valid argument")
     public void test1() {
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.track(mockRepo);
+        TelegramBotCommand testedCommand = commandTrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -58,7 +103,7 @@ public class ReadyToUseCommandsTest {
     @DisplayName("Test calling command 'track' with more than one valid argument")
     public void test2() {
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.track(mockRepo);
+        TelegramBotCommand testedCommand = commandTrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -85,7 +130,7 @@ public class ReadyToUseCommandsTest {
     @DisplayName("Test calling command 'track' without any argument")
     public void test3() {
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.track(mockRepo);
+        TelegramBotCommand testedCommand = commandTrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -109,7 +154,7 @@ public class ReadyToUseCommandsTest {
     @DisplayName("Test calling command 'track' with one invalid argument")
     public void test4() {
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.track(mockRepo);
+        TelegramBotCommand testedCommand = commandTrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -133,7 +178,7 @@ public class ReadyToUseCommandsTest {
     @DisplayName("Test calling command 'track' with more than one invalid argument")
     public void test5() {
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.track(mockRepo);
+        TelegramBotCommand testedCommand = commandTrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -168,7 +213,7 @@ public class ReadyToUseCommandsTest {
         */
 
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.track(mockRepo);
+        TelegramBotCommand testedCommand = commandTrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -198,7 +243,7 @@ public class ReadyToUseCommandsTest {
     @DisplayName("Test calling command 'untrack' with one valid argument")
     public void test7() {
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.untrack(mockRepo);
+        TelegramBotCommand testedCommand = commandUntrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -222,7 +267,7 @@ public class ReadyToUseCommandsTest {
     @DisplayName("Test calling command 'untrack' with more than one valid argument")
     public void test8() {
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.untrack(mockRepo);
+        TelegramBotCommand testedCommand = commandUntrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -249,7 +294,7 @@ public class ReadyToUseCommandsTest {
     @DisplayName("Test calling command 'untrack' without any argument")
     public void test9() {
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.untrack(mockRepo);
+        TelegramBotCommand testedCommand = commandUntrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -273,7 +318,7 @@ public class ReadyToUseCommandsTest {
     @DisplayName("Test calling command 'untrack' with one invalid argument")
     public void test10() {
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.untrack(mockRepo);
+        TelegramBotCommand testedCommand = commandUntrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -297,7 +342,7 @@ public class ReadyToUseCommandsTest {
     @DisplayName("Test calling command 'untrack' with more than one invalid argument")
     public void test11() {
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.untrack(mockRepo);
+        TelegramBotCommand testedCommand = commandUntrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context
@@ -332,7 +377,7 @@ public class ReadyToUseCommandsTest {
         */
 
         // setup handlers chain
-        TelegramBotCommand testedCommand = ReadyToUseCommands.untrack(mockRepo);
+        TelegramBotCommand testedCommand = commandUntrack;
         testedCommand.setNextCommand(voidTerminationCommand);
 
         // make context

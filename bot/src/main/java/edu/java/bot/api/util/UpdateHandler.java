@@ -17,7 +17,7 @@ public class UpdateHandler {
 
     public void handleUpdate(LinkUpdateRequest updateRequest) {
 
-        final String messageToClient = "Update in link %s with description: '%s'"
+        final String messageToClient = "Update in link %s.\nDescription: '%s'"
             .formatted(updateRequest.getUrl(), updateRequest.getDescription());
 
         for (Long chatId : updateRequest.getTgChatIds()) {
@@ -42,5 +42,6 @@ public class UpdateHandler {
                 );
             }
         }
+
     }
 }

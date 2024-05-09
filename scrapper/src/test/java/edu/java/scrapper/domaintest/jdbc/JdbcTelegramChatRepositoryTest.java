@@ -1,9 +1,9 @@
 package edu.java.scrapper.domaintest.jdbc;
 
 import edu.java.configuration.KafkaConfig;
-import edu.java.domain.repositories.jdbc.JdbcTelegramChatRepository;
+import edu.java.data.domain.repositories.jdbc.JdbcTelegramChatRepository;
 import edu.java.scrapper.IntegrationTest;
-import edu.java.services.jpa.JpaLinkUpdater;
+import edu.java.data.services.jpa.JpaLinkUpdater;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

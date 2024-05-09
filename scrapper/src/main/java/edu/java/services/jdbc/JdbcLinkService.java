@@ -16,10 +16,8 @@ import java.net.URI;
 import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 @RequiredArgsConstructor
 @SuppressWarnings("MultipleStringLiterals")
 public class JdbcLinkService implements LinkService {

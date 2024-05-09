@@ -14,13 +14,11 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Repository for working with entities from database representing bound between chat and tracked link.
  */
-@Repository
 @RequiredArgsConstructor
 @Slf4j
 @SuppressWarnings("MultipleStringLiterals")
@@ -28,7 +26,6 @@ public class JdbcChatLinkBoundRepository implements BaseEntityRepository<ChatLin
 
     private final JdbcTemplate jdbcTemplate;
     private final JdbcLinkRepository linkRepository;
-    private final JdbcTelegramChatRepository telegramChatRepository;
     private final RowMapper<ChatLinkBound> chatLinkBoundRowMapper;
     private final RowMapper<Link> linkRowMapper;
 

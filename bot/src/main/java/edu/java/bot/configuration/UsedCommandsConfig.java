@@ -56,15 +56,15 @@ public class UsedCommandsConfig {
             .withCommandTextDescription("get list of commands")
             .withCallAction((usedBot, context) -> {
 
-                final String descriptionMessage = """
+                usedBot.sendMarkdownV2Message(context.getChatId(), """
                     All available commands:
-                    • start - used for registration (called automatically when starting using bot);
-                    • help - explain all commands, already called;
-                    • track (interested links) - use this command to ask bot notify you if content of links in argument was changed
-                    • untrack (already not interested links) - deny to notify if content was changed
-                    • list - show all interested links
-                    """;
-                usedBot.sendPlainTextMessage(context.getChatId(), descriptionMessage);
+                    • *start* \\- used for registration \\(called automatically when starting using bot\\);
+                    • *help* \\- explain all commands, already called;
+                    • *track* \\(interested links\\) \\- use this command to ask bot notify you if content of links in argument was changed
+                    • *untrack* \\(already not interested links\\) \\- deny to notify if content was changed
+                    • *list* \\- show all interested links
+                    """);
+
                 log.info("Command 'help' was called by user with telegram chat id: " + context.getChatId());
 
             });

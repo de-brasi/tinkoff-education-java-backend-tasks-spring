@@ -1,6 +1,6 @@
 package edu.java;
 
-import edu.java.services.interfaces.LinkUpdater;
+import edu.java.data.services.interfaces.LinkUpdater;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.stream.Collectors;

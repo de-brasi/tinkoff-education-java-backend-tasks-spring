@@ -2,12 +2,12 @@ package edu.java.scrapper.domaintest.jpa;
 
 import edu.java.LinkUpdaterScheduler;
 import edu.java.configuration.KafkaConfig;
-import edu.java.domain.entities.Link;
-import edu.java.domain.repositories.jpa.entities.SupportedService;
-import edu.java.domain.repositories.jpa.implementations.JpaLinkRepository;
+import edu.java.data.domain.entities.Link;
+import edu.java.data.domain.repositories.jpa.entities.SupportedService;
+import edu.java.data.domain.repositories.jpa.implementations.JpaLinkRepository;
 import edu.java.scrapper.IntegrationTest;
-import edu.java.services.ExternalServicesObserver;
-import edu.java.services.jpa.JpaLinkUpdater;
+import edu.java.data.services.ExternalServicesObserver;
+import edu.java.data.services.jpa.JpaLinkUpdater;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;

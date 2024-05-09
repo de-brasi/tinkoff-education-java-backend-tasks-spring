@@ -1,7 +1,7 @@
 package edu.java.api;
 
 import edu.common.datatypes.dtos.ApiErrorResponse;
-import edu.java.services.interfaces.TgChatService;
+import edu.java.data.services.interfaces.TgChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

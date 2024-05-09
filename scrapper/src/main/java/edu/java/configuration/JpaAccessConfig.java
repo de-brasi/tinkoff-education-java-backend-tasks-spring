@@ -1,16 +1,16 @@
 package edu.java.configuration;
 
-import edu.java.domain.repositories.jpa.implementations.JpaLinkRepository;
-import edu.java.domain.repositories.jpa.implementations.JpaSupportedServicesRepository;
-import edu.java.domain.repositories.jpa.implementations.JpaTelegramChatRepository;
-import edu.java.domain.repositories.jpa.implementations.JpaTrackInfoRepository;
-import edu.java.services.ExternalServicesObserver;
-import edu.java.services.interfaces.LinkService;
-import edu.java.services.interfaces.LinkUpdater;
-import edu.java.services.interfaces.TgChatService;
-import edu.java.services.jpa.JpaLinkService;
-import edu.java.services.jpa.JpaLinkUpdater;
-import edu.java.services.jpa.JpaTgChatService;
+import edu.java.data.domain.repositories.jpa.implementations.JpaLinkRepository;
+import edu.java.data.domain.repositories.jpa.implementations.JpaSupportedServicesRepository;
+import edu.java.data.domain.repositories.jpa.implementations.JpaTelegramChatRepository;
+import edu.java.data.domain.repositories.jpa.implementations.JpaTrackInfoRepository;
+import edu.java.data.services.ExternalServicesObserver;
+import edu.java.data.services.interfaces.LinkService;
+import edu.java.data.services.interfaces.LinkUpdater;
+import edu.java.data.services.interfaces.TgChatService;
+import edu.java.data.services.jpa.JpaLinkService;
+import edu.java.data.services.jpa.JpaLinkUpdater;
+import edu.java.data.services.jpa.JpaTgChatService;
 import edu.java.updateproducing.ScrapperUpdateProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

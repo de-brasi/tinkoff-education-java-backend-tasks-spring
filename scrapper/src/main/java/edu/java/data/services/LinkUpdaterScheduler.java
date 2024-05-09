@@ -1,4 +1,4 @@
-package edu.java;
+package edu.java.data.services;
 
 import edu.java.data.services.interfaces.LinkUpdater;
 import java.time.Duration;

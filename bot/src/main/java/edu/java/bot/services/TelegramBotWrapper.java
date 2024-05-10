@@ -23,7 +23,17 @@ public class TelegramBotWrapper extends TelegramBot {
         BaseResponse response = this.execute(request);
 
         if (!response.isOk()) {
-            log.info("Failure when try to send message {} to chat {}", message, chatId);
+            log.warn(
+                """
+                    Failure when try to send plain texst message {} to chat {}.
+                    Error code: {}
+                    Description: {}
+                    """,
+                message,
+                chatId,
+                response.errorCode(),
+                response.description()
+            );
         }
     }
 
@@ -35,7 +45,7 @@ public class TelegramBotWrapper extends TelegramBot {
         BaseResponse response = this.execute(request);
 
         if (!response.isOk()) {
-            log.info(
+            log.warn(
                 """
                     Failure when try to send MarkdownV2 message {} to chat {}.
                     Error code: {}
